@@ -161,7 +161,7 @@ function Matcher() {
             {results.map((a, i) => (
               <Link
                 key={a.id}
-                href="/kohteet/kalliolinna"
+                href={`/kohteet/kalliolinna?asunto=${a.id}`}
                 className="flex items-center gap-4 rounded-2xl border border-[#dce6ef] bg-white p-3 transition hover:border-[#8eb5e3]"
               >
                 <img
@@ -378,7 +378,7 @@ export function HomeExperience() {
                   Tuusula · yhteinen arki
                 </span>
                 <Link
-                  href="/kohteet/kalliolinna"
+                  href={`/kohteet/kalliolinna?asunto=${apartments[0].id}`}
                   className="grid h-10 w-10 place-items-center rounded-full bg-[#102d4d] text-white shadow-lg"
                   aria-label="Avaa Kalliolinna"
                 >
@@ -484,7 +484,7 @@ export function HomeExperience() {
           {apartments.slice(0, 3).map((a) => (
             <Link
               key={a.id}
-              href="/kohteet/kalliolinna"
+              href={`/kohteet/kalliolinna?asunto=${a.id}`}
               className="group overflow-hidden rounded-[28px] bg-white shadow-[0_15px_50px_rgba(20,52,84,.08)]"
             >
               <div className="relative h-56 overflow-hidden">

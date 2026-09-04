@@ -116,7 +116,7 @@ function Card({
             {text({ fi: "Vertaa", en: "Compare", sv: "Jämför" })}
           </button>
           <Link
-            href="/kohteet/kalliolinna"
+            href={`/kohteet/kalliolinna?asunto=${a.id}`}
             className="flex items-center gap-2 text-sm font-black text-[#0a55df]"
           >
             {text({ fi: "Tutustu", en: "Explore", sv: "Utforska" })} <ArrowRight size={16} />
@@ -173,6 +173,9 @@ export function ApartmentSearch() {
   const [area, setArea] = useState("all");
   const [rooms, setRooms] = useState("all");
   const [maxRent, setMaxRent] = useState("1200");
+  const [minSize, setMinSize] = useState("all");
+  const [type, setType] = useState("all");
+  const [sort, setSort] = useState("recommended");
   const [checked, setChecked] = useState<string[]>([]);
   const [view, setView] = useState<"grid" | "list" | "map">("grid");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -187,15 +190,24 @@ export function ApartmentSearch() {
     [],
   );
   const filtered = useMemo(
-    () =>
-      apartments.filter(
+    () => {
+      const list = apartments.filter(
         (a) =>
           (area === "all" || a.area === area) &&
           (rooms === "all" || a.rooms === Number(rooms)) &&
+          (minSize === "all" || a.size >= Number(minSize)) &&
+          (type === "all" || a.type === type) &&
           a.rent <= Number(maxRent) &&
           checked.every((k) => Boolean(a[k as keyof Apartment])),
-      ),
-    [area, rooms, maxRent, checked],
+      );
+      return [...list].sort((a, b) => {
+        if (sort === "rentAsc") return a.rent - b.rent;
+        if (sort === "sizeDesc") return b.size - a.size;
+        if (sort === "availability") return a.available.localeCompare(b.available, "fi");
+        return apartments.indexOf(a) - apartments.indexOf(b);
+      });
+    },
+    [area, rooms, maxRent, minSize, type, sort, checked],
   );
   function fav(id: string) {
     const next = favorites.includes(id)
@@ -263,6 +275,21 @@ export function ApartmentSearch() {
           ))}
         </NativeSelect>
       </label>
+      <label className="grid gap-2 text-sm font-bold">
+        {text({ fi: "Pinta-ala vähintään", en: "Minimum size", sv: "Minsta yta" })}
+        <NativeSelect value={minSize} onChange={(e) => setMinSize(e.target.value)} className="h-12 w-full rounded-xl bg-white">
+          <NativeSelectOption value="all">{text({ fi: "Kaikki koot", en: "Any size", sv: "Alla storlekar" })}</NativeSelectOption>
+          {[40, 55, 70].map((n) => <NativeSelectOption key={n} value={n}>{n}+ m²</NativeSelectOption>)}
+        </NativeSelect>
+      </label>
+      <label className="grid gap-2 text-sm font-bold">
+        {text({ fi: "Talotyyppi", en: "Building type", sv: "Bostadstyp" })}
+        <NativeSelect value={type} onChange={(e) => setType(e.target.value)} className="h-12 w-full rounded-xl bg-white">
+          <NativeSelectOption value="all">{text({ fi: "Kaikki talotyypit", en: "All building types", sv: "Alla bostadstyper" })}</NativeSelectOption>
+          <NativeSelectOption value="Kerrostalo">{text({ fi: "Kerrostalo", en: "Apartment building", sv: "Flervåningshus" })}</NativeSelectOption>
+          <NativeSelectOption value="Rivitalo">{text({ fi: "Rivitalo", en: "Terraced house", sv: "Radhus" })}</NativeSelectOption>
+        </NativeSelect>
+      </label>
       <div className="grid gap-2">
         <span className="text-sm font-bold">{text({ fi: "Ominaisuudet", en: "Features", sv: "Egenskaper" })}</span>
         <div className="flex h-12 items-center gap-4 overflow-x-auto rounded-xl border border-[#cdd8e3] bg-white px-4">
@@ -314,11 +341,13 @@ export function ApartmentSearch() {
             {filtered.length} {text({ fi: "kotia vastaa valintojasi", en: "homes match your choices", sv: "bostäder matchar dina val" })}
           </p>
         </div>
-        <div
-          className="flex rounded-full bg-white p-1 shadow-sm"
-          role="group"
-          aria-label={text({ fi: "Näkymä", en: "View", sv: "Vy" })}
-        >
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <label className="flex min-h-11 items-center gap-2 rounded-full border border-[#d7e1e8] bg-white px-4 text-sm font-bold shadow-sm"><span aria-hidden="true" className="text-[#6c8092]">{text({ fi: "Järjestä", en: "Sort", sv: "Sortera" })}</span><NativeSelect aria-label={text({ fi: "Järjestä", en: "Sort", sv: "Sortera" })} value={sort} onChange={(e) => setSort(e.target.value)} className="h-9 border-0 bg-transparent py-0 pl-0 pr-7 font-black"><NativeSelectOption value="recommended">{text({ fi: "Suositellut", en: "Recommended", sv: "Rekommenderade" })}</NativeSelectOption><NativeSelectOption value="rentAsc">{text({ fi: "Edullisin ensin", en: "Lowest rent", sv: "Lägst hyra" })}</NativeSelectOption><NativeSelectOption value="sizeDesc">{text({ fi: "Suurin ensin", en: "Largest first", sv: "Störst först" })}</NativeSelectOption><NativeSelectOption value="availability">{text({ fi: "Saatavuus", en: "Availability", sv: "Tillgänglighet" })}</NativeSelectOption></NativeSelect></label>
+          <div
+            className="flex rounded-full bg-white p-1 shadow-sm"
+            role="group"
+            aria-label={text({ fi: "Näkymä", en: "View", sv: "Vy" })}
+          >
           {(
             [
               { k: "grid", i: MapPin, l: text({ fi: "Ruudukko", en: "Grid", sv: "Rutnät" }) },
@@ -335,6 +364,7 @@ export function ApartmentSearch() {
               <I size={18} />
             </button>
           ))}
+          </div>
         </div>
       </div>
       <button

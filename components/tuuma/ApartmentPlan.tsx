@@ -50,6 +50,70 @@ const plans: Plan[] = [
       { id: "hall", label: "Eteinen", area: "4,2 m²", x: 348, y: 220, width: 94, height: 56, fill: "#f3f0e9" },
     ],
   },
+  {
+    id: "B24",
+    title: "3H + KT",
+    meta: "68 m² · 4. kerros",
+    rooms: [
+      { id: "living", label: "Olohuone", area: "24,5 m²", x: 26, y: 32, width: 218, height: 130, fill: "#d9eafa", note: "Itä" },
+      { id: "kitchen", label: "Keittiö", area: "10,1 m²", x: 26, y: 162, width: 108, height: 114, fill: "#f6e6be", note: "Ruokailu" },
+      { id: "bedroom", label: "Makuuhuone", area: "14,7 m²", x: 244, y: 32, width: 198, height: 104, fill: "#dcefe7", note: "120 cm sänky" },
+      { id: "room2", label: "Työhuone", area: "9,5 m²", x: 244, y: 136, width: 104, height: 140, fill: "#f0e6d8", note: "Työtila" },
+      { id: "bathroom", label: "Kylpyhuone", area: "5,2 m²", x: 348, y: 136, width: 94, height: 84, fill: "#e8e1f4", note: "Pesutorni" },
+      { id: "hall", label: "Eteinen", area: "4,0 m²", x: 348, y: 220, width: 94, height: 56, fill: "#f3f0e9" },
+    ],
+  },
+  {
+    id: "C07",
+    title: "2H + KT",
+    meta: "44 m² · 1. kerros",
+    rooms: [
+      { id: "living", label: "Olohuone", area: "17,6 m²", x: 26, y: 32, width: 240, height: 142, fill: "#d9eafa", note: "Piha" },
+      { id: "kitchen", label: "Keittiö", area: "7,2 m²", x: 26, y: 174, width: 116, height: 102, fill: "#f6e6be", note: "Avokeittiö" },
+      { id: "bedroom", label: "Makuuhuone", area: "11,4 m²", x: 266, y: 32, width: 176, height: 112, fill: "#dcefe7", note: "140 cm sänky" },
+      { id: "bathroom", label: "Kylpyhuone", area: "4,8 m²", x: 266, y: 144, width: 90, height: 132, fill: "#e8e1f4", note: "Esteetön" },
+      { id: "hall", label: "Eteinen", area: "3,0 m²", x: 356, y: 144, width: 86, height: 132, fill: "#f3f0e9" },
+    ],
+  },
+  {
+    id: "A31",
+    title: "4H + KT",
+    meta: "78 m² · 5. kerros",
+    rooms: [
+      { id: "living", label: "Olohuone", area: "25,8 m²", x: 26, y: 32, width: 220, height: 132, fill: "#d9eafa", note: "Länsi" },
+      { id: "kitchen", label: "Keittiö", area: "11,4 m²", x: 26, y: 164, width: 112, height: 112, fill: "#f6e6be", note: "Ruokailu" },
+      { id: "hall", label: "Eteinen", area: "7,1 m²", x: 138, y: 164, width: 108, height: 112, fill: "#f3f0e9" },
+      { id: "bedroom", label: "Makuuhuone", area: "15,1 m²", x: 246, y: 32, width: 196, height: 112, fill: "#dcefe7", note: "140 cm sänky" },
+      { id: "room2", label: "Työhuone", area: "9,4 m²", x: 246, y: 144, width: 98, height: 132, fill: "#f0e6d8" },
+      { id: "room3", label: "Makuuhuone 2", area: "8,7 m²", x: 344, y: 144, width: 98, height: 72, fill: "#e2eee5" },
+      { id: "bathroom", label: "Kylpyhuone", area: "5,4 m²", x: 344, y: 216, width: 98, height: 60, fill: "#e8e1f4", note: "Sauna" },
+    ],
+  },
+  {
+    id: "D18",
+    title: "1H + KT",
+    meta: "35,5 m² · 2. kerros",
+    rooms: [
+      { id: "living", label: "Olohuone", area: "19,0 m²", x: 26, y: 32, width: 260, height: 156, fill: "#d9eafa", note: "Parveke" },
+      { id: "kitchen", label: "Keittotila", area: "6,1 m²", x: 26, y: 188, width: 120, height: 88, fill: "#f6e6be" },
+      { id: "bathroom", label: "Kylpyhuone", area: "4,4 m²", x: 286, y: 32, width: 80, height: 120, fill: "#e8e1f4" },
+      { id: "hall", label: "Eteinen", area: "3,2 m²", x: 366, y: 32, width: 76, height: 120, fill: "#f3f0e9" },
+      { id: "sauna", label: "Parveke", area: "Lasitettu", x: 286, y: 152, width: 156, height: 124, fill: "#e7edf1", note: "Etelä" },
+    ],
+  },
+  {
+    id: "E05",
+    title: "3H + KT",
+    meta: "72 m² · 1. kerros",
+    rooms: [
+      { id: "living", label: "Olohuone", area: "23,4 m²", x: 26, y: 32, width: 218, height: 132, fill: "#d9eafa", note: "Piha" },
+      { id: "kitchen", label: "Keittiö", area: "10,9 m²", x: 26, y: 164, width: 112, height: 112, fill: "#f6e6be" },
+      { id: "hall", label: "Eteinen", area: "6,2 m²", x: 138, y: 164, width: 106, height: 112, fill: "#f3f0e9" },
+      { id: "bedroom", label: "Makuuhuone", area: "14,6 m²", x: 244, y: 32, width: 198, height: 116, fill: "#dcefe7", note: "140 cm sänky" },
+      { id: "room2", label: "Työhuone", area: "9,3 m²", x: 244, y: 148, width: 100, height: 128, fill: "#f0e6d8" },
+      { id: "bathroom", label: "Kylpyhuone", area: "5,5 m²", x: 344, y: 148, width: 98, height: 128, fill: "#e8e1f4", note: "Sauna" },
+    ],
+  },
 ];
 
 const roomCopy: Record<string, LocalizedText> = {
@@ -58,6 +122,7 @@ const roomCopy: Record<string, LocalizedText> = {
   hall: { fi: "Eteinen", en: "Hallway", sv: "Hall" },
   bedroom: { fi: "Makuuhuone", en: "Bedroom", sv: "Sovrum" },
   room2: { fi: "Työhuone", en: "Study", sv: "Arbetsrum" },
+  room3: { fi: "Makuuhuone 2", en: "Bedroom 2", sv: "Sovrum 2" },
   bathroom: { fi: "Kylpyhuone", en: "Bathroom", sv: "Badrum" },
   sauna: { fi: "Parveke", en: "Balcony", sv: "Balkong" },
 };
@@ -76,7 +141,7 @@ const planCopy: Record<string, LocalizedText> = {
 
 export function ApartmentPlan({ initialApartment = "A12" }: { initialApartment?: string }) {
   const { text } = useLanguage();
-  const [selectedPlanId, setSelectedPlanId] = useState(initialApartment === "A14" ? "A14" : "A12");
+  const [selectedPlanId, setSelectedPlanId] = useState(plans.some((item) => item.id === initialApartment) ? initialApartment : "A12");
   const [activeRoom, setActiveRoom] = useState("living");
   const plan = useMemo(() => plans.find((item) => item.id === selectedPlanId) ?? plans[0], [selectedPlanId]);
   const selected = plan.rooms.find((room) => room.id === activeRoom) ?? plan.rooms[0];
@@ -94,14 +159,14 @@ export function ApartmentPlan({ initialApartment = "A12" }: { initialApartment?:
           <h3 id="plan-title" className="display mt-2 text-3xl text-[#123451] sm:text-4xl">{text(planCopy.title)}</h3>
           <p className="mt-2 text-sm text-[#64798d]">{text(planCopy.intro)}</p>
         </div>
-        <div className="flex gap-2 rounded-2xl bg-[#eef3f5] p-1" role="tablist" aria-label="Valitse asunto">
+        <div className="hide-scrollbar flex max-w-full gap-2 overflow-x-auto rounded-2xl bg-[#eef3f5] p-1" role="tablist" aria-label="Valitse asunto">
           {plans.map((item) => (
             <button
               key={item.id}
               role="tab"
               aria-selected={selectedPlanId === item.id}
               onClick={() => { setSelectedPlanId(item.id); setActiveRoom("living"); }}
-              className={`rounded-xl px-4 py-2 text-sm font-black transition ${selectedPlanId === item.id ? "bg-white text-[#0b58a8] shadow-sm" : "text-[#60758a] hover:text-[#173655]"}`}
+              className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black transition ${selectedPlanId === item.id ? "bg-white text-[#0b58a8] shadow-sm" : "text-[#60758a] hover:text-[#173655]"}`}
             >
               {item.id}
             </button>
