@@ -1,5 +1,4 @@
 "use client";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -27,14 +26,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { apartments } from "@/lib/data";
 import { useLanguage } from "./LanguageProvider";
-const BuildingScene = dynamic(() => import("./BuildingScene"), {
-  ssr: false,
-  loading: () => (
-    <div className="grid h-full place-items-center text-sm text-[#61758a]">
-      3D-kohde latautuu…
-    </div>
-  ),
-});
 const quick = [
   { icon: Search, label: { fi: "Etsi asunto", en: "Find a home", sv: "Sök bostad" }, href: "/kohteet" },
   { icon: Wrench, label: { fi: "Tee huoltopyyntö", en: "Maintenance request", sv: "Serviceanmälan" }, href: "/huolto" },
@@ -374,25 +365,28 @@ export function HomeExperience() {
               initial={false}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="glass relative h-[390px] overflow-hidden rounded-[34px] sm:h-[500px]"
+              className="relative h-[390px] overflow-hidden rounded-[30px] border border-[#ded7c8] bg-[#f2ead8] shadow-[0_24px_70px_rgba(42,58,65,.14)] sm:h-[500px]"
             >
+              <img
+                src="/art/tuuma-editorial-courtyard.webp"
+                alt="Nordic courtyard illustration with apartment building and residents"
+                className="h-full w-full object-cover object-[68%_center]"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,47,75,.04),transparent_45%,rgba(16,47,75,.64))]" />
               <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between">
-                <span className="rounded-full bg-white/90 px-3 py-2 text-xs font-bold text-[#31516f]">
-                  Kalliolinna · Hyrylä
+                <span className="rounded-full border border-white/70 bg-[#fffdf8]/92 px-3 py-2 text-xs font-black text-[#31516f] shadow-sm">
+                  Tuusula · yhteinen arki
                 </span>
                 <Link
                   href="/kohteet/kalliolinna"
-                  className="grid h-10 w-10 place-items-center rounded-full bg-[#102d4d] text-white"
+                  className="grid h-10 w-10 place-items-center rounded-full bg-[#102d4d] text-white shadow-lg"
                   aria-label="Avaa Kalliolinna"
                 >
                   <ArrowRight size={17} />
                 </Link>
               </div>
-              <div className="h-full soft-grid">
-                <BuildingScene />
-              </div>
-              <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-white/90 p-4 backdrop-blur">
-                <div className="flex items-end justify-between">
+              <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/60 bg-[#fffdf8]/92 p-4 shadow-lg backdrop-blur">
+                <div className="flex items-end justify-between gap-4">
                   <div>
                     <b>Kalliolinna A12</b>
                     <p className="mt-1 text-sm text-[#60758a]">

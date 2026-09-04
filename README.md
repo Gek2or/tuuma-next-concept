@@ -7,8 +7,10 @@ Itsenäinen, Finnish-first konseptidemo modernista vuokra-asumisen digipalvelust
 - älykäs, vaiheittainen Smart Home Matcher ja perustellut match-tulokset
 - moderni asuntohaku, mobiilisuodattimet, karttanäkymä, suosikit ja 2–3 asunnon vertailu
 - Kalliolinna Digital Concept: kevyt 3D-rakennus, kerros- ja asuntovalitsin
+- mitoitettu, klikattava SVG-pohjapiirros (A12/A14) ja erillinen 3D-dollhouse-huonevalitsin
 - asunnon tietosivu, media, varusteet ja hakemuksen Tampuuri-handoff-konsepti
-- 360°-kierroksen room navigator, hotspot, fullscreen ja pohjakartan minimappi
+- toimiva Three.js/equirectangular 360°-kierros: huonenavigointi, hotspotit, fullscreen, näppäimistö- ja touch-ohjaus
+- alkuperäinen Nordic editorial -kuvitus ja kaksi equirectangular-konseptipanoraamaa projektin omissa `public/art`-varoissa
 - hyväksyttyihin ohjeisiin rajattu `Kysy Tuumalta` -asukasapuri
 - apurin lähteet, tarkistuspäivä, epävarman vastauksen fallback ja kiiretilanteiden guardrail
 - tilanteisiin perustuva asukkaan palvelukeskus
@@ -37,7 +39,7 @@ Tuotantobuild: `npm run build`.
 
 ## Demo-data ja rajaukset
 
-Kaikki asunnot, hinnat, saatavuudet, analytiikka, hakemukset, huoltopyynnöt, energiamittaukset ja asukastiedot ovat mock-dataa. Kuvat ovat konseptikuvia. Lomakkeet eivät lähetä tietoja, tiedostot eivät siirry palvelimelle, AI-apuri ei kutsu ulkoista kielimallia ja 360°-kierros demonstroi lopullista käyttöliittymää tavallisilla demo-kuvilla.
+Kaikki asunnot, hinnat, saatavuudet, analytiikka, hakemukset, huoltopyynnöt, energiamittaukset ja asukastiedot ovat mock-dataa. Asuntojen valokuvat ja alkuperäinen editorial-kuvitus ovat konseptikuvia. Lomakkeet eivät lähetä tietoja, tiedostot eivät siirry palvelimelle ja AI-apuri ei kutsu ulkoista kielimallia. 360°-näkymä käyttää paikallisia 2:1 equirectangular-konseptipanoraamoja; tuotannossa ne voidaan vaihtaa kuvaustiimin oikeisiin panoraamoihin ilman UI-muutoksia.
 
 Suosikit tallennetaan selaimen `localStorage`en ilman kirjautumista. Tuotannossa ne voidaan synkronoida asukastiliin. 3D ladataan client-side-komponenttina; vanhemmille laitteille voidaan tarjota optimoitu still-kuva.
 
