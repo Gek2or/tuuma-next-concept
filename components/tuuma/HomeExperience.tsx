@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { apartments } from "@/lib/data";
+import { useLanguage } from "./LanguageProvider";
 const BuildingScene = dynamic(() => import("./BuildingScene"), {
   ssr: false,
   loading: () => (
@@ -35,49 +36,67 @@ const BuildingScene = dynamic(() => import("./BuildingScene"), {
   ),
 });
 const quick = [
-  { icon: Search, t: "Etsi asunto", href: "/kohteet" },
-  { icon: Wrench, t: "Tee huoltopyyntö", href: "/asukkaille" },
-  { icon: CreditCard, t: "Vuokra ja maksut", href: "/asukkaille" },
-  { icon: Car, t: "Autopaikka", href: "/asukkaille" },
-  { icon: KeyRound, t: "Muutto", href: "/asukkaille" },
-  { icon: MessageCircle, t: "Ota yhteyttä", href: "/asukkaille" },
+  { icon: Search, label: { fi: "Etsi asunto", en: "Find a home", sv: "Sök bostad" }, href: "/kohteet" },
+  { icon: Wrench, label: { fi: "Tee huoltopyyntö", en: "Maintenance request", sv: "Serviceanmälan" }, href: "/huolto" },
+  { icon: CreditCard, label: { fi: "Vuokra ja maksut", en: "Rent and payments", sv: "Hyra och betalningar" }, href: "/oma-koti#payments" },
+  { icon: Car, label: { fi: "Autopaikka", en: "Parking", sv: "Bilplats" }, href: "/oma-koti#bookings" },
+  { icon: KeyRound, label: { fi: "Muutto", en: "Moving", sv: "Flytt" }, href: "/muutto" },
+  { icon: MessageCircle, label: { fi: "Ota yhteyttä", en: "Contact us", sv: "Kontakta oss" }, href: "/asukkaille" },
 ];
 const questions = [
   {
-    q: "Missä haluat asua?",
+    q: { fi: "Missä haluat asua?", en: "Where would you like to live?", sv: "Var vill du bo?" },
     key: "area",
-    opts: ["Hyrylä", "Jokela", "Kellokoski", "Ei väliä"],
+    opts: [
+      { value: "hyryla", label: { fi: "Hyrylä", en: "Hyrylä", sv: "Hyrylä" } },
+      { value: "jokela", label: { fi: "Jokela", en: "Jokela", sv: "Jokela" } },
+      { value: "kellokoski", label: { fi: "Kellokoski", en: "Kellokoski", sv: "Kellokoski" } },
+      { value: "any", label: { fi: "Ei väliä", en: "No preference", sv: "Spelar ingen roll" } },
+    ],
   },
   {
-    q: "Kuinka monta henkilöä muuttaa?",
+    q: { fi: "Kuinka monta henkilöä muuttaa?", en: "How many people are moving?", sv: "Hur många personer flyttar?" },
     key: "people",
-    opts: ["1", "2", "3", "4+"],
+    opts: ["1", "2", "3", "4+"].map((value) => ({ value, label: { fi: value, en: value, sv: value } })),
   },
   {
-    q: "Kuinka monta huonetta tarvitset?",
+    q: { fi: "Kuinka monta huonetta tarvitset?", en: "How many rooms do you need?", sv: "Hur många rum behöver du?" },
     key: "rooms",
-    opts: ["1", "2", "3", "4+"],
+    opts: ["1", "2", "3", "4+"].map((value) => ({ value, label: { fi: value, en: value, sv: value } })),
   },
   {
-    q: "Mikä on sopiva vuokrataso?",
+    q: { fi: "Mikä on sopiva vuokrataso?", en: "What monthly rent suits you?", sv: "Vilken hyresnivå passar dig?" },
     key: "budget",
-    opts: ["alle 700 €", "700–850 €", "850–1 000 €", "yli 1 000 €"],
+    opts: [
+      { value: "700", label: { fi: "alle 700 €", en: "under €700", sv: "under 700 €" } },
+      { value: "850", label: { fi: "700–850 €", en: "€700–850", sv: "700–850 €" } },
+      { value: "1000", label: { fi: "850–1 000 €", en: "€850–1,000", sv: "850–1 000 €" } },
+      { value: "1200", label: { fi: "yli 1 000 €", en: "over €1,000", sv: "över 1 000 €" } },
+    ],
   },
   {
-    q: "Tarvitsetko esteettömän asunnon?",
+    q: { fi: "Tarvitsetko esteettömän asunnon?", en: "Do you need an accessible home?", sv: "Behöver du en tillgänglig bostad?" },
     key: "accessible",
-    opts: ["Kyllä", "Ei"],
+    opts: [
+      { value: "yes", label: { fi: "Kyllä", en: "Yes", sv: "Ja" } },
+      { value: "no", label: { fi: "Ei", en: "No", sv: "Nej" } },
+    ],
   },
-  { q: "Onko sinulla auto?", key: "car", opts: ["Kyllä", "Ei"] },
-  { q: "Tarvitsetko sähköauton latausta?", key: "ev", opts: ["Kyllä", "Ei"] },
-  { q: "Onko sinulla lemmikkejä?", key: "pets", opts: ["Kyllä", "Ei"] },
+  { q: { fi: "Onko sinulla auto?", en: "Do you have a car?", sv: "Har du bil?" }, key: "car", opts: [{ value: "yes", label: { fi: "Kyllä", en: "Yes", sv: "Ja" } }, { value: "no", label: { fi: "Ei", en: "No", sv: "Nej" } }] },
+  { q: { fi: "Tarvitsetko sähköauton latausta?", en: "Do you need EV charging?", sv: "Behöver du laddning för elbil?" }, key: "ev", opts: [{ value: "yes", label: { fi: "Kyllä", en: "Yes", sv: "Ja" } }, { value: "no", label: { fi: "Ei", en: "No", sv: "Nej" } }] },
+  { q: { fi: "Onko sinulla lemmikkejä?", en: "Do you have pets?", sv: "Har du husdjur?" }, key: "pets", opts: [{ value: "yes", label: { fi: "Kyllä", en: "Yes", sv: "Ja" } }, { value: "no", label: { fi: "Ei", en: "No", sv: "Nej" } }] },
   {
-    q: "Onko joukkoliikenne tärkeä?",
+    q: { fi: "Onko joukkoliikenne tärkeä?", en: "Is public transport important?", sv: "Är kollektivtrafik viktig?" },
     key: "transit",
-    opts: ["Erittäin tärkeä", "Jonkin verran", "Ei"],
+    opts: [
+      { value: "high", label: { fi: "Erittäin tärkeä", en: "Very important", sv: "Mycket viktig" } },
+      { value: "some", label: { fi: "Jonkin verran", en: "Somewhat", sv: "Till en del" } },
+      { value: "no", label: { fi: "Ei", en: "No", sv: "Nej" } },
+    ],
   },
 ];
 function Matcher() {
+  const { locale, text } = useLanguage();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const done = step === questions.length;
@@ -86,15 +105,12 @@ function Matcher() {
       apartments
         .map((a, i) => {
           let score = 96 - i * 3;
-          if (
-            answers.area &&
-            answers.area !== "Ei väliä" &&
-            answers.area !== a.area
-          )
+          const area = { hyryla: "Hyrylä", jokela: "Jokela", kellokoski: "Kellokoski" }[answers.area];
+          if (area && area !== a.area)
             score -= 12;
-          if (answers.pets === "Kyllä" && !a.pets) score -= 20;
-          if (answers.accessible === "Kyllä" && !a.accessible) score -= 15;
-          if (answers.ev === "Kyllä" && !a.ev) score -= 10;
+          if (answers.pets === "yes" && !a.pets) score -= 20;
+          if (answers.accessible === "yes" && !a.accessible) score -= 15;
+          if (answers.ev === "yes" && !a.ev) score -= 10;
           return { ...a, score: Math.max(score, 68) };
         })
         .sort((a, b) => b.score - a.score)
@@ -112,7 +128,7 @@ function Matcher() {
         <>
           <div className="mb-7 flex items-center justify-between">
             <span className="eyebrow">
-              Vaihe {step + 1} / {questions.length}
+              {text({ fi: "Vaihe", en: "Step", sv: "Steg" })} {step + 1} / {questions.length}
             </span>
             <span className="text-sm font-semibold text-[#5f738a]">
               {Math.round((step / questions.length) * 100)} %
@@ -120,16 +136,16 @@ function Matcher() {
           </div>
           <Progress value={(step / questions.length) * 100} />
           <h3 className="display mt-8 text-3xl leading-tight sm:text-4xl">
-            {questions[step].q}
+            {questions[step].q[locale]}
           </h3>
           <div className="mt-7 grid gap-3 sm:grid-cols-2">
             {questions[step].opts.map((o) => (
               <button
-                key={o}
-                onClick={() => pick(o)}
+                key={o.value}
+                onClick={() => pick(o.value)}
                 className="min-h-14 rounded-2xl border border-[#d7e2ec] bg-white px-5 text-left font-bold transition hover:-translate-y-0.5 hover:border-[#7caef6] hover:bg-[#edf5ff]"
               >
-                {o}
+                {o.label[locale]}
               </button>
             ))}
           </div>
@@ -139,7 +155,7 @@ function Matcher() {
               className="mt-7 flex items-center gap-2 text-sm font-bold text-[#47627f]"
             >
               <ChevronLeft size={17} />
-              Takaisin
+              {text({ fi: "Takaisin", en: "Back", sv: "Tillbaka" })}
             </button>
           )}
         </>
@@ -147,9 +163,9 @@ function Matcher() {
         <>
           <div className="flex items-center gap-3 text-[#0a55df]">
             <Sparkles />
-            <span className="eyebrow !text-[#0a55df]">Älykäs suositus</span>
+            <span className="eyebrow !text-[#0a55df]">{text({ fi: "Älykäs suositus", en: "Smart recommendation", sv: "Smart rekommendation" })}</span>
           </div>
-          <h3 className="display mt-4 text-3xl">Sinulle sopivimmat kodit</h3>
+          <h3 className="display mt-4 text-3xl">{text({ fi: "Sinulle sopivimmat kodit", en: "Homes that fit you best", sv: "Bostäder som passar dig bäst" })}</h3>
           <div className="mt-6 grid gap-3">
             {results.map((a, i) => (
               <Link
@@ -174,7 +190,7 @@ function Matcher() {
                   </p>
                   <p className="mt-1 truncate text-xs font-semibold text-[#315b88]">
                     {i === 0
-                      ? "Budjettisi sisällä · hyvät yhteydet"
+                      ? text({ fi: "Budjettisi sisällä · hyvät yhteydet", en: "Within your budget · good connections", sv: "Inom din budget · goda förbindelser" })
                       : a.tags.slice(0, 2).join(" · ")}
                   </p>
                 </div>
@@ -188,7 +204,7 @@ function Matcher() {
             }}
             className="mt-5 text-sm font-bold text-[#0a55df]"
           >
-            Aloita uudelleen
+            {text({ fi: "Aloita uudelleen", en: "Start again", sv: "Börja om" })}
           </button>
         </>
       )}
@@ -299,6 +315,7 @@ function Assistant() {
   );
 }
 export function HomeExperience() {
+  const { text } = useLanguage();
   return (
     <main id="main">
       <section className="relative overflow-hidden pb-10 pt-9 sm:pt-16">
@@ -318,19 +335,18 @@ export function HomeExperience() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55 }}
             >
-              <p className="eyebrow">Koti löytyy elämästä käsin</p>
+              <p className="eyebrow">{text({ fi: "Koti löytyy elämästä käsin", en: "Start with the life you want", sv: "Börja med livet du vill leva" })}</p>
               <h1 className="display mt-5 max-w-2xl text-[3.15rem] leading-[.98] text-[#0d2d4e] sm:text-[4.8rem] lg:text-[5.5rem]">
-                Löydä koti, joka sopii sinun elämääsi.
+                {text({ fi: "Löydä koti, joka sopii sinun elämääsi.", en: "Find a home that fits your life.", sv: "Hitta ett hem som passar ditt liv." })}
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-[#536a81]">
-                Yksi selkeä palvelu kodin löytämiseen ja asumisen arkeen —
-                älykkäästi, saavutettavasti ja ihmisläheisesti.
+                {text({ fi: "Yksi selkeä palvelu kodin löytämiseen ja asumisen arkeen — älykkäästi, saavutettavasti ja ihmisläheisesti.", en: "One clear service for finding a home and managing everyday living — smart, accessible and human.", sv: "En tydlig tjänst för att hitta en bostad och sköta vardagen — smart, tillgängligt och mänskligt." })}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
                     <button className="flex min-h-14 items-center gap-3 rounded-full bg-[#0a55df] px-6 font-bold text-white shadow-[0_14px_30px_rgba(10,85,223,.25)]">
-                      Löydä koti <ArrowRight size={18} />
+                      {text({ fi: "Löydä koti", en: "Find a home", sv: "Hitta en bostad" })} <ArrowRight size={18} />
                     </button>
                   </DialogTrigger>
                   <DialogContent className="max-h-[92vh] overflow-auto rounded-[28px] p-6 sm:max-w-2xl sm:p-9">
@@ -347,10 +363,10 @@ export function HomeExperience() {
                   </DialogContent>
                 </Dialog>
                 <Link
-                  href="/asukkaille"
+                  href="/oma-koti"
                   className="flex min-h-14 items-center rounded-full border border-[#ccd9e4] bg-white px-6 font-bold text-[#193b5e]"
                 >
-                  Olen jo asukas
+                  {text({ fi: "Olen jo asukas", en: "I am a resident", sv: "Jag är redan boende" })}
                 </Link>
               </div>
             </motion.div>
@@ -391,15 +407,15 @@ export function HomeExperience() {
             </motion.div>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {quick.map(({ icon: Icon, t, href }) => (
+            {quick.map(({ icon: Icon, label, href }) => (
               <Link
-                key={t}
+                key={label.fi}
                 href={href}
                 className="group rounded-2xl border border-[#dde6ed] bg-white p-4 transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <Icon size={20} className="text-[#0a55df]" />
                 <span className="mt-4 block text-sm font-bold leading-5">
-                  {t}
+                  {text(label)}
                 </span>
               </Link>
             ))}
@@ -409,18 +425,17 @@ export function HomeExperience() {
       <section className="shell py-20">
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-[34px] bg-[#0d2e50] p-7 text-white sm:p-10">
-            <p className="eyebrow !text-[#91bae5]">Etsitkö kotia?</p>
+            <p className="eyebrow !text-[#91bae5]">{text({ fi: "Etsitkö kotia?", en: "Looking for a home?", sv: "Söker du bostad?" })}</p>
             <h2 className="display mt-5 text-4xl sm:text-5xl">
-              Kerro arjestasi. Me etsimme sopivat kodit.
+              {text({ fi: "Kerro arjestasi. Me etsimme sopivat kodit.", en: "Tell us about your life. We will find the right homes.", sv: "Berätta om din vardag. Vi hittar bostäder som passar." })}
             </h2>
             <p className="mt-5 max-w-lg leading-7 text-[#c7d8e9]">
-              Smart Matcher huomioi perheen, liikkumisen, budjetin ja arjen
-              tarpeet — eikä vain neliöitä.
+              {text({ fi: "Smart Matcher huomioi perheen, liikkumisen, budjetin ja arjen tarpeet — eikä vain neliöitä.", en: "Smart Matcher considers household, mobility, budget and daily needs — not only square metres.", sv: "Smart Matcher beaktar hushåll, resor, budget och vardagsbehov — inte bara kvadratmeter." })}
             </p>
             <Dialog>
               <DialogTrigger asChild>
                 <button className="mt-8 flex items-center gap-2 rounded-full bg-white px-5 py-3 font-bold text-[#123354]">
-                  Löydä minulle koti <Sparkles size={17} />
+                  {text({ fi: "Löydä minulle koti", en: "Match me with a home", sv: "Hitta en bostad åt mig" })} <Sparkles size={17} />
                 </button>
               </DialogTrigger>
               <DialogContent className="max-h-[92vh] overflow-auto rounded-[28px] p-6 sm:max-w-2xl sm:p-9">
@@ -435,21 +450,23 @@ export function HomeExperience() {
                 <Matcher />
               </DialogContent>
             </Dialog>
+            <Link href="/hakemukseni" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#a8cfff]">
+              {text({ fi: "Seuraa hakemustasi", en: "Track your application", sv: "Följ din ansökan" })} <ArrowRight size={16} />
+            </Link>
           </div>
           <div className="rounded-[34px] bg-[#dfedff] p-7 sm:p-10">
-            <p className="eyebrow">Oletko jo asukas?</p>
+            <p className="eyebrow">{text({ fi: "Oletko jo asukas?", en: "Already a resident?", sv: "Är du redan boende?" })}</p>
             <h2 className="display mt-5 text-4xl sm:text-5xl">
-              Asumisen asiat ilman etsimistä.
+              {text({ fi: "Asumisen asiat ilman etsimistä.", en: "Everything about your home, easy to find.", sv: "Allt om ditt boende, lätt att hitta." })}
             </h2>
             <p className="mt-5 max-w-lg leading-7 text-[#506b87]">
-              Ohjattu huoltoapu, vuokratiedot, avaimet ja muutto yhdessä
-              helposti hahmotettavassa palvelussa.
+              {text({ fi: "Ohjattu huoltoapu, vuokratiedot, avaimet ja muutto yhdessä helposti hahmotettavassa palvelussa.", en: "Guided maintenance, rent details, keys and moving in one clear service.", sv: "Guidad service, hyresuppgifter, nycklar och flytt i en tydlig tjänst." })}
             </p>
             <Link
               href="/asukkaille"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#0a55df] px-5 py-3 font-bold text-white"
             >
-              Miten voimme auttaa? <ArrowRight size={17} />
+              {text({ fi: "Miten voimme auttaa?", en: "How can we help?", sv: "Hur kan vi hjälpa?" })} <ArrowRight size={17} />
             </Link>
           </div>
         </div>
@@ -457,16 +474,16 @@ export function HomeExperience() {
       <section className="shell pb-4">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <p className="eyebrow">Vapaat kodit</p>
+            <p className="eyebrow">{text({ fi: "Vapaat kodit", en: "Available homes", sv: "Lediga bostäder" })}</p>
             <h2 className="display mt-3 text-4xl sm:text-5xl">
-              Ajankohtaista juuri nyt
+              {text({ fi: "Ajankohtaista juuri nyt", en: "Available right now", sv: "Ledigt just nu" })}
             </h2>
           </div>
           <Link
             href="/kohteet"
             className="hidden text-sm font-bold text-[#0a55df] sm:block"
           >
-            Näytä kaikki →
+            {text({ fi: "Näytä kaikki →", en: "View all →", sv: "Visa alla →" })}
           </Link>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
@@ -508,7 +525,6 @@ export function HomeExperience() {
           ))}
         </div>
       </section>
-      <Assistant />
     </main>
   );
 }

@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { apartments } from "@/lib/data";
+import { useLanguage } from "./LanguageProvider";
 const BuildingScene = dynamic(() => import("./BuildingScene"), { ssr: false });
 const rooms = [
   { name: "Olohuone", pos: "50% 48%" },
@@ -40,7 +41,7 @@ const rooms = [
 function Tour() {
   const [room, setRoom] = useState(0);
   const [full, setFull] = useState(false);
-  const View = () => (
+  const view = (
     <div
       className={`${full ? "fixed inset-0 z-[90] rounded-none" : "relative h-[480px] rounded-[30px]"} overflow-hidden bg-[#0b233e]`}
     >
@@ -103,7 +104,7 @@ function Tour() {
   );
   return (
     <>
-      <View />
+      {view}
       <p className="mt-3 flex items-center gap-2 text-sm text-[#61758a]">
         <Sparkles size={16} />
         Gyroskooppiohjaus voidaan aktivoida mobiililaitteilla
@@ -113,17 +114,20 @@ function Tour() {
   );
 }
 export function KalliolinnaExperience() {
+  const { text } = useLanguage();
   const [floor, setFloor] = useState(3);
   const [apt, setApt] = useState("A12");
   const [fav, setFav] = useState(false);
   useEffect(
     () =>
-      setFav(
-        (
-          JSON.parse(
-            localStorage.getItem("tuuma-favorites") || "[]",
-          ) as string[]
-        ).includes("A12"),
+      queueMicrotask(() =>
+        setFav(
+          (
+            JSON.parse(
+              localStorage.getItem("tuuma-favorites") || "[]",
+            ) as string[]
+          ).includes("A12"),
+        ),
       ),
     [],
   );
@@ -318,12 +322,14 @@ export function KalliolinnaExperience() {
                 <Share2 />
               </button>
               <a href="/hae?asunto=A12" className="flex flex-1 items-center justify-center rounded-full bg-[#0a55df] px-6 font-black text-white">
-                Hae asuntoa
+                {text({ fi: "Hae asuntoa", en: "Apply", sv: "Ansök" })}
               </a>
             </div>
+            <a href="/kustannukset" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-[#cfdbe5] bg-white px-5 text-sm font-black text-[#274969]">
+              {text({ fi: "Laske asumisen kokonaiskustannus", en: "Calculate total monthly cost", sv: "Beräkna total månadskostnad" })}
+            </a>
             <p className="mt-4 text-xs leading-5 text-[#708196]">
-              Hakemus siirtyy turvallisesti nykyiseen Tampuuri-hakuprosessiin.
-              Asuntotunnus A12 esitäytetään automaattisesti.
+              {text({ fi: "Hakemus siirtyy turvallisesti nykyiseen Tampuuri-hakuprosessiin. Asuntotunnus A12 esitäytetään automaattisesti.", en: "The application continues securely in the existing Tampuuri process with home A12 prefilled.", sv: "Ansökan fortsätter tryggt i den befintliga Tampuuri-processen med bostad A12 ifylld." })}
             </p>
           </aside>
         </div>

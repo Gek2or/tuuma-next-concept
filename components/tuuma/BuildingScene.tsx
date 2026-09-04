@@ -52,7 +52,7 @@ export default function BuildingScene() {
     const options = { failIfMajorPerformanceCaveat: true };
     const context =
       canvas.getContext("webgl2", options) || canvas.getContext("webgl", options);
-    setWebgl(Boolean(context && !context.isContextLost()));
+    queueMicrotask(() => setWebgl(Boolean(context && !context.isContextLost())));
   }, []);
   if (!webgl) {
     return (
