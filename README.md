@@ -14,7 +14,17 @@ Itsenäinen, Finnish-first konseptidemo modernista vuokra-asumisen digipalvelust
 - WebGL2, kosketus-/hiirikatse, nuolinäppäimet, huonenavigointi, ovien hotspotit, todellinen pohjakartta ja selaimen fullscreen. Ei teeskenneltyä gyro-painiketta.
 - Renderöinti käynnistyy vasta näkymän lähellä ja pysähtyy sen poistuessa ruudulta. Ei ulkoista HDRI-latausta. Ilman WebGL2-tukea esitetään piirustus ja selkeä ilmoitus.
 
-**Rajat:** malleissa on proseduraaliset materiaalit ja mallinnetut kalusteet; ne eivät ole valokuvarealistisia laserkeilauksia tai oikean kohteen mittausaineistoa. Vanhemmat konseptivalokuvat havainnollistavat tunnelmaa eivätkä todista uuden tilamallin mittoja. Huoneluettelon pinta-alat ovat suuntaa-antavia, eivät SFS-standardin mukaisesti varmennettuja huoneistoaloja; katalogin ilmoitusala ja luonnoksen tilapinta-ala voivat poiketa. Rakenteet, paloturvallisuus, esteettömyys, ikkunamitoitus ja rakennuspaikan kaava tulee tarkistaa pätevän suunnittelijan kanssa ennen käyttöä oikean kohteen asiakirjoina.
+**Rajat:** malleissa on proseduraaliset materiaalit ja mallinnetut kalusteet sekä A12:ssa erillinen tammitekstuuri; ne eivät ole valokuvarealistisia laserkeilauksia tai oikean kohteen mittausaineistoa. Konseptikuvat havainnollistavat tunnelmaa eivätkä todista tilamallin mittoja. Huoneluettelon pinta-alat ovat suuntaa-antavia, eivät SFS-standardin mukaisesti varmennettuja huoneistoaloja; katalogin ilmoitusala ja luonnoksen tilapinta-ala voivat poiketa. Rakenteet, paloturvallisuus, esteettömyys, ikkunamitoitus ja rakennuspaikan kaava tulee tarkistaa pätevän suunnittelijan kanssa ennen käyttöä oikean kohteen asiakirjoina.
+
+### A12:n kuvallinen esittely – tyhjä tila ensin
+
+A12 sisältää viisi näkymää: olohuone/keittiö, makuuhuone, kylpyhuone, eteinen ja lasitettu parveke. Olohuoneen, makuuhuoneen ja parvekkeen kalustetut kuvat on tehty **muokkaamalla täsmälleen vastaavaa tyhjää lähtökuvaa**, ei erillisillä huonegeneraatiolla. Kuvakulmat, aukot ja kiinteät varusteet on tarkistettu silmämääräisesti. Kyseessä on generatiivinen kuvanmuokkaus, joten pikselitarkkaa geometrialukitusta ei luvata.
+
+`Apartment.roomMedia` yhdistää huoneen tyhjän lähtökuvan ja siitä johdetun kalustetun version. Galleria avautuu tyhjänä, tarjoaa huonevalinnan, vertailuliukusäätimen sekä suuren kuvan dialogin. Vanhat, keskenään erilliset kuvat muissa asunnoissa eivät saa saman tilan vertailuliukusäädintä. FI/EN/SV-tekstit sisältyvät kaikkiin uusiin toimintoihin.
+
+Kuvien alkuperäinen koko on 1536 × 1024; WebP-julkaisu käyttää laatua 94 ilman keinotekoista skaalausta. Nämä ovat konseptirendereitä, eivät oikean asunnon valokuvia tai 3D-mallista laskettuja täsmällisiä kamerakuvia. Kuvagallerian ja teknisen tilamallin aukot ja sijainnit eivät vielä muodosta yhtä varmennettua digitaalista kaksosta. Reaaliaikainen kierros käyttää edelleen tilamallia; staattisia kuvia ei esitetä 360°-panoraamoina.
+
+A12:n 3D-lattia käyttää 1254 × 1254 tammialbedoa (`public/art/a12-oak-albedo.webp`). UV-toisto perustuu huoneen fyysisiin metreihin. Tekstuuri ei ole skannattu PBR-materiaalipaketti. Kalustuksen vaihto säilyttää lattian ja geometrian. Kuvien tuotantomuistiinpanot: `docs/a12-media.md`.
 
 Suunnittelun taustaviitteet: [YM asuin-, majoitus- ja työtilat 631/2024](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2024/631), [suunnitelmat ja selvitykset 216/2015](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2015/216), [Ympäristöministeriön rakentamismääräykset](https://ym.fi/rakentamismaaraykset). Viittaukset eivät ole vaatimustenmukaisuusvakuutus.
 

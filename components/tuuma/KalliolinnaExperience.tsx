@@ -22,6 +22,7 @@ import {
 import { apartments } from "@/lib/data";
 import { useLanguage, type LocalizedText } from "./LanguageProvider";
 import { ApartmentPlan } from "./ApartmentPlan";
+import { ApartmentGallery } from "./ApartmentGallery";
 
 const BuildingScene = dynamic(() => import("./BuildingScene"), { ssr: false });
 const ApartmentDollhouse = dynamic(() => import("./ApartmentDollhouse"), { ssr: false });
@@ -143,15 +144,12 @@ export function KalliolinnaExperience() {
   const [floor, setFloor] = useState(apartments.find((item) => item.id === initialApartment)?.floor ?? 3);
   const [apt, setApt] = useState(initialApartment);
   const [fav, setFav] = useState(false);
-  const [photoMode, setPhotoMode] = useState<"furnished" | "empty">("furnished");
   const selectedUnit = useMemo(() => units.find((unit) => unit.id === apt) ?? units[0], [apt]);
   const selectedApartment = useMemo(() => apartments.find((item) => item.id === apt) ?? apartments[0], [apt]);
   const floors = { kalliolinna:5, asemanvalo:4, ruukinranta:1, peltokaarre:3, keravanjoen:1 }[selectedApartment.variant];
   const propertyChoices = apartments.filter((item,index,list)=>list.findIndex(other=>other.variant===item.variant)===index);
   const floorUnits = units.filter(unit=>apartments.some(item=>item.id===unit.id&&item.variant===selectedApartment.variant&&item.floor===floor));
-  function selectFloor(next:number) { setFloor(next); const home=apartments.find(item=>item.variant===selectedApartment.variant&&item.floor===next); if(home) {setApt(home.id);setPhotoMode("furnished");} }
-  const heroImage = photoMode === "empty" && selectedApartment.emptyImage ? selectedApartment.emptyImage : selectedApartment.image;
-  const gallery = selectedApartment.gallery?.length ? selectedApartment.gallery : [selectedApartment.image];
+  function selectFloor(next:number) { setFloor(next); const home=apartments.find(item=>item.variant===selectedApartment.variant&&item.floor===next); if(home) {setApt(home.id);} }
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -182,7 +180,7 @@ export function KalliolinnaExperience() {
             <span className="rounded-full border border-[#d2bd82] bg-[#fffdf8] px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#7f6421]">Concept · Demo</span>
           </div>
 
-          <nav className="mt-7 flex gap-2 overflow-x-auto pb-2" aria-label={text({fi:"Valitse talo",en:"Choose a building",sv:"Välj hus"})}>{propertyChoices.map(home=><button key={home.variant} aria-pressed={selectedApartment.variant===home.variant} onClick={()=>{setApt(home.id);setFloor(home.floor);setPhotoMode("furnished");}} className={`min-h-12 shrink-0 rounded-full border px-5 text-sm font-bold ${selectedApartment.variant===home.variant?"border-[#173655] bg-[#173655] text-white":"border-[#d7d7cc] bg-white text-[#173655]"}`}>{home.title.replace(` ${home.id}`,"")}</button>)}</nav>
+          <nav className="mt-7 flex gap-2 overflow-x-auto pb-2" aria-label={text({fi:"Valitse talo",en:"Choose a building",sv:"Välj hus"})}>{propertyChoices.map(home=><button key={home.variant} aria-pressed={selectedApartment.variant===home.variant} onClick={()=>{setApt(home.id);setFloor(home.floor);}} className={`min-h-12 shrink-0 rounded-full border px-5 text-sm font-bold ${selectedApartment.variant===home.variant?"border-[#173655] bg-[#173655] text-white":"border-[#d7d7cc] bg-white text-[#173655]"}`}>{home.title.replace(` ${home.id}`,"")}</button>)}</nav>
           <div className="mt-5 grid overflow-hidden rounded-[30px] border border-[#e0d8c8] bg-[#fffdf8] shadow-[0_25px_80px_rgba(65,70,65,.12)] lg:grid-cols-[1.12fr_.88fr]">
             <div className="relative h-[450px] bg-[#dfe9eb] sm:h-[600px]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,.65),transparent_35%)]" />
@@ -213,7 +211,7 @@ export function KalliolinnaExperience() {
               <div className="mt-7 grid gap-3">
                 {!floorUnits.length&&<p className="rounded-2xl border border-dashed p-5 text-sm text-slate-500">{text({fi:"Tässä kerroksessa ei ole demoasuntoa. Valitse toinen kerros tai talo.",en:"No demo apartment on this floor. Choose another floor or building.",sv:"Ingen demobostad på denna våning. Välj en annan våning eller byggnad."})}</p>}
                 {floorUnits.map((unit) => (
-                  <button key={unit.id} disabled={!unit.free} onClick={() => { setApt(unit.id); setFloor(apartments.find((item) => item.id === unit.id)?.floor ?? 3); setPhotoMode("furnished"); }} className={`flex items-center justify-between rounded-2xl border p-4 text-left transition ${apt === unit.id ? "border-[#0b58a8] bg-[#edf5fb] shadow-sm" : "border-[#dbe3e3] bg-white hover:border-[#94b4cc]"} ${!unit.free ? "cursor-not-allowed opacity-45" : ""}`}>
+                  <button key={unit.id} disabled={!unit.free} onClick={() => { setApt(unit.id); setFloor(apartments.find((item) => item.id === unit.id)?.floor ?? 3);  }} className={`flex items-center justify-between rounded-2xl border p-4 text-left transition ${apt === unit.id ? "border-[#0b58a8] bg-[#edf5fb] shadow-sm" : "border-[#dbe3e3] bg-white hover:border-[#94b4cc]"} ${!unit.free ? "cursor-not-allowed opacity-45" : ""}`}>
                     <span><b className="block text-lg text-[#173655]">{unit.id}</b><small className="text-[#687c8d]">{unit.r} · {unit.s}</small></span>
                     <span className="text-right"><b className="block text-[#173655]">{unit.rent} € / kk</b><small className={unit.free ? "text-[#08765f]" : "text-[#798a99]"}>{unit.availability}</small></span>
                   </button>
@@ -232,22 +230,7 @@ export function KalliolinnaExperience() {
 
       <section id="asunto" className="shell py-16 sm:py-20">
         <div className="grid gap-10 lg:grid-cols-[1.12fr_.88fr]">
-          <div>
-            <div className="relative overflow-hidden rounded-[28px] border border-[#dbe2e2] bg-[#e4ebec]">
-              <img src={heroImage} alt={`${selectedUnit.id} ${text(photoMode === "empty" ? pageCopy.emptyAlt : pageCopy.furnishedAlt)}`} className="h-[390px] w-full object-cover sm:h-[570px]" />
-              <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 sm:inset-x-6 sm:bottom-6"><span className="rounded-full bg-[#fffdf8]/92 px-4 py-2 text-sm font-black text-[#173655] shadow">{selectedUnit.id} · {photoMode === "empty" ? text(pageCopy.empty) : text(pageCopy.furnished)}</span><span className="rounded-full bg-[#173655]/85 px-4 py-2 text-xs font-bold text-white">Kuva + 360°</span></div>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex rounded-full bg-[#eef3f2] p-1" role="group" aria-label={text(pageCopy.photoState)}>
-                <button onClick={() => setPhotoMode("furnished")} className={`rounded-full px-4 py-2 text-xs font-black ${photoMode === "furnished" ? "bg-white text-[#0b58a8] shadow-sm" : "text-[#60758a]"}`}>{text({ fi: "Kalustettu", en: "Furnished", sv: "Möblerad" })}</button>
-                <button onClick={() => setPhotoMode("empty")} disabled={!selectedApartment.emptyImage} className={`rounded-full px-4 py-2 text-xs font-black ${photoMode === "empty" ? "bg-white text-[#0b58a8] shadow-sm" : "text-[#60758a] disabled:opacity-45"}`}>{text({ fi: "Tyhjä", en: "Empty", sv: "Tom" })}</button>
-              </div>
-              <span className="text-xs font-bold text-[#7a8b98]">{gallery.length} mediaa · {selectedApartment.variant}</span>
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-3 sm:gap-4">
-              {gallery.map((item, index) => <button key={`${item}-${index}`} onClick={() => { if (item === selectedApartment.emptyImage) setPhotoMode("empty"); else setPhotoMode("furnished"); }} className="group overflow-hidden rounded-2xl border border-[#dbe2e2] bg-white text-left"><img src={item} alt={`Asunnon ${selectedUnit.id} media ${index + 1}`} className="h-24 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-40" /></button>)}
-            </div>
-          </div>
+          <ApartmentGallery key={selectedApartment.id} apartment={selectedApartment} />
 
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <p className="eyebrow">{selectedApartment.title}</p>

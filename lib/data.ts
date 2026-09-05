@@ -7,6 +7,15 @@ export type ApartmentTour = {
   startHeading?: number;
 };
 
+export type RoomMedia = {
+  id: string;
+  label: { fi: string; en: string; sv: string };
+  empty: string;
+  furnished?: string;
+  /** Furnished variants must be edits of this exact empty master. */
+  source: "empty-master-edit";
+};
+
 export type Apartment = {
   id: string;
   title: string;
@@ -19,6 +28,7 @@ export type Apartment = {
   image: string;
   emptyImage?: string;
   gallery?: string[];
+  roomMedia?: RoomMedia[];
   tour: ApartmentTour;
   variant: ApartmentVariant;
   type: string;
@@ -46,9 +56,16 @@ export const apartments: Apartment[] = [
     size: 56.5,
     rooms: 2,
     floor: 3,
-    image: "/art/kalliolinna-a12-furnished.webp",
+    image: "/art/kalliolinna-a12-empty.webp",
     emptyImage: "/art/kalliolinna-a12-empty.webp",
-    gallery: ["/art/kalliolinna-a12-furnished.webp", "/art/kalliolinna-a12-empty.webp", "/art/tuusula-editorial-area.webp"],
+    gallery: ["/art/kalliolinna-a12-empty.webp", "/art/a12-living-furnished-v2.webp", "/art/a12-bedroom-empty-v2.webp", "/art/a12-bedroom-furnished-v2.webp", "/art/a12-bathroom-empty-v2.webp"],
+    roomMedia: [
+      { id: "living", label: { fi: "Olohuone ja keittiö", en: "Living room & kitchen", sv: "Vardagsrum och kök" }, empty: "/art/kalliolinna-a12-empty.webp", furnished: "/art/a12-living-furnished-v2.webp", source: "empty-master-edit" },
+      { id: "bedroom", label: { fi: "Makuuhuone", en: "Bedroom", sv: "Sovrum" }, empty: "/art/a12-bedroom-empty-v2.webp", furnished: "/art/a12-bedroom-furnished-v2.webp", source: "empty-master-edit" },
+      { id: "bathroom", label: { fi: "Kylpyhuone", en: "Bathroom", sv: "Badrum" }, empty: "/art/a12-bathroom-empty-v2.webp", source: "empty-master-edit" },
+      { id: "hall", label: { fi: "Eteinen", en: "Entrance hall", sv: "Hall" }, empty: "/art/a12-hall-empty-v2.webp", source: "empty-master-edit" },
+      { id: "balcony", label: { fi: "Lasitettu parveke", en: "Glazed balcony", sv: "Inglasad balkong" }, empty: "/art/a12-balcony-empty-v2.webp", furnished: "/art/a12-balcony-furnished-v2.webp", source: "empty-master-edit" },
+    ],
     tour: { living: "/art/kalliolinna-living-360.webp", bedroom: "/art/kalliolinna-bedroom-360.webp", kitchen: "/art/kalliolinna-living-360.webp", startHeading: 0 },
     variant: "kalliolinna",
     type: "Kerrostalo",

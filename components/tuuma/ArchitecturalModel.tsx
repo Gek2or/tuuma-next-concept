@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useMemo } from "react";
-import { RoundedBox } from "@react-three/drei";
+import { Suspense, useEffect, useMemo } from "react";
+import { RoundedBox, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import type { Design, Fitting, Wall } from "@/lib/architecture";
 export type InteriorStyle = "nordic" | "clay" | "forest";
@@ -179,19 +179,37 @@ function ArchitecturalWall({ wall: w, height, wallColor, cutaway }: {
     {(o ? [[w.start, o.start], [o.start + o.width, w.end]] : [[w.start, w.end]]).map(([a, b], i) => <group key={i}>{[-t / 2, t / 2].map(z => <Block key={z} p={[(a + b) / 2000, .045, z]} s={[(b - a) / 1000, .09, .025]} color="#d7d5c9"/>)}</group>)}
   </group>;
 }
-export function ArchitecturalModel({ design, style = "nordic", furnished = true, cutaway = false, interior = false }: {
+type ModelProps = {
     design: Design;
     style?: InteriorStyle;
     furnished?: boolean;
     cutaway?: boolean;
     interior?: boolean;
-}) {
+};
+
+function RoomFloor({ x, z, width, depth, texture, tiled }: { x: number; z: number; width: number; depth: number; texture: THREE.Texture; tiled: boolean }) {
+    const map = useMemo(() => {
+        const result = texture.clone();
+        result.wrapS = result.wrapT = THREE.RepeatWrapping;
+        // Keep the same board/tile scale in every room, independent of room size.
+        result.repeat.set(width / (tiled ? 1.2 : 1.6), depth / (tiled ? 1.2 : 1.6));
+        result.colorSpace = THREE.SRGBColorSpace;
+        result.anisotropy = 8;
+        result.needsUpdate = true;
+        return result;
+    }, [texture, width, depth, tiled]);
+    useEffect(() => () => map.dispose(), [map]);
+    return <mesh position={[x, .007, z]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[width, depth]}/><meshStandardMaterial map={map} roughness={tiled ? .78 : .57}/></mesh>;
+}
+
+function BaseModel({ design, style = "nordic", furnished = true, cutaway = false, interior = false, oak }: ModelProps & { oak?: THREE.Texture }) {
     const palette = styles[style];
-    const wood = useSurface("wood", palette.wood), tile = useSurface("tile", "#cbc9c0");
+    const proceduralWood = useSurface("wood", palette.wood), tile = useSurface("tile", "#cbc9c0");
+    const wood = oak ?? proceduralWood;
     return <group>
     <Block p={[design.width / 2000, -.12, design.depth / 2000]} s={[design.width / 1000 + .30, .22, design.depth / 1000 + .30]} color="#cecfc7"/>
     {design.rooms.map(r => <group key={r.id}>
-      <mesh position={[(r.x + r.w / 2) / 1000, .007, (r.z + r.d / 2) / 1000]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[r.w / 1000, r.d / 1000]}/><meshStandardMaterial map={["bathroom", "hall"].includes(r.kind) ? tile : wood} bumpMap={["bathroom", "hall"].includes(r.kind) ? tile : wood} bumpScale={.003} roughness={.77}/></mesh>
+      <RoomFloor x={(r.x + r.w / 2) / 1000} z={(r.z + r.d / 2) / 1000} width={r.w / 1000} depth={r.d / 1000} texture={r.kind === "bathroom" ? tile : wood} tiled={r.kind === "bathroom"}/>
       {interior && <mesh position={[(r.x + r.w / 2) / 1000, design.height / 1000, (r.z + r.d / 2) / 1000]} rotation={[Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[r.w / 1000, r.d / 1000]}/><meshStandardMaterial color="#f6f3eb"/></mesh>}
       {interior && <pointLight position={[(r.x + r.w / 2) / 1000, 2.38, (r.z + r.d / 2) / 1000]} color={r.kind === "sauna" ? "#ffcd83" : "#fff0d8"} intensity={r.kind === "sauna" ? 5 : 9} distance={6} decay={2}/>}
       {interior && <mesh position={[(r.x + r.w / 2) / 1000, 2.56, (r.z + r.d / 2) / 1000]} rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[.16, 24]}/><meshStandardMaterial color="#fff5d7" emissive="#fff3d3" emissiveIntensity={2}/></mesh>}
@@ -200,4 +218,15 @@ export function ArchitecturalModel({ design, style = "nordic", furnished = true,
     {design.fittings.filter(f => furnished || f.fixed).map(f => <Furniture key={f.id} item={f} style={style} wood={wood}/>)}
     <group position={[design.outdoor.x / 1000, 0, design.outdoor.z / 1000]}><Block p={[design.outdoor.w / 2000, -.045, design.outdoor.d / 2000]} s={[design.outdoor.w / 1000, .08, design.outdoor.d / 1000]} color="white" map={wood}/>{!design.outdoor.terrace && <><Block p={[design.outdoor.w / 2000, 1.05, .04]} s={[design.outdoor.w / 1000, .04, .04]} color="#596f75"/><mesh position={[design.outdoor.w / 2000, .55, .04]}><boxGeometry args={[design.outdoor.w / 1000, 1, .012]}/><meshPhysicalMaterial color="#9cbdc5" transparent opacity={.3} roughness={.12} depthWrite={false}/></mesh></>}</group>
   </group>;
+}
+
+function TexturedA12(props: ModelProps) {
+    const oak = useTexture("/art/a12-oak-albedo.webp");
+    return <BaseModel {...props} oak={oak}/>;
+}
+
+export function ArchitecturalModel(props: ModelProps) {
+    return props.design.id === "A12"
+        ? <Suspense fallback={<BaseModel {...props}/>}><TexturedA12 {...props}/></Suspense>
+        : <BaseModel {...props}/>;
 }

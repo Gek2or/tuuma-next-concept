@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import { Expand, X } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import type { Apartment } from "@/lib/data";
+import { useLanguage } from "./LanguageProvider";
+
+const copy = {
+  empty: { fi: "Tyhjä", en: "Empty", sv: "Tom" },
+  furnished: { fi: "Kalustettu", en: "Furnished", sv: "Möblerad" },
+  compare: { fi: "Vertaa", en: "Compare", sv: "Jämför" },
+  enlarge: { fi: "Avaa suuri kuva", en: "Enlarge image", sv: "Öppna stor bild" },
+  close: { fi: "Sulje", en: "Close", sv: "Stäng" },
+  room: { fi: "Valitse huone", en: "Choose a room", sv: "Välj rum" },
+  slider: { fi: "Tyhjän ja kalustetun kuvan raja", en: "Empty and furnished image divider", sv: "Gräns mellan tom och möblerad bild" },
+  note: { fi: "Konseptikuvia. Kalustus on lisätty saman huoneen tyhjään lähtökuvaan. Kalusteet eivät sisälly vuokraan.", en: "Concept renders. Furniture was added to the same room’s empty reference image. Furniture is not included in the rent.", sv: "Konceptbilder. Möbler har lagts till i samma rums tomma referensbild. Möbler ingår inte i hyran." },
+  fixtures: { fi: "Kiinteät varusteet säilyvät myös tyhjässä asunnossa.", en: "Fixed fittings remain in the empty apartment.", sv: "Fast inredning finns kvar i den tomma bostaden." },
+};
+
+export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
+  const { text } = useLanguage();
+  const [index, setIndex] = useState(0);
+  const [mode, setMode] = useState<"empty" | "furnished" | "compare">("empty");
+  const [split, setSplit] = useState(50);
+  const rooms = apartment.roomMedia;
+  const room = rooms?.[index] ?? rooms?.[0];
+  const legacyImages = [...new Set([apartment.emptyImage, ...(apartment.gallery ?? [apartment.image])].filter(Boolean))] as string[];
+  const effectiveMode = room?.furnished ? mode : "empty";
+  const source = room ? effectiveMode === "furnished" ? room.furnished! : room.empty : legacyImages[index] ?? legacyImages[0];
+  const label = room ? text(room.label) : `${apartment.id} · ${index + 1}`;
+
+  const controls = (large = false) => <div className="flex flex-wrap items-center justify-between gap-3">
+    {room?.furnished ? <div className="flex flex-wrap gap-1 rounded-2xl bg-[#edf1ef] p-1" role="group" aria-label={text({ fi: "Kalustus", en: "Furnishing", sv: "Möblering" })}>
+      {(["empty", "furnished", "compare"] as const).map(value => <button key={value} type="button" aria-pressed={effectiveMode === value} onClick={() => setMode(value)} className={`min-h-11 rounded-xl px-4 text-sm font-bold ${effectiveMode === value ? "bg-[#173655] text-white" : "text-[#36516a]"}`}>{text(copy[value])}</button>)}
+    </div> : <p className="text-sm text-[#526878]">{room ? text(copy.fixtures) : text({ fi: "Erillisiä konseptikuvia", en: "Individual concept images", sv: "Separata konceptbilder" })}</p>}
+    {!large && <DialogTrigger asChild><button className="flex min-h-11 items-center gap-2 rounded-xl border border-[#ccd6d9] px-4 text-sm font-bold text-[#173655]"><Expand size={17} />{text(copy.enlarge)}</button></DialogTrigger>}
+  </div>;
+
+  const picture = (large = false) => <div className={`relative overflow-hidden bg-[#e9e7e1] ${large ? "rounded-xl" : "rounded-[24px]"}`}>
+    <div className={`relative ${large ? "mx-auto aspect-[3/2] max-h-[65vh]" : "aspect-[3/2]"}`} style={{ touchAction: effectiveMode === "compare" ? "pan-y" : "auto" }} onPointerDown={event => {
+      if (effectiveMode !== "compare") return;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      const rect = event.currentTarget.getBoundingClientRect();
+      setSplit(Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100)));
+    }} onPointerMove={event => {
+      if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+      const rect = event.currentTarget.getBoundingClientRect();
+      setSplit(Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100)));
+    }} onPointerUp={event => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); }} onDragStart={event => event.preventDefault()}>
+      <img src={source} alt={`${apartment.id} · ${label} · ${room ? text(copy[effectiveMode === "furnished" ? "furnished" : "empty"]) : "Concept"}`} className="absolute inset-0 h-full w-full object-contain" decoding="async" />
+      {effectiveMode === "compare" && room?.furnished && <>
+        <img src={room.furnished} alt={`${label} · ${text(copy.furnished)}`} className="absolute inset-0 h-full w-full object-contain" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }} decoding="async" />
+        <div className="pointer-events-none absolute inset-y-0 w-[2px] bg-white shadow" style={{ left: `${split}%` }}><span className="absolute top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white bg-[#173655] text-lg text-white">↔</span></div>
+        <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-between gap-2 text-xs font-semibold"><span className="rounded-full bg-[#173655]/95 px-3 py-2 text-white">{text(copy.furnished)}</span><span className="rounded-full bg-white/95 px-3 py-2 text-[#173655]">{text(copy.empty)}</span></div>
+      </>}
+    </div>
+    {effectiveMode === "compare" && <label className="flex items-center gap-3 bg-white px-4 py-3 text-sm text-[#173655]"><span className="sr-only">{text(copy.slider)}</span><span aria-hidden="true">{text(copy.empty)}</span><input type="range" min="0" max="100" value={split} onChange={e => setSplit(Number(e.target.value))} className="h-11 min-w-0 flex-1 accent-[#173655]" aria-label={text(copy.slider)} /><span aria-hidden="true">{text(copy.furnished)}</span></label>}
+  </div>;
+
+  return <Dialog><div className="space-y-4" data-apartment-gallery={apartment.id}>
+    <div className="flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-xl font-semibold text-[#173655]" aria-live="polite">{label}</h3><span className="text-xs font-bold tracking-wider text-[#647786]">CONCEPT / {apartment.id}</span></div>
+    {picture()}
+    {controls()}
+    <nav className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label={text(copy.room)}>
+      {(rooms ?? legacyImages.map((src, i) => ({ id: String(i), empty: src, label: { fi: `Kuva ${i + 1}`, en: `Image ${i + 1}`, sv: `Bild ${i + 1}` } }))).map((item, i) => <button key={item.id} onClick={() => { setIndex(i); setSplit(50); }} aria-pressed={index === i} className={`overflow-hidden rounded-xl border-2 text-left ${index === i ? "border-[#0b58a8] bg-[#edf5fb]" : "border-transparent bg-[#f1f3f0]"}`}><img src={item.empty} alt="" className="aspect-[3/2] w-full object-cover" loading="lazy" /><span className="block px-3 py-3 text-sm font-semibold text-[#173655]">{text(item.label)}</span></button>)}
+    </nav>
+    <p className="text-sm leading-6 text-[#617381]">{rooms ? text(copy.note) : text({ fi: "Kuvat ovat visualisointeja, eivät valokuvia todellisesta vuokrakohteesta.", en: "These are visualisations, not photographs of a real rental home.", sv: "Bilderna är visualiseringar, inte fotografier av ett verkligt hyresobjekt." })}</p>
+  </div>
+  <DialogContent className="max-h-[96dvh] overflow-y-auto bg-[#fffdf8] p-4 sm:max-w-[1200px] sm:p-6" showCloseButton={false}>
+    <div className="flex items-center justify-between gap-3"><DialogTitle className="text-lg font-semibold">{apartment.id} · {label}</DialogTitle><DialogClose className="flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm"><X size={18} />{text(copy.close)}</DialogClose></div>
+    <DialogDescription className="sr-only">{text(copy.note)}</DialogDescription>
+    {picture(true)}{controls(true)}
+  </DialogContent></Dialog>;
+}
