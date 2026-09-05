@@ -182,7 +182,7 @@ export function KalliolinnaExperience() {
 
           <nav className="mt-7 flex gap-2 overflow-x-auto pb-2" aria-label={text({fi:"Valitse talo",en:"Choose a building",sv:"Välj hus"})}>{propertyChoices.map(home=><button key={home.variant} aria-pressed={selectedApartment.variant===home.variant} onClick={()=>{setApt(home.id);setFloor(home.floor);}} className={`min-h-12 shrink-0 rounded-full border px-5 text-sm font-bold ${selectedApartment.variant===home.variant?"border-[#173655] bg-[#173655] text-white":"border-[#d7d7cc] bg-white text-[#173655]"}`}>{home.title.replace(` ${home.id}`,"")}</button>)}</nav>
           <div className="mt-5 grid overflow-hidden rounded-[30px] border border-[#e0d8c8] bg-[#fffdf8] shadow-[0_25px_80px_rgba(65,70,65,.12)] lg:grid-cols-[1.12fr_.88fr]">
-            <div className="relative h-[450px] bg-[#dfe9eb] sm:h-[600px]">
+            <div className="relative h-[min(58svh,420px)] min-h-[340px] bg-[#dfe9eb] sm:h-[600px]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,.65),transparent_35%)]" />
               <BuildingScene variant={selectedApartment.variant} floor={floor} onFloorSelect={selectFloor} />
               <div className="absolute left-4 top-4 rounded-2xl border border-white/70 bg-[#fffdf8]/92 p-2 shadow-lg backdrop-blur sm:left-6 sm:top-6">
@@ -251,6 +251,7 @@ export function KalliolinnaExperience() {
           </aside>
         </div>
       </section>
+      <a href={`/hae?asunto=${selectedUnit.id}`} className="mobile-apply-cta fixed left-3 right-3 z-30 flex min-h-14 items-center justify-between rounded-full bg-[#0b58a8] px-5 font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.32)] lg:hidden"><span>{text({ fi: "Hae asuntoa", en: "Apply", sv: "Ansök" })}</span><span>{selectedUnit.rent} € / kk</span></a>
 
       <section className="shell pb-16 sm:pb-20">
         <div className="grid gap-6">

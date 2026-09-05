@@ -190,7 +190,7 @@ export function AssistantV2() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`fixed right-3 z-40 flex min-h-12 items-center gap-2 rounded-full bg-[#0a55df] px-4 py-3 text-sm font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.34)] sm:bottom-6 sm:right-6 sm:px-5 ${pathname === "/kohteet" ? "bottom-20" : "bottom-4"}`}
+        className={`fixed right-3 z-40 flex min-h-12 items-center gap-2 rounded-full bg-[#0a55df] px-4 py-3 text-sm font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.34)] sm:right-6 sm:px-5 ${pathname.startsWith("/kohteet") ? "bottom-20 sm:bottom-20" : "bottom-4 sm:bottom-6"}`}
         aria-label={labels.button}
       >
         <Sparkles size={18} />
