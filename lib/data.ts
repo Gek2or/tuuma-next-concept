@@ -173,7 +173,7 @@ export const apartments: Apartment[] = [
     ev: true,
     transport: 8,
     tags: ["Perheasunto", "Oma sauna", "Lasitettu parveke"],
-    description: "Tilava viides kerros perheelle: kaksi makuuhuonetta, oma sauna ja näkymä Kalliolinnan puistoon.",
+    description: "Tilava viides kerros perheelle: kolme makuuhuonetta, oma sauna ja näkymä Kalliolinnan puistoon.",
     standards: ["Energiatehokas ulkovaippa", "Oma sauna ja pesutorni", "Lämmin autopaikka / EV-varaus"],
     materials: ["Pähkinä", "Syvä sinivihreä", "Harjattu teräs"],
   },

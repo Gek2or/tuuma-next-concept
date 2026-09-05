@@ -1,142 +1,86 @@
 "use client";
-
-import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { Group } from "three";
+import { useMemo, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { ContactShadows, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { ApartmentVariant } from "@/lib/data";
-
-type BuildingSceneProps = { variant?: ApartmentVariant };
-type FacadeSpec = { base: string; line: string; accent: string; window: string; roof: string; label: string };
-
-const specs: Record<ApartmentVariant, FacadeSpec> = {
-  kalliolinna: { base: "#d9e1e0", line: "#9eb8ba", accent: "#c99951", window: "#345c78", roof: "#1c3d5c", label: "Vaalea kalkkikivi" },
-  asemanvalo: { base: "#e3d4c2", line: "#bda48b", accent: "#c86447", window: "#334e66", roof: "#20374f", label: "Lämmin tiili" },
-  ruukinranta: { base: "#c5d0bf", line: "#899d85", accent: "#b56f4e", window: "#274b61", roof: "#1f3545", label: "Metsänvihreä" },
-  peltokaarre: { base: "#d7e0ea", line: "#9badbf", accent: "#6d90bd", window: "#254667", roof: "#18334f", label: "Pilvensininen" },
-  keravanjoen: { base: "#d4cec1", line: "#a99e8d", accent: "#b07d48", window: "#294b60", roof: "#203848", label: "Luonnonmänty" },
+import { Block, useSurface } from "./ArchitecturalModel";
+import { SceneBoundary, useSceneReady } from "./ApartmentDollhouse";
+import { useLanguage } from "./LanguageProvider";
+export const buildingSpecs: Record<ApartmentVariant, {
+    name: string;
+    floors: number;
+    units: number;
+    width: number;
+    depth: number;
+    surface: "brick" | "timber";
+    base: string;
+    accent: string;
+    roof: string;
+    pitched: boolean;
+    wing?: boolean;
+}> = {
+    kalliolinna: { name: "Kalliolinna", floors: 5, units: 3, width: 24, depth: 11, surface: "brick", base: "#ddd8ca", accent: "#b39468", roof: "#626b69", pitched: false },
+    asemanvalo: { name: "Asemanvalo", floors: 4, units: 3, width: 21, depth: 10, surface: "brick", base: "#a36145", accent: "#d7c6ab", roof: "#39494d", pitched: false, wing: true },
+    ruukinranta: { name: "Ruukinranta", floors: 1, units: 4, width: 24.8, depth: 7.9, surface: "timber", base: "#718374", accent: "#d0b994", roof: "#495452", pitched: true },
+    peltokaarre: { name: "Peltokaarre", floors: 3, units: 3, width: 16.5, depth: 8.2, surface: "brick", base: "#ded8c9", accent: "#7e9caa", roof: "#42505a", pitched: true },
+    keravanjoen: { name: "Keravanjoen piha", floors: 1, units: 3, width: 23.4, depth: 9.9, surface: "timber", base: "#b8976b", accent: "#758582", roof: "#485557", pitched: true },
 };
-
-function makeFacadeTexture(spec: FacadeSpec) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = spec.base;
-  ctx.fillRect(0, 0, 256, 256);
-  ctx.globalAlpha = 0.2;
-  for (let y = 0; y < 256; y += 24) {
-    ctx.strokeStyle = spec.line;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, y + 0.5);
-    ctx.lineTo(256, y + 0.5);
-    ctx.stroke();
-  }
-  ctx.globalAlpha = 0.14;
-  for (let x = 0; x < 256; x += 32) {
-    ctx.strokeStyle = spec.accent;
-    ctx.lineWidth = 1.1;
-    ctx.beginPath();
-    ctx.moveTo(x + 0.5, 0);
-    ctx.lineTo(x + 0.5, 256);
-    ctx.stroke();
-  }
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(1.6, 2.2);
-  texture.anisotropy = 4;
-  return texture;
+function Roof({ width, depth, y, color }: {
+    width: number;
+    depth: number;
+    y: number;
+    color: string;
+}) {
+    const geometry = useMemo(() => { const shape = new THREE.Shape(); shape.moveTo(-depth / 2 - .45, 0); shape.lineTo(0, depth * .29); shape.lineTo(depth / 2 + .45, 0); shape.closePath(); return new THREE.ExtrudeGeometry(shape, { depth: width + .6, bevelEnabled: false }); }, [width, depth]);
+    return <mesh geometry={geometry} position={[-.3, y, depth / 2]} rotation={[0, Math.PI / 2, 0]} castShadow><meshStandardMaterial color={color} roughness={.75}/></mesh>;
 }
-
-function Building({ variant }: { variant: ApartmentVariant }) {
-  const ref = useRef<Group>(null);
-  const spec = specs[variant] ?? specs.kalliolinna;
-  const facade = useMemo(() => makeFacadeTexture(spec), [spec]);
-  useFrame((s) => {
-    if (ref.current) ref.current.rotation.y = Math.sin(s.clock.elapsedTime * 0.22) * 0.08 - 0.32;
-  });
-  const floors = [0, 1, 2, 3, 4];
-  return (
-    <group ref={ref} position={[0, -1.1, 0]}>
-      {floors.map((floor) => (
-        <group key={floor} position={[0, floor * 0.72, 0]}>
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[3.8, 0.64, 1.75]} />
-            <meshStandardMaterial map={facade ?? undefined} color={floor === 4 ? "#f1e9da" : "#ffffff"} roughness={0.66} metalness={0.02} />
-          </mesh>
-          {[-1.25, -0.42, 0.42, 1.25].map((x, index) => (
-            <group key={`${x}-${floor}`} position={[x, 0, 0.884]}>
-              <mesh castShadow>
-                <boxGeometry args={[0.5, 0.36, 0.035]} />
-                <meshStandardMaterial color={index % 2 ? spec.window : "#9fc3cf"} roughness={0.18} metalness={0.18} emissive={spec.window} emissiveIntensity={0.08} />
-              </mesh>
-              <mesh position={[0, -0.23, 0.01]}>
-                <boxGeometry args={[0.56, 0.04, 0.09]} />
-                <meshStandardMaterial color={spec.accent} roughness={0.56} />
-              </mesh>
-            </group>
-          ))}
-          <mesh position={[0, -0.36, 0.97]} castShadow>
-            <boxGeometry args={[4.05, 0.06, 0.18]} />
-            <meshStandardMaterial color={spec.line} roughness={0.74} />
-          </mesh>
-        </group>
-      ))}
-      <mesh position={[0, -0.23, 0]} receiveShadow>
-        <boxGeometry args={[4.5, 0.15, 2.4]} />
-        <meshStandardMaterial color="#b9c8c8" roughness={0.9} />
-      </mesh>
-      <mesh position={[1.2, 0.35, 0.89]} castShadow>
-        <boxGeometry args={[0.85, 1.1, 0.04]} />
-        <meshStandardMaterial color={spec.roof} roughness={0.35} metalness={0.12} />
-      </mesh>
-      <mesh position={[-1.3, 3.32, -0.03]} rotation={[0, 0.14, 0]}>
-        <boxGeometry args={[1.6, 0.16, 1.95]} />
-        <meshStandardMaterial color={spec.roof} roughness={0.52} />
-      </mesh>
-    </group>
-  );
+function Window({ x, y, z, accent, balcony = false, width = 1.7 }: {
+    x: number;
+    y: number;
+    z: number;
+    accent: string;
+    balcony?: boolean;
+    width?: number;
+}) {
+    return <group position={[x, y, z]}><Block p={[0, 0, 0]} s={[width + .18, 1.76, .14]} color="#deded6"/><Block p={[0, 0, .08]} s={[width, 1.60, .06]} color="#658797" roughness={.12}/><Block p={[width * .15, 0, .12]} s={[.055, 1.63, .03]} color="#deded6"/><Block p={[0, -.87, .1]} s={[width + .28, .055, .25]} color={accent}/>{balcony && <group position={[0, -1.4, .1]}><Block p={[0, 0, .7]} s={[3.2, .16, 1.7]} color="#c5c4b9"/><Block p={[0, 1.12, 1.5]} s={[3.2, .06, .06]} color="#63787e"/>{[-1.55, 1.55].map(x => <Block key={x} p={[x, .60, 1.5]} s={[.055, 1.1, .055]} color="#63787e"/>)}<mesh position={[0, .62, 1.5]}><boxGeometry args={[3.1, 1.03, .018]}/><meshPhysicalMaterial color="#99b8c0" transparent opacity={.48} roughness={.1} depthWrite={false}/></mesh></group>}</group>;
 }
-
-const fallbackArt: Record<ApartmentVariant, string> = {
-  kalliolinna: "/art/tuusula-editorial-area.webp",
-  asemanvalo: "/art/jokela-editorial-area.webp",
-  ruukinranta: "/art/kellokoski-editorial-area.webp",
-  peltokaarre: "/art/jokela-editorial-area.webp",
-  keravanjoen: "/art/kellokoski-editorial-area.webp",
-};
-
-export default function BuildingScene({ variant = "kalliolinna" }: BuildingSceneProps) {
-  const [webgl, setWebgl] = useState(false);
-  useEffect(() => {
-    const canvas = document.createElement("canvas");
-    const options = { failIfMajorPerformanceCaveat: true };
-    const context = canvas.getContext("webgl2", options) || canvas.getContext("webgl", options);
-    queueMicrotask(() => setWebgl(Boolean(context && "isContextLost" in context && !context.isContextLost())));
-  }, []);
-  if (!webgl) {
-    return (
-      <div className="relative h-full w-full overflow-hidden">
-        <img src={fallbackArt[variant]} alt="Moderni suomalainen asuinympäristö, kevyt näkymä" className="h-full w-full object-cover" />
-        <span className="absolute bottom-24 right-5 rounded-full bg-white/90 px-3 py-2 text-xs font-bold text-[#31516f]">Kevyt näkymä</span>
-      </div>
-    );
-  }
-  return (
-    <Canvas dpr={[1, 1.35]} camera={{ position: [5, 3.7, 7], fov: 34 }} gl={{ antialias: true, alpha: true }}>
-      <ambientLight intensity={1.15} />
-      <directionalLight position={[4, 8, 5]} intensity={2.3} castShadow shadow-mapSize={[1024, 1024]} />
-      <Building variant={variant} />
-      <ContactShadows position={[0, -1.36, 0]} opacity={0.22} scale={10} blur={2.5} />
-      <Environment preset="city" />
-      <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={1.12} maxPolarAngle={1.35} />
-    </Canvas>
-  );
+function Building({ variant, floor, onFloorSelect }: {
+    variant: ApartmentVariant;
+    floor?: number;
+    onFloorSelect?: (n: number) => void;
+}) {
+    const s = buildingSpecs[variant];
+    const texture = useSurface(s.surface, s.base);
+    const [hover, setHover] = useState<number | null>(null);
+    const bay = s.width / s.units;
+    return <group position={[-s.width / 2, 0, -s.depth / 2]}>
+    <Block p={[s.width / 2, -.15, s.depth / 2]} s={[s.width + .5, .3, s.depth + .5]} color="#b4b6ad"/>
+    {Array.from({ length: s.floors }, (_, f) => {
+            const setback = variant === "kalliolinna" && f === 4 ? 1 : 0;
+            return <group key={f} onPointerOver={e => { e.stopPropagation(); setHover(f + 1); }} onPointerOut={() => setHover(null)} onClick={e => { e.stopPropagation(); onFloorSelect?.(f + 1); }}>
+        <Block p={[s.width / 2, f * 3 + 1.5, s.depth / 2]} s={[s.width - setback * 2, 2.97, s.depth - setback * 2]} color={hover === f + 1 ? "#fff2d5" : "#ffffff"} map={texture}/>
+        <Block p={[s.width / 2, f * 3 + .04, s.depth + .05 - setback]} s={[s.width - setback * 2, .09, .20]} color={floor === f + 1 ? "#d49b3c" : "#b8b8ab"}/>
+        {Array.from({ length: s.units }, (_, i) => <group key={i}><Window x={bay * (i + .5)} y={f * 3 + 1.65} z={s.depth - setback + .08} accent={s.accent} balcony={s.floors > 1 && f > 0} width={s.floors === 1 ? 2.4 : 1.7}/><group position={[bay * (i + .5), f * 3 + 1.65, setback - .08]} rotation={[0, Math.PI, 0]}><Window x={0} y={0} z={0} accent={s.accent} width={1.6}/></group>{s.floors === 1 && <><Block p={[bay * (i + .5), -.01, s.depth + 1.1]} s={[bay - .5, .10, 2.2]} color="#bda685"/><Block p={[bay * (i + .15), 1.05, s.depth + .08]} s={[.98, 2.1, .12]} color={s.accent}/><Block p={[bay * (i + .15), 2.4, s.depth + .45]} s={[1.5, .10, 1.1]} color={s.roof}/><Block p={[bay * (i + 1) - .2, .65, s.depth + 1.1]} s={[.12, 1.3, 2.2]} color={s.accent}/></>}</group>)}
+      </group>;
+        })}
+    {s.pitched ? <Roof width={s.width} depth={s.depth} y={s.floors * 3} color={s.roof}/> : <Block p={[s.width / 2, s.floors * 3 + .08, s.depth / 2]} s={[s.width + .35, .22, s.depth + .35]} color={s.roof}/>}
+    {s.wing && <group position={[s.width - 5, 0, -7]}><Block p={[2.5, 6, 3.5]} s={[5, 12, 7]} color="white" map={texture}/><Block p={[2.5, 12.1, 3.5]} s={[5.2, .2, 7.2]} color={s.roof}/>{[0, 1, 2, 3].map(f => <group key={f} position={[5.08, 1.65 + 3 * f, 3.4]} rotation={[0, Math.PI / 2, 0]}><Window x={0} y={0} z={0} accent={s.accent}/></group>)}</group>}
+    {s.floors > 1 && <><Block p={[s.width * .48, 1.13, s.depth + .13]} s={[1.7, 2.25, .16]} color="#334b54"/><Block p={[s.width * .48, 2.55, s.depth + .7]} s={[3.3, .13, 1.5]} color={s.roof}/><Block p={[s.width * .48, .05, s.depth + 1.2]} s={[3.4, .12, 2.4]} color="#b8bcb3"/></>}
+    {[.2, s.width - .2].map(x => <Block key={x} p={[x, s.floors * 1.5, s.depth + .12]} s={[.09, s.floors * 3, .09]} color={s.roof}/>)}
+    <Block p={[s.width / 2, -.20, s.depth + 2.8]} s={[s.width + 3, .08, 1.5]} color="#c8c8ba"/>
+    {s.floors === 1 && Array.from({ length: s.units }, (_, i) => <Block key={i} p={[bay * (i + .5), -.18, s.depth + 5.2]} s={[bay - .7, .09, 3.2]} color="#91a084"/>)}
+  </group>;
 }
-
-export { specs as buildingMaterialSpecs };
+export default function BuildingScene({ variant = "kalliolinna", floor, onFloorSelect }: {
+    variant?: ApartmentVariant;
+    floor?: number;
+    onFloorSelect?: (n: number) => void;
+}) {
+    const { text } = useLanguage(), s = buildingSpecs[variant];
+    const { ref, ready, unavailable } = useSceneReady();
+    return <div ref={ref} className="h-full w-full"><SceneBoundary fallback={<div className="grid h-full place-items-center bg-[#e5eae6] p-8 text-center text-[#173655]"><div><h3 className="text-2xl">{s.name}</h3><p className="mt-3">{s.floors} {text({ fi: "kerrosta", en: "storeys", sv: "våningar" })} · {s.width} × {s.depth} m</p><p className="mt-3 text-sm">{text({ fi: "3D vaatii WebGL-tuen. Pohjapiirustukset ovat saatavilla.", en: "3D requires WebGL. Floor drawings are available.", sv: "3D kräver WebGL. Planritningar är tillgängliga." })}</p></div></div>}>
+    {unavailable && <div className="grid h-full place-items-center p-8 text-center text-[#173655]"><div><h3 className="text-2xl font-semibold">{s.name}</h3><p className="mt-4">{s.floors} {text({ fi: "kerrosta", en: "storeys", sv: "våningar" })} · {s.width} × {s.depth} m</p><p className="mt-4 max-w-xs text-sm leading-6">{text({ fi: "Selaimen 3D-tuki ei ole käytettävissä. Asuntojen piirustukset toimivat normaalisti.", en: "This browser has no available 3D support. Apartment drawings remain available.", sv: "Webbläsarens 3D-stöd är inte tillgängligt. Planritningarna fungerar normalt." })}</p></div></div>}
+    {ready && <Canvas key={variant} shadows dpr={[1, 2]} camera={{ position: [s.width * .9, Math.max(s.floors * 3 + 6, 15), s.width * 1.1], fov: 43, near: .1, far: 150 }} gl={{ antialias: true }}><color attach="background" args={["#e4eae7"]}/><hemisphereLight args={["#f5f8ff", "#a6a290", 2]}/><directionalLight position={[-18, 32, 15]} intensity={3} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-bias={-.0002}/><Building variant={variant} floor={floor} onFloorSelect={onFloorSelect}/><ContactShadows position={[0, -.34, 0]} opacity={.4} scale={65} far={20} blur={2.4} frames={1}/><OrbitControls target={[0, s.floors * 1.3, 1]} minDistance={15} maxDistance={65} maxPolarAngle={Math.PI / 2.1} enableDamping/></Canvas>}
+  </SceneBoundary></div>;
+}

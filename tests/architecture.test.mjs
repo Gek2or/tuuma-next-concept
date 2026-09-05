@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { designs, roomArea } from '../lib/architecture.ts';
+
+test('all seven apartments have unique, fully partitioned layouts', () => {
+  assert.equal(Object.keys(designs).length, 7);
+  assert.equal(new Set(Object.values(designs).map(d=>JSON.stringify(d.rooms))).size, 7);
+  for (const d of Object.values(designs)) {
+    assert.equal(d.rooms.reduce((sum,r)=>sum+r.w*r.d,0),d.width*d.depth,d.id);
+    for (const a of d.rooms) for (const b of d.rooms) if(a.id!==b.id) {
+      assert.ok(a.x+a.w<=b.x||b.x+b.w<=a.x||a.z+a.d<=b.z||b.z+b.d<=a.z,`${d.id}: overlapping rooms ${a.id}/${b.id}`);
+    }
+  }
+});
+test('every apartment has an entrance and a connected room graph', () => {
+  for (const d of Object.values(designs)) {
+    assert.equal(d.walls.filter(w=>w.rooms.length===1&&w.opening?.kind==='door').length,1,d.id);
+    const reached=new Set(['et']);
+    for(let pass=0;pass<d.rooms.length;pass++) for(const w of d.walls) {
+      if(w.opening&&w.opening.kind!=='window'&&w.rooms.some(r=>reached.has(r)))w.rooms.forEach(r=>reached.add(r));
+    }
+    assert.equal(reached.size,d.rooms.length,d.id);
+    for(const w of d.walls)if(w.opening){assert.ok(w.opening.start>=w.start,d.id);assert.ok(w.opening.start+w.opening.width<=w.end,d.id);}
+  }
+});
+test('bedrooms have exterior glazing and the intended room counts',()=>{
+  const bedrooms={A12:1,A14:2,B24:2,C07:1,A31:3,D18:0,E05:2};
+  for(const d of Object.values(designs)) {
+    const rooms=d.rooms.filter(r=>r.kind==='bedroom');
+    assert.equal(rooms.length,bedrooms[d.id]);
+    for(const r of rooms){assert.ok(roomArea(r)>=7,`${d.id}/${r.id}`);assert.ok(d.walls.some(w=>w.rooms.length===1&&w.rooms[0]===r.id&&w.opening?.kind==='window'),`${d.id}/${r.id}: missing daylight`);}
+  }
+});
+test('all fixed and movable fittings stay inside their room footprints',()=>{
+  for(const d of Object.values(designs))for(const f of d.fittings){const r=d.rooms.find(r=>r.id===f.room);assert.ok(r);assert.ok(f.x>=r.x&&f.z>=r.z&&f.x+f.w<=r.x+r.w&&f.z+f.d<=r.z+r.d,`${d.id}/${f.id}`);}
+});
+test('saunas exist only in sauna apartments and open into bathrooms',()=>{
+  for(const d of Object.values(designs)){
+    assert.equal(d.rooms.some(r=>r.kind==='sauna'),['A31','B24','E05'].includes(d.id));
+    for(const w of d.walls.filter(w=>w.rooms.includes('s')&&w.opening?.kind==='door'))assert.ok(w.rooms.includes('kph'));
+  }
+});

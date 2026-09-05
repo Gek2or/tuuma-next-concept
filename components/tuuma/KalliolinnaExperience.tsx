@@ -66,7 +66,7 @@ const pageCopy = {
   standardsTitle: { fi: "Rakennettu tämän arjen ympärille.", en: "Designed around everyday life.", sv: "Utformat kring vardagen." },
   standardsBody: { fi: "Kohdetiedot voidaan kuvata samalla rakenteella kuin suomalainen vuokratalo toimii: energiatehokkuus, märkätilat, kulku, tietoliikenne ja arjen säilytys näkyvät ennen hakemusta.", en: "The property story follows how a Finnish rental home works: energy, wet rooms, access, connectivity and everyday storage are visible before applying.", sv: "Objektinformationen följer hur ett finländskt hyreshem fungerar: energi, våtrum, tillgänglighet, uppkoppling och förvaring syns före ansökan." },
   tourTitle: { fi: "Kävele kodin läpi ennen kuin päätät.", en: "Walk through the home before you decide.", sv: "Gå genom hemmet innan du bestämmer dig." },
-  tourBody: { fi: "Huoneet, hotspotit ja pohjakartta toimivat samassa kierrossa. Tuotannossa työntekijä voi julkaista puhelimella kuvatun panoraaman ilman uutta sivutyötä.", en: "Rooms, hotspots and the floor-plan map work in one tour. In production, a staff member could publish a phone-captured panorama without rebuilding the page.", sv: "Rum, hotspots och planritningen fungerar i samma rundtur. I produktion kan personalen publicera en mobilfångad panorama utan extra sidarbete." },
+  tourBody: { fi: "Katso jokaiseen suuntaan asunnon omassa 3D-mallissa. Ovet, huoneet ja kalusteet vastaavat piirustusta. Vaihda huonetta, sisustusta tai kalustusta kierroksen aikana.", en: "Look in every direction inside this apartment’s own 3D model. Doors, rooms and furnishings follow its drawing. Change rooms, interior style or furnishing during the tour.", sv: "Se åt alla håll i bostadens egen 3D-modell. Dörrar, rum och möbler följer ritningen. Byt rum, inredningsstil eller möblering under rundturen." },
   workflow: { fi: "Julkaisun työnkulku", en: "Publishing workflow", sv: "Publiceringsflöde" },
   workflowTitle: { fi: "Yksi kuvaus. Monta kohtaamista.", en: "One capture. Many touchpoints.", sv: "En inspelning. Många möten." },
   capture: { fi: "Asunto kuvataan", en: "Capture the home", sv: "Bostaden fotograferas" },
@@ -146,6 +146,10 @@ export function KalliolinnaExperience() {
   const [photoMode, setPhotoMode] = useState<"furnished" | "empty">("furnished");
   const selectedUnit = useMemo(() => units.find((unit) => unit.id === apt) ?? units[0], [apt]);
   const selectedApartment = useMemo(() => apartments.find((item) => item.id === apt) ?? apartments[0], [apt]);
+  const floors = { kalliolinna:5, asemanvalo:4, ruukinranta:1, peltokaarre:3, keravanjoen:1 }[selectedApartment.variant];
+  const propertyChoices = apartments.filter((item,index,list)=>list.findIndex(other=>other.variant===item.variant)===index);
+  const floorUnits = units.filter(unit=>apartments.some(item=>item.id===unit.id&&item.variant===selectedApartment.variant&&item.floor===floor));
+  function selectFloor(next:number) { setFloor(next); const home=apartments.find(item=>item.variant===selectedApartment.variant&&item.floor===next); if(home) {setApt(home.id);setPhotoMode("furnished");} }
   const heroImage = photoMode === "empty" && selectedApartment.emptyImage ? selectedApartment.emptyImage : selectedApartment.image;
   const gallery = selectedApartment.gallery?.length ? selectedApartment.gallery : [selectedApartment.image];
 
@@ -178,15 +182,16 @@ export function KalliolinnaExperience() {
             <span className="rounded-full border border-[#d2bd82] bg-[#fffdf8] px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#7f6421]">Concept · Demo</span>
           </div>
 
-          <div className="mt-9 grid overflow-hidden rounded-[30px] border border-[#e0d8c8] bg-[#fffdf8] shadow-[0_25px_80px_rgba(65,70,65,.12)] lg:grid-cols-[1.12fr_.88fr]">
+          <nav className="mt-7 flex gap-2 overflow-x-auto pb-2" aria-label={text({fi:"Valitse talo",en:"Choose a building",sv:"Välj hus"})}>{propertyChoices.map(home=><button key={home.variant} aria-pressed={selectedApartment.variant===home.variant} onClick={()=>{setApt(home.id);setFloor(home.floor);setPhotoMode("furnished");}} className={`min-h-12 shrink-0 rounded-full border px-5 text-sm font-bold ${selectedApartment.variant===home.variant?"border-[#173655] bg-[#173655] text-white":"border-[#d7d7cc] bg-white text-[#173655]"}`}>{home.title.replace(` ${home.id}`,"")}</button>)}</nav>
+          <div className="mt-5 grid overflow-hidden rounded-[30px] border border-[#e0d8c8] bg-[#fffdf8] shadow-[0_25px_80px_rgba(65,70,65,.12)] lg:grid-cols-[1.12fr_.88fr]">
             <div className="relative h-[450px] bg-[#dfe9eb] sm:h-[600px]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,.65),transparent_35%)]" />
-              <BuildingScene variant={selectedApartment.variant} />
+              <BuildingScene variant={selectedApartment.variant} floor={floor} onFloorSelect={selectFloor} />
               <div className="absolute left-4 top-4 rounded-2xl border border-white/70 bg-[#fffdf8]/92 p-2 shadow-lg backdrop-blur sm:left-6 sm:top-6">
                 <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[.16em] text-[#687b89]">{text(pageCopy.chooseFloor)}</p>
                 <div className="grid grid-cols-5 gap-1 sm:block">
-                  {[5, 4, 3, 2, 1].map((item) => (
-                    <button key={item} onClick={() => setFloor(item)} className={`h-10 rounded-xl px-3 text-xs font-black transition sm:mb-1 sm:block sm:w-full sm:text-left ${floor === item ? "bg-[#0b58a8] text-white" : "text-[#4b647a] hover:bg-[#edf2f2]"}`}>
+                  {Array.from({length:floors},(_,i)=>floors-i).map((item) => (
+                    <button key={item} onClick={() => selectFloor(item)} className={`h-11 rounded-xl px-3 text-sm font-black transition sm:mb-1 sm:block sm:w-full sm:text-left ${floor === item ? "bg-[#0b58a8] text-white" : "text-[#4b647a] hover:bg-[#edf2f2]"}`}>
                       <span className="sm:hidden">{item}</span><span className="hidden sm:inline">{item}. kerros</span>
                     </button>
                   ))}
@@ -206,7 +211,8 @@ export function KalliolinnaExperience() {
               <h2 className="display mt-3 text-4xl text-[#102f4b] sm:text-5xl">{text(pageCopy.heroTitle)}</h2>
               <p className="mt-4 max-w-md text-sm leading-6 text-[#647786]">{text(pageCopy.heroIntro)}</p>
               <div className="mt-7 grid gap-3">
-                {units.map((unit) => (
+                {!floorUnits.length&&<p className="rounded-2xl border border-dashed p-5 text-sm text-slate-500">{text({fi:"Tässä kerroksessa ei ole demoasuntoa. Valitse toinen kerros tai talo.",en:"No demo apartment on this floor. Choose another floor or building.",sv:"Ingen demobostad på denna våning. Välj en annan våning eller byggnad."})}</p>}
+                {floorUnits.map((unit) => (
                   <button key={unit.id} disabled={!unit.free} onClick={() => { setApt(unit.id); setFloor(apartments.find((item) => item.id === unit.id)?.floor ?? 3); setPhotoMode("furnished"); }} className={`flex items-center justify-between rounded-2xl border p-4 text-left transition ${apt === unit.id ? "border-[#0b58a8] bg-[#edf5fb] shadow-sm" : "border-[#dbe3e3] bg-white hover:border-[#94b4cc]"} ${!unit.free ? "cursor-not-allowed opacity-45" : ""}`}>
                     <span><b className="block text-lg text-[#173655]">{unit.id}</b><small className="text-[#687c8d]">{unit.r} · {unit.s}</small></span>
                     <span className="text-right"><b className="block text-[#173655]">{unit.rent} € / kk</b><small className={unit.free ? "text-[#08765f]" : "text-[#798a99]"}>{unit.availability}</small></span>
@@ -246,7 +252,7 @@ export function KalliolinnaExperience() {
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <p className="eyebrow">{selectedApartment.title}</p>
             <h2 className="display mt-3 text-5xl text-[#102f4b]">{selectedUnit.r}</h2>
-            <div className="mt-4 flex items-baseline justify-between gap-4"><span className="text-xl font-bold text-[#2d4c66]">{selectedUnit.s} · {floor}. {text({ fi: "kerros", en: "floor", sv: "våning" })}</span><b className="text-2xl text-[#102f4b]">{selectedUnit.rent} €<small className="text-sm font-medium text-[#6d7d8e]"> / kk</small></b></div>
+            <div className="mt-4 flex items-baseline justify-between gap-4"><span className="text-xl font-bold text-[#2d4c66]">{selectedUnit.s} · {selectedApartment.floor}. {text({ fi: "kerros", en: "floor", sv: "våning" })}</span><b className="text-2xl text-[#102f4b]">{selectedUnit.rent} €<small className="text-sm font-medium text-[#6d7d8e]"> / kk</small></b></div>
             <p className="mt-4 flex items-center gap-2 text-[#587087]"><MapPin size={17} /> {selectedApartment.address}, {selectedApartment.area}</p>
             <p className="mt-4 text-sm leading-6 text-[#5f7488]">{selectedApartment.description}</p>
             <div className="mt-7 grid grid-cols-2 gap-3">
@@ -291,7 +297,7 @@ export function KalliolinnaExperience() {
 
       <section className="bg-[#102f4b] py-16 text-white sm:py-20">
         <div className="shell">
-          <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow !text-[#a9c6db]">{text({ fi: "Virtuaaliesittely / 360°", en: "Virtual showcase / 360°", sv: "Virtuell visning / 360°" })}</p><h2 className="display mt-3 max-w-3xl text-4xl sm:text-6xl">{text(pageCopy.tourTitle)}</h2></div><span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black">equirectangular demo</span></div>
+          <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow !text-[#a9c6db]">{text({ fi: "Virtuaaliesittely / 360°", en: "Virtual showcase / 360°", sv: "Virtuell visning / 360°" })}</p><h2 className="display mt-3 max-w-3xl text-4xl sm:text-6xl">{text(pageCopy.tourTitle)}</h2></div><span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black">Live 3D · 360°</span></div>
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/72">{text(pageCopy.tourBody)}</p>
           <div className="mt-9"><Tour360Viewer key={`tour-${selectedApartment.id}`} apartment={selectedApartment} /></div>
         </div>

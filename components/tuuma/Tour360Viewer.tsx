@@ -1,127 +1,97 @@
 "use client";
-
-import { Suspense, useEffect, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
-import { Canvas } from "@react-three/fiber";
-import { Html, OrbitControls, useTexture } from "@react-three/drei";
+/* R3F exposes imperative camera/renderer resources, not React state. Updated only in effects. */
+/* eslint-disable react-hooks/immutability */
+import { useEffect, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import { Expand, Map, RotateCcw } from "lucide-react";
 import * as THREE from "three";
-import { Compass, Expand, Hand, Map, RotateCcw, X } from "lucide-react";
-import { useLanguage, type LocalizedText } from "./LanguageProvider";
+import { designFor, roomNames, type Design } from "@/lib/architecture";
 import { apartments, type Apartment } from "@/lib/data";
-
-type TourRoom = {
-  id: string;
-  src: string;
-  heading: number;
-  hotspot: { left: string; top: string; target: number };
-};
-
-const roomCopy: Record<string, LocalizedText> = {
-  living: { fi: "Olohuone", en: "Living room", sv: "Vardagsrum" },
-  kitchen: { fi: "Keittiö", en: "Kitchen", sv: "Kök" },
-  bedroom: { fi: "Makuuhuone", en: "Bedroom", sv: "Sovrum" },
-  bathroom: { fi: "Kylpyhuone", en: "Bathroom", sv: "Badrum" },
-  balcony: { fi: "Parveke", en: "Balcony", sv: "Balkong" },
-};
-
-const tourCopy: Record<string, LocalizedText> = {
-  tourLabel: { fi: "360 asteen virtuaalikierros", en: "360-degree virtual tour", sv: "Virtuell rundtur i 360°" },
-  help: { fi: "Näytä 360-ohje", en: "Show 360° guidance", sv: "Visa 360°-guide" },
-  closeHelp: { fi: "Piilota 360-ohje", en: "Hide 360° guidance", sv: "Dölj 360°-guide" },
-  fullscreen: { fi: "Avaa koko näyttö", en: "Open fullscreen", sv: "Öppna helskärm" },
-  exitFullscreen: { fi: "Poistu koko näytöstä", en: "Exit fullscreen", sv: "Avsluta helskärm" },
-  rooms: { fi: "Huoneet", en: "Rooms", sv: "Rum" },
-  miniMap: { fi: "Pohjakartta", en: "Floor plan", sv: "Planritning" },
-  next: { fi: "Seuraava huone", en: "Next room", sv: "Nästa rum" },
-  swipe: { fi: "Pyyhkäise nähdäksesi tilan", en: "Swipe to explore the room", sv: "Svep för att utforska rummet" },
-  demo: { fi: "Demo-panoraama · 2:1 equirectangular", en: "Demo panorama · 2:1 equirectangular", sv: "Demopanorama · 2:1 equirectangular" },
-  helpTitle: { fi: "Tutki rauhassa", en: "Take your time", sv: "Utforska i lugn och ro" },
-  helpBody: { fi: "Vedä näkymää sormella tai hiirellä. Hotspot vie suoraan seuraavaan tilaan. Nuolinäppäimet toimivat, kun kierros on aktiivinen.", en: "Drag with your finger or mouse. A hotspot takes you straight to the next room. Arrow keys work when the tour is focused.", sv: "Dra med fingret eller musen. Hotspotten tar dig till nästa rum. Piltangenterna fungerar när rundturen är aktiv." },
-  loading: { fi: "Ladataan kierrosta…", en: "Loading tour…", sv: "Rundtur laddas…" },
-  gyro: { fi: "Liikeohjaus", en: "Motion control", sv: "Rörelsestyrning" },
-  gyroOn: { fi: "Liikeohjaus valmis", en: "Motion control ready", sv: "Rörelsestyrning klar" },
-};
-
-const miniMapLayout: Record<string, { x: number; y: number; w: number; h: number }> = {
-  living: { x: 8, y: 8, w: 76, h: 39 },
-  kitchen: { x: 8, y: 47, w: 38, h: 40 },
-  hall: { x: 46, y: 47, w: 38, h: 40 },
-  bedroom: { x: 84, y: 8, w: 68, h: 39 },
-  bathroom: { x: 84, y: 47, w: 34, h: 40 },
-  balcony: { x: 118, y: 47, w: 34, h: 40 },
-};
-
-function roomsFor(apartment: Apartment): TourRoom[] {
-  const base = apartment.tour.startHeading ?? 0;
-  return [
-    { id: "living", src: apartment.tour.living, heading: base, hotspot: { left: "72%", top: "47%", target: 1 } },
-    { id: "kitchen", src: apartment.tour.kitchen, heading: base - 0.72, hotspot: { left: "27%", top: "45%", target: 0 } },
-    { id: "bedroom", src: apartment.tour.bedroom, heading: base + 0.14, hotspot: { left: "78%", top: "48%", target: 3 } },
-    { id: "bathroom", src: apartment.tour.bedroom, heading: base + 1.62, hotspot: { left: "22%", top: "48%", target: 2 } },
-    { id: "balcony", src: apartment.tour.living, heading: base - 1.96, hotspot: { left: "61%", top: "41%", target: 0 } },
-  ];
+import { ArchitecturalModel, type InteriorStyle } from "./ArchitecturalModel";
+import { InteriorOptions, ModelFallback, SceneBoundary, useSceneReady } from "./ApartmentDollhouse";
+import { PlanGeometry } from "./ApartmentPlan";
+import { useLanguage } from "./LanguageProvider";
+export function cameraSpot(design: Design, id: string): [
+    number,
+    number,
+    number
+] {
+    const room = design.rooms.find(r => r.id === id)!;
+    const options = [.5, .65, .35, .8, .2].flatMap(x => [.5, .7, .3, .85].map(z => ({ x: room.x + room.w * x, z: room.z + room.d * z })));
+    const spot = options.find(p => !design.fittings.some(f => f.room === id && f.kind !== "rug" && p.x > f.x - 200 && p.x < f.x + f.w + 200 && p.z > f.z - 200 && p.z < f.z + f.d + 200)) ?? options[0];
+    return [spot.x / 1000, 1.6, spot.z / 1000];
 }
-
-function Panorama({ room }: { room: TourRoom }) {
-  const texture = useTexture(room.src);
-  const panoTexture = useMemo(() => {
-    const clonedTexture = texture.clone();
-    clonedTexture.colorSpace = THREE.SRGBColorSpace;
-    clonedTexture.anisotropy = 4;
-    clonedTexture.needsUpdate = true;
-    return clonedTexture;
-  }, [texture]);
-  return <mesh rotation={[0, room.heading, 0]} scale={[-1, 1, 1]}><sphereGeometry args={[10, 64, 40]} /><meshBasicMaterial map={panoTexture} side={THREE.BackSide} toneMapped={false} /></mesh>;
+function LookControls({ design, room, reset }: {
+    design: Design;
+    room: string;
+    reset: number;
+}) {
+    const { camera, gl, invalidate } = useThree();
+    useEffect(() => {
+        const perspective = camera as THREE.PerspectiveCamera;
+        const spot = cameraSpot(design, room);
+        camera.position.set(...spot);
+        const r = design.rooms.find(r => r.id === room)!;
+        camera.lookAt((r.x + r.w * .5) / 1000, 1.25, (r.z + 250) / 1000);
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, "YXZ");
+        const canvas = gl.domElement;
+        canvas.style.touchAction = "none";
+        canvas.tabIndex = 0;
+        canvas.setAttribute("aria-label", "360° · drag / arrow keys");
+        let dragging = false, lastX = 0, lastY = 0;
+        const update = () => { euler.x = THREE.MathUtils.clamp(euler.x, -1.25, 1.25); camera.quaternion.setFromEuler(euler); invalidate(); };
+        const down = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); canvas.focus(); };
+        const move = (e: PointerEvent) => { if (!dragging)
+            return; euler.y -= (e.clientX - lastX) * .004; euler.x -= (e.clientY - lastY) * .004; lastX = e.clientX; lastY = e.clientY; update(); };
+        const up = () => { dragging = false; };
+        const key = (e: KeyboardEvent) => { if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
+            return; e.preventDefault(); euler.y += e.key === "ArrowLeft" ? .1 : e.key === "ArrowRight" ? -.1 : 0; euler.x += e.key === "ArrowUp" ? .1 : e.key === "ArrowDown" ? -.1 : 0; update(); };
+        const wheel = (e: WheelEvent) => { if (!e.ctrlKey)
+            return; e.preventDefault(); perspective.fov = THREE.MathUtils.clamp(perspective.fov + e.deltaY * .025, 40, 90); perspective.updateProjectionMatrix(); invalidate(); };
+        canvas.addEventListener("pointerdown", down);
+        canvas.addEventListener("pointermove", move);
+        canvas.addEventListener("pointerup", up);
+        canvas.addEventListener("pointercancel", up);
+        canvas.addEventListener("keydown", key);
+        canvas.addEventListener("wheel", wheel, { passive: false });
+        invalidate();
+        return () => { canvas.removeEventListener("pointerdown", down); canvas.removeEventListener("pointermove", move); canvas.removeEventListener("pointerup", up); canvas.removeEventListener("pointercancel", up); canvas.removeEventListener("keydown", key); canvas.removeEventListener("wheel", wheel); };
+    }, [camera, gl, design, room, reset, invalidate]);
+    return null;
 }
-
-function PanoCanvas({ room, loadingLabel }: { room: TourRoom; loadingLabel: string }) {
-  return <Canvas key={room.src + room.id} dpr={[1, 1.5]} camera={{ position: [0, 0, 0.01], fov: 72 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; }}><Suspense fallback={<Html center><div className="rounded-full bg-white/90 px-4 py-3 text-sm font-black text-[#183754] shadow-xl">{loadingLabel}</div></Html>}><Panorama room={room} /></Suspense><OrbitControls makeDefault enablePan={false} enableZoom={false} minPolarAngle={1.18} maxPolarAngle={1.98} rotateSpeed={-0.34} dampingFactor={0.08} enableDamping /></Canvas>;
+function Portals({ design, room, select }: {
+    design: Design;
+    room: string;
+    select: (id: string) => void;
+}) {
+    const { text } = useLanguage();
+    return <>{design.walls.filter(w => w.opening && w.opening.kind !== "window" && w.rooms.length === 2 && w.rooms.includes(room)).map(w => { const target = design.rooms.find(r => r.id === w.rooms.find(id => id !== room))!; const middle = (w.opening!.start + w.opening!.width / 2) / 1000; return <Html key={w.id} position={w.axis === "x" ? [middle, 1.2, w.at / 1000] : [w.at / 1000, 1.2, middle]} center zIndexRange={[10, 0]}><button onClick={() => select(target.id)} className="flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border-2 border-white bg-[#173655]/95 px-4 text-sm font-semibold text-white shadow-xl">{target.code} · {text(roomNames[target.kind])} →</button></Html>; })}</>;
 }
-
-function PanoramaFallback({ room }: { room: TourRoom }) {
-  return <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,22,38,.04),rgba(5,22,38,.34)),url(${room.src})` }} role="img" aria-label="360°-näkymä" />;
+export default function Tour360Viewer({ apartment = apartments[0] }: {
+    apartment?: Apartment;
+}) {
+    const { text } = useLanguage();
+    const design = designFor(apartment.id);
+    const [room, setRoom] = useState("oh"), [style, setStyle] = useState<InteriorStyle>("nordic"), [furnished, setFurnished] = useState(true), [minimap, setMinimap] = useState(false), [reset, setReset] = useState(0), [notice, setNotice] = useState("");
+    const { ref, ready, unavailable } = useSceneReady();
+    const container = useRef<HTMLElement>(null);
+    const active = design.rooms.find(r => r.id === room)!;
+    async function fullscreen() { try {
+        if (document.fullscreenElement)
+            await document.exitFullscreen();
+        else if (container.current?.requestFullscreen)
+            await container.current.requestFullscreen();
+        else
+            setNotice(text({ fi: "Koko näyttö ei ole käytettävissä tässä selaimessa.", en: "Fullscreen is unavailable in this browser.", sv: "Helskärm är inte tillgängligt i denna webbläsare." }));
+    }
+    catch {
+        setNotice(text({ fi: "Selain ei sallinut koko näytön tilaa.", en: "The browser did not allow fullscreen.", sv: "Webbläsaren tillät inte helskärm." }));
+    } }
+    return <section ref={container} className="architecture-tour overflow-hidden rounded-3xl border border-white/20 bg-[#173655] text-white"><header className="flex flex-wrap justify-between gap-4 p-5"><div><p className="text-xs font-bold tracking-[.17em] text-white/60">LIVE 3D / {apartment.id} / CONCEPT</p><h3 className="mt-1 text-xl font-semibold">{active.code} · {text(roomNames[active.kind])}</h3></div><div className="flex gap-2"><button onClick={() => setMinimap(!minimap)} aria-pressed={minimap} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Map size={20}/></button><button onClick={() => setReset(reset + 1)} aria-label={text({ fi: "Palauta näkymä", en: "Reset view", sv: "Återställ vy" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><RotateCcw size={18}/></button><button onClick={() => void fullscreen()} aria-label={text({ fi: "Koko näyttö", en: "Fullscreen", sv: "Helskärm" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Expand size={20}/></button></div></header>
+    <div ref={ref} className="tour-viewport relative h-[460px] bg-[#e1e7e5] sm:h-[650px]">{unavailable && <ModelFallback apartment={apartment}/>}<SceneBoundary fallback={<ModelFallback apartment={apartment}/>}>
+      {ready && <Canvas shadows dpr={[1, 2]} camera={{ position: cameraSpot(design, "oh"), fov: 72, near: .03, far: 120 }} gl={{ antialias: true }}><color attach="background" args={["#c6dce4"]}/><hemisphereLight args={["#f3f6ff", "#b9aa8f", 2.5]}/><directionalLight position={[-8, 14, -10]} intensity={3.2} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-18} shadow-camera-right={18} shadow-camera-top={18} shadow-camera-bottom={-18} shadow-bias={-.0003}/><ArchitecturalModel design={design} style={style} furnished={furnished} interior/><mesh position={[design.width / 2000, -.3, design.depth / 2000]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[160, 160]}/><meshStandardMaterial color="#96a788" roughness={1}/></mesh><LookControls design={design} room={room} reset={reset}/><Portals design={design} room={room} select={setRoom}/></Canvas>}
+    </SceneBoundary>{minimap && <div className="absolute right-3 top-3 w-52 max-w-[60%] rounded-2xl border bg-white/95 p-3 shadow-lg"><svg viewBox={`-400 -2100 ${design.width + 800} ${design.depth + 2800}`} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })}><PlanGeometry design={design} active={room} select={setRoom} furnished={false}/></svg></div>}<span className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-[#173655]/80 px-4 py-2 text-sm backdrop-blur">{text({ fi: "Vedä katsoaksesi ympärille · valitse huone", en: "Drag to look around · choose a room", sv: "Dra för att se dig omkring · välj rum" })}</span></div>
+    <div className="space-y-4 p-5"><nav className="flex gap-2 overflow-x-auto pb-2" aria-label={text({ fi: "Kierroksen huoneet", en: "Tour rooms", sv: "Rundturens rum" })}>{design.rooms.map(r => <button key={r.id} onClick={() => setRoom(r.id)} aria-current={room === r.id ? "step" : undefined} className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold ${room === r.id ? "border-[#f0bd58] bg-[#f0bd58] text-[#173655]" : "border-white/30"}`}>{r.code} · {text(roomNames[r.kind])}</button>)}</nav><InteriorOptions style={style} setStyle={setStyle} furnished={furnished} setFurnished={setFurnished}/><p className="text-sm leading-6 text-white/65">{text({ fi: "Reaaliaikainen 3D-kierros tämän asunnon tilamallista. Ei valokuvattu kohde. Kalustus ja pinnat ovat konseptivaihtoehtoja.", en: "A real-time 3D tour of this apartment model, not a photographed property. Furnishings and finishes are concept options.", sv: "En realtidsrundtur i denna bostads 3D-modell, inte ett fotograferat objekt. Inredning och ytor är konceptalternativ." })}</p>{notice && <p role="status" className="text-sm">{notice}</p>}</div>
+  </section>;
 }
-
-function useWebgl() {
-  const [enabled, setEnabled] = useState(true);
-  useEffect(() => { const canvas = document.createElement("canvas"); const context = canvas.getContext("webgl2", { failIfMajorPerformanceCaveat: true }) || canvas.getContext("webgl", { failIfMajorPerformanceCaveat: true }); queueMicrotask(() => setEnabled(Boolean(context && !context.isContextLost()))); }, []);
-  return enabled;
-}
-
-export default function Tour360Viewer({ apartment = apartments[0] }: { apartment?: Apartment }) {
-  const { text } = useLanguage();
-  const rooms = useMemo(() => roomsFor(apartment), [apartment]);
-  const [roomIndex, setRoomIndex] = useState(0);
-  const [full, setFull] = useState(false);
-  const [help, setHelp] = useState(false);
-  const [gyro, setGyro] = useState(false);
-  const webgl = useWebgl();
-  const room = rooms[roomIndex];
-  const roomLabel = (id: string) => text(roomCopy[id] ?? { fi: id, en: id, sv: id });
-  function setRoom(index: number) { setRoomIndex((index + rooms.length) % rooms.length); }
-  async function enableGyro() {
-    const orientation = window.DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> };
-    if (orientation.requestPermission) { try { const permission = await orientation.requestPermission(); setGyro(permission === "granted"); } catch { setGyro(false); } } else setGyro(true);
-  }
-  return <div className={`${full ? "fixed inset-0 z-[90] rounded-none" : "relative min-h-[520px] rounded-[30px] sm:min-h-[570px]"} overflow-hidden bg-[#0a223d] shadow-[0_24px_65px_rgba(3,19,35,.24)]`} onKeyDown={(event) => { if (event.key === "ArrowRight") setRoom(roomIndex + 1); if (event.key === "ArrowLeft") setRoom(roomIndex - 1); if (event.key === "Escape" && full) setFull(false); }} tabIndex={0} aria-label={text(tourCopy.tourLabel)}>
-    {webgl ? <PanoCanvas room={room} loadingLabel={text(tourCopy.loading)} /> : <PanoramaFallback room={room} />}
-    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(5,21,38,.32),transparent_26%,transparent_66%,rgba(5,21,38,.68))]" />
-    <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-6"><div className="pointer-events-auto flex min-w-0 items-center gap-2 rounded-full bg-white/92 px-3 py-2 text-xs font-black text-[#183754] shadow-lg backdrop-blur sm:px-4 sm:text-sm"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#f0bd58] text-[#173655]"><Compass size={15} /></span><span className="truncate">{apartment.id} · {roomLabel(room.id)}</span><span className="ml-1 shrink-0 font-semibold text-[#6d8193]">{roomIndex + 1} / {rooms.length}</span></div><div className="pointer-events-auto flex gap-2"><button onClick={() => setHelp((value) => !value)} className="grid h-11 w-11 place-items-center rounded-full bg-white/92 text-[#173655] shadow-lg backdrop-blur" aria-label={help ? text(tourCopy.closeHelp) : text(tourCopy.help)} aria-pressed={help}><Hand size={18} /></button><button onClick={() => void enableGyro()} className={`hidden h-11 rounded-full px-3 text-xs font-black shadow-lg backdrop-blur sm:inline-flex sm:items-center sm:gap-2 ${gyro ? "bg-[#f0bd58] text-[#173655]" : "bg-white/92 text-[#173655]"}`} aria-pressed={gyro}><Compass size={16} />{gyro ? text(tourCopy.gyroOn) : text(tourCopy.gyro)}</button><button onClick={() => setFull((value) => !value)} className="grid h-11 w-11 place-items-center rounded-full bg-white/92 text-[#173655] shadow-lg backdrop-blur" aria-label={full ? text(tourCopy.exitFullscreen) : text(tourCopy.fullscreen)}>{full ? <X size={19} /> : <Expand size={18} />}</button></div></div>
-    {help && <div className="absolute left-4 right-4 top-20 max-w-sm rounded-2xl border border-white/30 bg-[#102e4e]/90 p-4 text-sm leading-6 text-white shadow-xl backdrop-blur sm:left-6 sm:right-auto sm:top-24"><b className="block">{text(tourCopy.helpTitle)}</b><p className="mt-1 text-white/75">{text(tourCopy.helpBody)}</p></div>}
-    <div className="absolute right-4 top-20 w-36 rounded-2xl border border-white/20 bg-[#102e4e]/82 p-2.5 shadow-xl backdrop-blur sm:right-6 sm:top-24 sm:w-44" role="group" aria-label={text(tourCopy.miniMap)}>
-      <div className="mb-1.5 flex items-center gap-1.5 px-1 text-[10px] font-black uppercase tracking-[.14em] text-white/70"><Map size={12} />{text(tourCopy.miniMap)}</div>
-      <svg viewBox="0 0 160 96" className="h-auto w-full" role="group" aria-label={text(tourCopy.miniMap)}>
-        <rect x="3" y="3" width="154" height="90" rx="6" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.32)" />
-        {rooms.map((item) => {
-          const box = miniMapLayout[item.id] ?? miniMapLayout.living;
-          const index = rooms.findIndex((roomItem) => roomItem.id === item.id);
-          return <g key={item.id} role="button" tabIndex={0} aria-label={roomLabel(item.id)} onClick={() => setRoom(index)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setRoom(index); } }} className="cursor-pointer outline-none"><rect x={box.x} y={box.y} width={box.w} height={box.h} rx="3" fill={index === roomIndex ? "#f0bd58" : "rgba(255,255,255,.2)"} stroke={index === roomIndex ? "#fff" : "rgba(255,255,255,.44)"} strokeWidth={index === roomIndex ? 2 : 1} /><text x={box.x + box.w / 2} y={box.y + box.h / 2 + 2} textAnchor="middle" fontSize="6.5" fontWeight="800" fill={index === roomIndex ? "#173655" : "#fff"}>{roomLabel(item.id)}</text></g>;
-        })}
-      </svg>
-    </div>
-    <button onClick={() => setRoom(room.hotspot.target)} className="absolute grid min-h-11 -translate-x-1/2 -translate-y-1/2 place-items-center gap-2 rounded-full border-2 border-white/80 bg-[#0b58a8]/95 px-3 py-2 text-xs font-black text-white shadow-[0_8px_24px_rgba(4,24,45,.32)] transition hover:scale-105" style={{ left: room.hotspot.left, top: room.hotspot.top }} aria-label={`${text({ fi: "Siirry tilaan", en: "Go to", sv: "Gå till" })} ${roomLabel(rooms[room.hotspot.target].id)}`}><span className="h-2 w-2 animate-pulse rounded-full bg-[#f0bd58]" />{roomLabel(rooms[room.hotspot.target].id)}</button>
-    <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6"><div className="flex items-end justify-between gap-3"><div><p className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-white/65">{text(tourCopy.rooms)}</p><div className="flex max-w-[78vw] gap-2 overflow-x-auto pb-1 sm:max-w-none">{rooms.map((item, index) => <button key={item.id} onClick={() => setRoom(index)} className={`shrink-0 rounded-full border px-3 py-2 text-xs font-black transition ${index === roomIndex ? "border-[#f0bd58] bg-[#f0bd58] text-[#173655]" : "border-white/30 bg-[#0c2a49]/70 text-white hover:bg-white/15"}`} aria-current={index === roomIndex ? "step" : undefined}>{roomLabel(item.id)}</button>)}</div></div><button onClick={() => setRoom(roomIndex + 1)} className="hidden h-11 shrink-0 items-center gap-2 rounded-full bg-white/12 px-4 text-sm font-black text-white backdrop-blur transition hover:bg-white/20 sm:flex" aria-label={text(tourCopy.next)}>{text(tourCopy.next)} <RotateCcw size={14} /></button></div><div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-white/60"><span className="flex items-center gap-2"><Map size={13} /> {text(tourCopy.swipe)}</span><span>{text(tourCopy.demo)}</span></div></div>
-  </div>;
-}
-
-export const Tour360ViewerLazy = dynamic(() => import("./Tour360Viewer"), { ssr: false });

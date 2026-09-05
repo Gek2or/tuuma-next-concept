@@ -1,242 +1,87 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { ArrowUpRight, Compass, Ruler, Sofa } from "lucide-react";
-import { useLanguage, type LocalizedText } from "./LanguageProvider";
-
-type PlanRoom = {
-  id: string;
-  label: string;
-  area: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fill: string;
-  note?: string;
-};
-
-type Plan = {
-  id: string;
-  title: string;
-  meta: string;
-  rooms: PlanRoom[];
-};
-
-const plans: Plan[] = [
-  {
-    id: "A12",
-    title: "2H + KT",
-    meta: "56,5 m² · 3. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "22,6 m²", x: 26, y: 32, width: 218, height: 132, fill: "#d9eafa", note: "Länsi" },
-      { id: "kitchen", label: "Keittiö", area: "9,1 m²", x: 26, y: 164, width: 112, height: 112, fill: "#f6e6be", note: "Avokeittiö" },
-      { id: "hall", label: "Eteinen", area: "6,4 m²", x: 138, y: 164, width: 106, height: 112, fill: "#f3f0e9" },
-      { id: "bedroom", label: "Makuuhuone", area: "13,8 m²", x: 244, y: 32, width: 198, height: 128, fill: "#dcefe7", note: "140 cm sänky" },
-      { id: "bathroom", label: "Kylpyhuone", area: "4,6 m²", x: 244, y: 160, width: 112, height: 116, fill: "#e8e1f4", note: "Pesutorni" },
-      { id: "sauna", label: "Parveke", area: "Lasitettu", x: 356, y: 160, width: 86, height: 116, fill: "#e7edf1", note: "Länsi" },
-    ],
-  },
-  {
-    id: "A14",
-    title: "3H + KT",
-    meta: "68 m² · 3. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "24,1 m²", x: 26, y: 32, width: 218, height: 130, fill: "#d9eafa", note: "Länsi" },
-      { id: "kitchen", label: "Keittiö", area: "10,2 m²", x: 26, y: 162, width: 108, height: 114, fill: "#f6e6be", note: "Avokeittiö" },
-      { id: "bedroom", label: "Makuuhuone", area: "14,8 m²", x: 244, y: 32, width: 198, height: 104, fill: "#dcefe7", note: "140 cm sänky" },
-      { id: "room2", label: "Työhuone", area: "9,6 m²", x: 244, y: 136, width: 104, height: 140, fill: "#f0e6d8", note: "120 cm sänky" },
-      { id: "bathroom", label: "Kylpyhuone", area: "5,1 m²", x: 348, y: 136, width: 94, height: 84, fill: "#e8e1f4", note: "Pesutorni" },
-      { id: "hall", label: "Eteinen", area: "4,2 m²", x: 348, y: 220, width: 94, height: 56, fill: "#f3f0e9" },
-    ],
-  },
-  {
-    id: "B24",
-    title: "3H + KT",
-    meta: "68 m² · 4. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "24,5 m²", x: 26, y: 32, width: 218, height: 130, fill: "#d9eafa", note: "Itä" },
-      { id: "kitchen", label: "Keittiö", area: "10,1 m²", x: 26, y: 162, width: 108, height: 114, fill: "#f6e6be", note: "Ruokailu" },
-      { id: "bedroom", label: "Makuuhuone", area: "14,7 m²", x: 244, y: 32, width: 198, height: 104, fill: "#dcefe7", note: "120 cm sänky" },
-      { id: "room2", label: "Työhuone", area: "9,5 m²", x: 244, y: 136, width: 104, height: 140, fill: "#f0e6d8", note: "Työtila" },
-      { id: "bathroom", label: "Kylpyhuone", area: "5,2 m²", x: 348, y: 136, width: 94, height: 84, fill: "#e8e1f4", note: "Pesutorni" },
-      { id: "hall", label: "Eteinen", area: "4,0 m²", x: 348, y: 220, width: 94, height: 56, fill: "#f3f0e9" },
-    ],
-  },
-  {
-    id: "C07",
-    title: "2H + KT",
-    meta: "44 m² · 1. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "17,6 m²", x: 26, y: 32, width: 240, height: 142, fill: "#d9eafa", note: "Piha" },
-      { id: "kitchen", label: "Keittiö", area: "7,2 m²", x: 26, y: 174, width: 116, height: 102, fill: "#f6e6be", note: "Avokeittiö" },
-      { id: "bedroom", label: "Makuuhuone", area: "11,4 m²", x: 266, y: 32, width: 176, height: 112, fill: "#dcefe7", note: "140 cm sänky" },
-      { id: "bathroom", label: "Kylpyhuone", area: "4,8 m²", x: 266, y: 144, width: 90, height: 132, fill: "#e8e1f4", note: "Esteetön" },
-      { id: "hall", label: "Eteinen", area: "3,0 m²", x: 356, y: 144, width: 86, height: 132, fill: "#f3f0e9" },
-    ],
-  },
-  {
-    id: "A31",
-    title: "4H + KT",
-    meta: "78 m² · 5. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "25,8 m²", x: 26, y: 32, width: 220, height: 132, fill: "#d9eafa", note: "Länsi" },
-      { id: "kitchen", label: "Keittiö", area: "11,4 m²", x: 26, y: 164, width: 112, height: 112, fill: "#f6e6be", note: "Ruokailu" },
-      { id: "hall", label: "Eteinen", area: "7,1 m²", x: 138, y: 164, width: 108, height: 112, fill: "#f3f0e9" },
-      { id: "bedroom", label: "Makuuhuone", area: "15,1 m²", x: 246, y: 32, width: 196, height: 112, fill: "#dcefe7", note: "140 cm sänky" },
-      { id: "room2", label: "Työhuone", area: "9,4 m²", x: 246, y: 144, width: 98, height: 132, fill: "#f0e6d8" },
-      { id: "room3", label: "Makuuhuone 2", area: "8,7 m²", x: 344, y: 144, width: 98, height: 72, fill: "#e2eee5" },
-      { id: "bathroom", label: "Kylpyhuone", area: "5,4 m²", x: 344, y: 216, width: 98, height: 60, fill: "#e8e1f4", note: "Sauna" },
-    ],
-  },
-  {
-    id: "D18",
-    title: "1H + KT",
-    meta: "35,5 m² · 2. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "19,0 m²", x: 26, y: 32, width: 260, height: 156, fill: "#d9eafa", note: "Parveke" },
-      { id: "kitchen", label: "Keittotila", area: "6,1 m²", x: 26, y: 188, width: 120, height: 88, fill: "#f6e6be" },
-      { id: "bathroom", label: "Kylpyhuone", area: "4,4 m²", x: 286, y: 32, width: 80, height: 120, fill: "#e8e1f4" },
-      { id: "hall", label: "Eteinen", area: "3,2 m²", x: 366, y: 32, width: 76, height: 120, fill: "#f3f0e9" },
-      { id: "sauna", label: "Parveke", area: "Lasitettu", x: 286, y: 152, width: 156, height: 124, fill: "#e7edf1", note: "Etelä" },
-    ],
-  },
-  {
-    id: "E05",
-    title: "3H + KT",
-    meta: "72 m² · 1. kerros",
-    rooms: [
-      { id: "living", label: "Olohuone", area: "23,4 m²", x: 26, y: 32, width: 218, height: 132, fill: "#d9eafa", note: "Piha" },
-      { id: "kitchen", label: "Keittiö", area: "10,9 m²", x: 26, y: 164, width: 112, height: 112, fill: "#f6e6be" },
-      { id: "hall", label: "Eteinen", area: "6,2 m²", x: 138, y: 164, width: 106, height: 112, fill: "#f3f0e9" },
-      { id: "bedroom", label: "Makuuhuone", area: "14,6 m²", x: 244, y: 32, width: 198, height: 116, fill: "#dcefe7", note: "140 cm sänky" },
-      { id: "room2", label: "Työhuone", area: "9,3 m²", x: 244, y: 148, width: 100, height: 128, fill: "#f0e6d8" },
-      { id: "bathroom", label: "Kylpyhuone", area: "5,5 m²", x: 344, y: 148, width: 98, height: 128, fill: "#e8e1f4", note: "Sauna" },
-    ],
-  },
-];
-
-const roomCopy: Record<string, LocalizedText> = {
-  living: { fi: "Olohuone", en: "Living room", sv: "Vardagsrum" },
-  kitchen: { fi: "Keittiö", en: "Kitchen", sv: "Kök" },
-  hall: { fi: "Eteinen", en: "Hallway", sv: "Hall" },
-  bedroom: { fi: "Makuuhuone", en: "Bedroom", sv: "Sovrum" },
-  room2: { fi: "Työhuone", en: "Study", sv: "Arbetsrum" },
-  room3: { fi: "Makuuhuone 2", en: "Bedroom 2", sv: "Sovrum 2" },
-  bathroom: { fi: "Kylpyhuone", en: "Bathroom", sv: "Badrum" },
-  sauna: { fi: "Parveke", en: "Balcony", sv: "Balkong" },
-};
-
-const planCopy: Record<string, LocalizedText> = {
-  eyebrow: { fi: "Pohjapiirros · mitoitettu konsepti", en: "Floor plan · measured concept", sv: "Planritning · måttsatt koncept" },
-  title: { fi: "Koti näkyy ennen hakemusta", en: "See the home before applying", sv: "Se bostaden innan du ansöker" },
-  intro: { fi: "Valitse huone nähdäksesi koon, käyttötavan ja 360‑hotspotin.", en: "Select a room to see its size, use and 360° hotspot.", sv: "Välj ett rum för storlek, användning och 360°-hotspot." },
-  selected: { fi: "Valittu tila", en: "Selected room", sv: "Valt rum" },
-  area: { fi: "pinta-ala", en: "floor area", sv: "yta" },
-  tip: { fi: "käyttövinkki", en: "use tip", sv: "användningstips" },
-  paragraph: { fi: "Plan data on eroteltu huoneiksi, jotta sama tieto voidaan näyttää asuntohaussa, 360‑kierroksella ja myöhemmin Tampuuri‑rajapinnan kautta.", en: "Plan data is structured by room so the same information can power search, the 360° tour and a future Tampuuri integration.", sv: "Plandata är strukturerad per rum så att samma information kan användas i sökningen, 360°-rundturen och en framtida Tampuuri-integration." },
-  hotspot: { fi: "Hotspotit yhdistävät huoneen virtuaalikierrokseen.", en: "Hotspots connect each room to the virtual tour.", sv: "Hotspots kopplar varje rum till rundturen." },
-  west: { fi: "Parveke / länsi", en: "Balcony / west", sv: "Balkong / väster" },
-};
-
-export function ApartmentPlan({ initialApartment = "A12" }: { initialApartment?: string }) {
-  const { text } = useLanguage();
-  const [selectedPlanId, setSelectedPlanId] = useState(plans.some((item) => item.id === initialApartment) ? initialApartment : "A12");
-  const [activeRoom, setActiveRoom] = useState("living");
-  const plan = useMemo(() => plans.find((item) => item.id === selectedPlanId) ?? plans[0], [selectedPlanId]);
-  const selected = plan.rooms.find((room) => room.id === activeRoom) ?? plan.rooms[0];
-  const roomLabel = (room: PlanRoom) => text(roomCopy[room.id] ?? { fi: room.label, en: room.label, sv: room.label });
-
-  function selectRoom(room: PlanRoom) {
-    setActiveRoom(room.id);
-  }
-
-  return (
-    <section className="rounded-[28px] border border-[#d8e2e8] bg-[#fffdf8] p-5 shadow-[0_18px_50px_rgba(33,56,74,.06)] sm:p-7" aria-labelledby="plan-title">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="eyebrow">{text(planCopy.eyebrow)}</p>
-          <h3 id="plan-title" className="display mt-2 text-3xl text-[#123451] sm:text-4xl">{text(planCopy.title)}</h3>
-          <p className="mt-2 text-sm text-[#64798d]">{text(planCopy.intro)}</p>
-        </div>
-        <div className="hide-scrollbar flex max-w-full gap-2 overflow-x-auto rounded-2xl bg-[#eef3f5] p-1" role="tablist" aria-label="Valitse asunto">
-          {plans.map((item) => (
-            <button
-              key={item.id}
-              role="tab"
-              aria-selected={selectedPlanId === item.id}
-              onClick={() => { setSelectedPlanId(item.id); setActiveRoom("living"); }}
-              className={`shrink-0 rounded-xl px-4 py-2 text-sm font-black transition ${selectedPlanId === item.id ? "bg-white text-[#0b58a8] shadow-sm" : "text-[#60758a] hover:text-[#173655]"}`}
-            >
-              {item.id}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-7 grid gap-6 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
-        <div className="overflow-hidden rounded-[22px] border border-[#cfdbe3] bg-[#f5f2eb] p-2 sm:p-4">
-          <svg viewBox="0 0 468 312" className="h-auto w-full" role="img" aria-label={`${text({ fi: "Asunnon", en: "Apartment", sv: "Bostad" })} ${plan.id} ${text({ fi: "pohjapiirros", en: "floor plan", sv: "planritning" })}`}>
-            <rect x="16" y="22" width="436" height="266" rx="6" fill="#fffdf8" stroke="#173655" strokeWidth="3" />
-            {plan.rooms.map((room) => {
-              const selectedRoom = room.id === selected.id;
-              return (
-                <g
-                  key={room.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${roomLabel(room)}, ${room.area}`}
-                  aria-pressed={selectedRoom}
-                  onClick={() => selectRoom(room)}
-                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room); } }}
-                  className="cursor-pointer outline-none"
-                >
-                  <rect x={room.x} y={room.y} width={room.width} height={room.height} fill={selectedRoom ? "#b9d8f2" : room.fill} stroke={selectedRoom ? "#0b58a8" : "#567087"} strokeWidth={selectedRoom ? 3 : 1.8} />
-                  <text x={room.x + room.width / 2} y={room.y + room.height / 2 - 3} textAnchor="middle" fontSize="11" fontWeight="700" fill="#173655">{roomLabel(room)}</text>
-                  <text x={room.x + room.width / 2} y={room.y + room.height / 2 + 13} textAnchor="middle" fontSize="9" fill="#587087">{room.area}</text>
-                  {room.note && <text x={room.x + 8} y={room.y + 15} fontSize="7" fill="#6e8293">{room.note}</text>}
-                  <path d={`M ${room.x + room.width / 2 - 12} ${room.y + room.height} L ${room.x + room.width / 2 + 12} ${room.y + room.height}`} stroke="#fffdf8" strokeWidth="4" />
-                </g>
-              );
-            })}
-            <path d="M 70 22 V 12 H 182 V 22" fill="none" stroke="#0b58a8" strokeWidth="2" />
-            <text x="126" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#0b58a8">{text(planCopy.west)}</text>
-            <g transform="translate(410 44)">
-              <circle cx="0" cy="0" r="13" fill="#fffdf8" stroke="#173655" strokeWidth="1.5" />
-              <path d="M 0 -8 V 8 M -4 4 L 0 8 L 4 4" stroke="#173655" strokeWidth="1.5" fill="none" />
-              <text x="0" y="-15" textAnchor="middle" fontSize="8" fontWeight="700" fill="#173655">N</text>
-            </g>
-            <g transform="translate(28 300)">
-              <path d="M 0 0 H 56" stroke="#173655" strokeWidth="2" />
-              <path d="M 0 -3 V 3 M 56 -3 V 3" stroke="#173655" strokeWidth="1.5" />
-              <text x="28" y="12" textAnchor="middle" fontSize="8" fill="#587087">5 m</text>
-            </g>
-          </svg>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#e7f0f8] text-[#0b58a8]"><Sofa size={20} /></span>
-            <div>
-              <p className="text-sm font-bold text-[#698095]">{text(planCopy.selected)}</p>
-              <h4 className="text-2xl font-black text-[#173655]">{roomLabel(selected)}</h4>
-            </div>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-2xl bg-[#f2f5f5] p-4"><Ruler size={16} className="text-[#0b58a8]" /><b className="mt-2 block">{selected.area}</b><span className="text-[#708398]">{text(planCopy.area)}</span></div>
-            <div className="rounded-2xl bg-[#f2f5f5] p-4"><Compass size={16} className="text-[#0b58a8]" /><b className="mt-2 block">{selected.note ?? text({ fi: "Kulku", en: "Flow", sv: "Flöde" })}</b><span className="text-[#708398]">{text(planCopy.tip)}</span></div>
-          </div>
-          <p className="mt-5 text-sm leading-6 text-[#60758a]">{text(planCopy.paragraph)}</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {plan.rooms.map((room) => (
-              <button key={room.id} onClick={() => selectRoom(room)} className={`rounded-full border px-3 py-2 text-xs font-black transition ${room.id === selected.id ? "border-[#0b58a8] bg-[#e5f0fb] text-[#0b58a8]" : "border-[#d7e1e6] bg-white text-[#536c83] hover:border-[#8fb4d8]"}`}>
-                {roomLabel(room)}
-              </button>
-            ))}
-          </div>
-          <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-[#708398]"><ArrowUpRight size={14} /> {text(planCopy.hotspot)}</p>
-        </div>
-      </div>
-    </section>
-  );
+import { useRef, useState } from "react";
+import { Download, Minus, Plus, Printer } from "lucide-react";
+import { designFor, roomArea, roomNames, type Design, type Fitting } from "@/lib/architecture";
+import { useLanguage } from "./LanguageProvider";
+function Symbol({ item: i }: {
+    item: Fitting;
+}) {
+    const { w, d, kind } = i;
+    return <g transform={`translate(${i.x} ${i.z})`} stroke="#839097" strokeWidth="18" fill="none">
+    <rect width={w} height={d} rx={kind === "table" ? 120 : 30} fill={i.fixed ? "#f0f1ed" : "#fff"} strokeDasharray={kind === "rug" ? "30 35" : undefined}/>
+    {kind === "bed" && <><path d={`M0 480H${w} M0 ${d - 280}H${w}`}/><rect x="80" y="70" width={w / 2 - 120} height="320" rx="60"/><rect x={w / 2 + 40} y="70" width={w / 2 - 120} height="320" rx="60"/></>}
+    {kind === "sofa" && <path d={`M160 0V${d} M${w - 160} 0V${d} M0 240H${w} M${w / 2} 240V${d}`}/>}
+    {kind === "shower" && <><path d={`M0 0L${w} ${d} M${w} 0L0 ${d}`}/><circle cx={w / 2} cy={d / 2} r="60"/></>}
+    {kind === "wc" && <><rect x="30" y="25" width={w - 60} height="150"/><ellipse cx={w / 2} cy={d * .64} rx={w * .35} ry={d * .26}/></>}
+    {(kind === "sink" || kind === "basin") && <ellipse cx={w / 2} cy={d / 2} rx={w * .36} ry={d * .30}/>}
+    {kind === "hob" && [.28, .72].flatMap(x => [.28, .72].map(y => <circle key={`${x}-${y}`} cx={w * x} cy={d * y} r="75"/>))}
+    {kind === "washer" && <circle cx={w / 2} cy={d / 2} r={w * .3}/>}
+    {(kind === "fridge" || kind === "wardrobe") && <path d={`M0 0L${w} ${d} M${w} 0L0 ${d}`}/>}
+    {kind === "bench" && Array.from({ length: 5 }, (_, n) => <path key={n} d={`M0 ${100 + n * 100}H${w}`}/>)}
+    {["washer", "fridge", "wardrobe", "heater"].includes(kind) && <text x={w / 2} y={d * .6} textAnchor="middle" fontSize="130" fill="#52636e" stroke="none">{({ washer: "PK", fridge: "JK/PA", wardrobe: "SK", heater: "KI" } as Partial<Record<Fitting["kind"], string>>)[kind]}</text>}
+  </g>;
+}
+function Dimension({ x1, y1, x2, y2, label }: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    label?: string;
+}) {
+    const vertical = x1 === x2;
+    return <g stroke="#5b6870" strokeWidth="12" fill="#3e4d56"><path d={`M${x1} ${y1}L${x2} ${y2} M${x1 - 70} ${y1 + 70}L${x1 + 70} ${y1 - 70} M${x2 - 70} ${y2 + 70}L${x2 + 70} ${y2 - 70}`}/><text transform={`translate(${(x1 + x2) / 2 - (vertical ? 110 : 0)} ${(y1 + y2) / 2 - (vertical ? 0 : 100)}) rotate(${vertical ? -90 : 0})`} textAnchor="middle" fontSize="180" stroke="none">{label ?? Math.round(Math.hypot(x2 - x1, y2 - y1)).toLocaleString("fi-FI")}</text></g>;
+}
+export function PlanGeometry({ design, furnished = true, active, select, labels = true }: {
+    design: Design;
+    furnished?: boolean;
+    active?: string;
+    select?: (id: string) => void;
+    labels?: boolean;
+}) {
+    const { text } = useLanguage();
+    return <g>
+    <rect x={design.outdoor.x} y={design.outdoor.z} width={design.outdoor.w} height={design.outdoor.d} fill="#f4f5f1" stroke="#9da9a9" strokeWidth="35"/>
+    {labels && <text x={design.outdoor.x + design.outdoor.w / 2} y={design.outdoor.z + design.outdoor.d / 2} textAnchor="middle" fontSize="210" fill="#5d727a">{design.outdoor.terrace ? "TERASSI" : "PARVEKE"}</text>}
+    {design.rooms.map(room => <g key={room.id} role={select ? "button" : undefined} tabIndex={select ? 0 : undefined} aria-label={`${room.code} ${text(roomNames[room.kind])}`} onClick={() => select?.(room.id)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            select?.(room.id);
+        } }} style={{ cursor: select ? "pointer" : undefined }}>
+      <rect x={room.x} y={room.z} width={room.w} height={room.d} fill={room.id === active ? "#e2edf4" : room.kind === "bathroom" ? "#edf0ef" : room.kind === "sauna" ? "#eee5d6" : "#fff"}/>
+      {design.fittings.filter(i => i.room === room.id && (furnished || i.fixed)).map(i => <Symbol key={i.id} item={i}/>)}
+      {labels && <g pointerEvents="none"><rect x={room.x + room.w / 2 - 490} y={room.z + room.d * .6 - 170} width="980" height="580" rx="70" fill="white" fillOpacity=".88"/><text x={room.x + room.w / 2} y={room.z + room.d * .6 + 80} textAnchor="middle" fontSize="240" fontWeight="600" fill="#1e3546">{room.code}</text><text x={room.x + room.w / 2} y={room.z + room.d * .6 + 310} textAnchor="middle" fontSize="180" fill="#526571">{roomArea(room).toFixed(1)} m²*</text></g>}
+    </g>)}
+    {design.walls.map(w => {
+            const o = w.opening;
+            return <g key={w.id} transform={w.axis === "x" ? `translate(0 ${w.at})` : `translate(${w.at} 0) rotate(90)`}>
+      {(o ? [[w.start, o.start], [o.start + o.width, w.end]] : [[w.start, w.end]]).map(([start, end], i) => <rect key={i} x={start} y={-w.thickness / 2} width={end - start} height={w.thickness} fill={w.rooms.length === 1 ? "#29383f" : "#4a565a"}/>)}
+      {o && o.kind === "window" && <g stroke="#617d8a" strokeWidth="18" fill="none"><rect x={o.start} y={-w.thickness / 2} width={o.width} height={w.thickness}/><path d={`M${o.start} -45H${o.start + o.width} M${o.start} 45H${o.start + o.width} M${o.start + o.width / 2} ${-w.thickness / 2}V${w.thickness / 2}`}/></g>}
+      {o && o.kind === "door" && <g fill="none" stroke="#7a878c" strokeWidth="16"><path d={`M${o.start} 0V${o.width} M${o.start} ${o.width}A${o.width} ${o.width} 0 0 0 ${o.start + o.width} 0`}/><path d={`M${o.start} 0h${o.width}`} strokeDasharray="45 45"/>{labels && <text x={o.start + o.width / 2} y="-180" fontSize="130" fill="#6b797f" stroke="none" textAnchor="middle">{o.width} / {o.height}</text>}</g>}
+    </g>;
+        })}
+  </g>;
+}
+export function ApartmentPlan({ initialApartment = "A12" }: {
+    initialApartment?: string;
+}) {
+    const { text } = useLanguage();
+    const design = designFor(initialApartment);
+    const [active, setActive] = useState("oh"), [furnished, setFurnished] = useState(true), [view, setView] = useState<"plan" | "section">("plan"), [zoom, setZoom] = useState(1);
+    const svg = useRef<SVGSVGElement>(null);
+    const room = design.rooms.find(r => r.id === active)!;
+    const copy = (fi: string, en: string, sv: string) => text({ fi, en, sv });
+    const source = () => svg.current ? new XMLSerializer().serializeToString(svg.current) : "";
+    function download() { const url = URL.createObjectURL(new Blob([source()], { type: "image/svg+xml" })); const a = document.createElement("a"); a.href = url; a.download = `Tuuma-${design.id}-ARK-${view === "plan" ? "101" : "201"}-A3.svg`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+    function print() { const frame = document.createElement("iframe"); frame.style.cssText = "position:fixed;width:0;height:0;border:0"; frame.srcdoc = `<!doctype html><html><head><title>Tuuma ${design.id} ARK</title><style>@page{size:A3 landscape;margin:0}body{margin:0}svg{width:420mm;height:297mm}</style></head><body>${source()}</body></html>`; frame.onload = () => { frame.contentWindow?.focus(); frame.contentWindow?.print(); setTimeout(() => frame.remove(), 60000); }; document.body.appendChild(frame); }
+    return <section className="overflow-hidden rounded-3xl border border-[#d7dfe0] bg-white text-[#173655]">
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b p-5 sm:p-7"><div><p className="text-xs font-bold tracking-[.18em] text-slate-500">ARK / {design.id} / REV B</p><h2 className="mt-2 text-2xl font-semibold">{copy("Pohja ja leikkaus", "Plan & section", "Plan och sektion")} · {design.name}</h2></div><div className="flex flex-wrap gap-2"><button onClick={download} className="flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-bold"><Download size={16}/>SVG · A3</button><button onClick={print} className="flex min-h-11 items-center gap-2 rounded-full bg-[#173655] px-4 text-sm font-bold text-white"><Printer size={16}/>{copy("Tulosta / PDF", "Print / PDF", "Skriv ut / PDF")}</button></div></header>
+    <div className="flex flex-wrap items-center justify-between gap-3 bg-[#f2f5f5] p-4"><div className="flex flex-wrap gap-2">{(["plan", "section"] as const).map(v => <button key={v} aria-pressed={view === v} onClick={() => setView(v)} className={`min-h-11 rounded-full px-4 text-sm font-bold ${view === v ? "bg-white shadow-sm" : ""}`}>{v === "plan" ? copy("Pohjapiirustus", "Floor plan", "Planritning") : copy("Leikkaus A–A", "Section A–A", "Sektion A–A")}</button>)}<button aria-pressed={furnished} onClick={() => setFurnished(!furnished)} className="min-h-11 rounded-full border px-4 text-sm">{furnished ? copy("Kalustettu", "Furnished", "Möblerad") : copy("Kiintokalusteet", "Fixed fittings", "Fast inredning")}</button></div><div className="flex items-center gap-3"><button aria-label={copy("Loitonna", "Zoom out", "Zooma ut")} onClick={() => setZoom(Math.max(1, zoom - .5))} className="grid h-11 w-11 place-items-center rounded-full bg-white"><Minus size={16}/></button><span className="text-sm">{zoom * 100}%</span><button aria-label={copy("Lähennä", "Zoom in", "Zooma in")} onClick={() => setZoom(Math.min(3, zoom + .5))} className="grid h-11 w-11 place-items-center rounded-full bg-white"><Plus size={16}/></button></div></div>
+    <div className="max-h-[850px] overflow-auto bg-[#e5e9e8] p-3 sm:p-6" tabIndex={0} aria-label={copy("Piirustus", "Drawing", "Ritning")}><div style={{ width: `${zoom * 100}%`, minWidth: 550 }} className="mx-auto bg-white shadow-lg"><svg ref={svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21000 14850" width="420mm" height="297mm" className="h-auto w-full" role="img" aria-label={`${design.id} ${view} CONCEPT`}>
+      <rect width="21000" height="14850" fill="white"/><rect x="450" y="450" width="20100" height="13950" fill="none" stroke="#a5afb0" strokeWidth="15"/>
+      <text x="15700" y="1050" fontSize="430" fontFamily="sans-serif" fontWeight="600" fill="#173655">TUUMA NEXT / {design.id}</text><text x="15700" y="1450" fontSize="145" fill="#73818a">{view === "plan" ? "POHJAPIIRUSTUS" : "LEIKKAUS A–A"} · ASUNTOKONSEPTI · 2026-09-05</text>
+      {view === "plan" ? <g transform="translate(1700 3400)"><PlanGeometry design={design} active={active} select={setActive} furnished={furnished}/><Dimension x1={0} y1={-2300} x2={design.width} y2={-2300}/><Dimension x1={-650} y1={0} x2={-650} y2={design.depth}/>{design.rooms.filter(r => r.z === 0).map(r => <Dimension key={r.id} x1={r.x} y1={-450} x2={r.x + r.w} y2={-450}/>)}<path d={`M-850 ${design.depth * .48}H${design.width + 700}`} stroke="#768c98" strokeWidth="12" strokeDasharray="130 60 25 60"/><text x="-1000" y={design.depth * .48} fontSize="240" fill="#526979">A</text><text x={design.width + 850} y={design.depth * .48} fontSize="240" fill="#526979">A</text></g> : <g transform="translate(1700 5000)"><rect x="-150" y="2600" width={design.width + 300} height="300" fill="#a3a6a3"/><rect x="-150" y="-300" width={design.width + 300} height="300" fill="#a3a6a3"/>{[-150, design.width - 150].map(x => <rect key={x} x={x} y="0" width="300" height="2600" fill="#394950"/>)}{design.walls.filter(w => w.axis === "z" && w.rooms.length === 2 && w.start <= design.depth * .48 && w.end >= design.depth * .48).map(w => <rect key={w.id} x={w.at - 60} y="0" width="120" height="2600" fill="#687477"/>)}<Dimension x1={-650} y1={0} x2={-650} y2={2600} label="VAPAA KORKEUS 2 600"/><Dimension x1={0} y1={3400} x2={design.width} y2={3400}/><text x="400" y="2350" fontSize="200" fill="#546b77">±0.000</text><text x="400" y="-500" fontSize="200" fill="#546b77">+2.600 · SISÄKATTO</text><text x="0" y="4300" fontSize="210" fill="#546b77">Periaateleikkaus · rakenteet ja kantavuus eivät ole suunniteltuja.</text></g>}
+      <g transform="translate(15700 2500)" fontFamily="sans-serif" fill="#243f51"><text fontSize="300" fontWeight="600">{design.name}</text><text y="400" fontSize="220">HUONELUETTELO / TILAMALLI</text>{design.rooms.map((r, i) => <g key={r.id} transform={`translate(0 ${900 + i * 390})`}><text fontSize="220">{r.code}</text><text x="3400" fontSize="220" textAnchor="end">{roomArea(r).toFixed(1)} m²*</text><path d="M0 150H3400" stroke="#d6dddd" strokeWidth="12"/></g>)}{["MITAT MILLIMETREINÄ", "Ulko-/väliseinä 300 / 120 mm", "Vapaa huonekorkeus 2 600 mm", "JK/PA · jääkaappi / pakastin", "PK · pesukone / SK · säilytys", "KI · kiuas / S · sauna", "* Suuntaa-antava tilapinta-ala.", "Akselimitta − 150 mm / sivumitta.", "Ei virallista huoneistoalamittausta.", "LUONNOS · EI RAKENTAMISEEN", "Ei viranomais- tai toteutussuunnitelma."].map((line, i) => <text key={line} y={4900 + i * 340} fontSize="185">{line}</text>)}</g>
+      <g transform="translate(1100 13800)" fill="#243e4c"><path d="M0 0H5000 M0 -80V80 M1000 -80V80 M2500 -80V80 M5000 -80V80" stroke="currentColor" strokeWidth="20"/><text x="0" y="330" fontSize="180">0</text><text x="2450" y="330" fontSize="180">2,5</text><text x="4800" y="330" fontSize="180">5 m</text></g><rect x="12000" y="13200" width="8550" height="1200" stroke="#859699" fill="white" strokeWidth="15"/><text x="12300" y="13640" fontSize="260" fill="#173655">TUUMA NEXT · {design.id} · ARK {view === "plan" ? "101" : "201"}</text><text x="12300" y="14140" fontSize="210" fill="#637680">1:50 @ A3 / 100% · REV B · CONCEPT / DEMO</text>
+    </svg></div></div>
+    <footer className="grid gap-4 p-5 sm:grid-cols-2 sm:p-7"><div><p className="font-semibold">{room.code} · {text(roomNames[room.kind])}</p><p className="mt-2 text-sm text-slate-600">{room.w} × {room.d} mm · {copy("akselimitat", "wall centre-line dimensions", "axelmått")}</p></div><p className="text-sm leading-6 text-slate-500">{copy("Luonnos. Sama geometria 3D-mallissa ja kierroksessa. Pätevä suunnittelija tarkistaa pinta-alat, esteettömyyden ja lupavaatimukset.", "Concept. The same geometry drives the 3D model and tour. A qualified designer must verify areas, accessibility and permit requirements.", "Koncept. Samma geometri i 3D-modellen och rundturen. En behörig planerare måste kontrollera areor, tillgänglighet och lovkrav.")}</p></footer>
+  </section>;
 }
