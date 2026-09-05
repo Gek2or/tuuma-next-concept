@@ -24,7 +24,7 @@ A12 sisältää viisi näkymää: olohuone/keittiö, makuuhuone, kylpyhuone, ete
 
 Kuvien alkuperäinen koko on 1536 × 1024; WebP-julkaisu käyttää laatua 94 ilman keinotekoista skaalausta. Nämä ovat konseptirendereitä, eivät oikean asunnon valokuvia tai 3D-mallista laskettuja täsmällisiä kamerakuvia. Kuvagallerian ja teknisen tilamallin aukot ja sijainnit eivät vielä muodosta yhtä varmennettua digitaalista kaksosta. Reaaliaikainen kierros käyttää edelleen tilamallia; staattisia kuvia ei esitetä 360°-panoraamoina.
 
-A12:n 3D-lattia käyttää 1254 × 1254 tammialbedoa (`public/art/a12-oak-albedo.webp`). UV-toisto perustuu huoneen fyysisiin metreihin. Tekstuuri ei ole skannattu PBR-materiaalipaketti. Kalustuksen vaihto säilyttää lattian ja geometrian. Kuvien tuotantomuistiinpanot: `docs/a12-media.md`.
+A12:n 3D-lattia käyttää 1254 × 1254 tammialbedoa (`public/art/a12-oak-albedo.webp`), kylpyhuone lämpimän sävyistä posliinilaattaa ja sohvat/päädyt pellavatekstuuria. UV-toisto perustuu huoneen fyysisiin metreihin. A12:n näkymään sisältyy mallinnettu lasitettu parveke, pihapuusto, kiinteät kalusteet ja huonekohtaiset kamerapaikat. Tekstuurit eivät ole mitattuja PBR-materiaalipaketteja. Kalustuksen vaihto säilyttää lattian ja geometrian. Kuvien tuotantomuistiinpanot: `docs/a12-media.md`.
 
 Suunnittelun taustaviitteet: [YM asuin-, majoitus- ja työtilat 631/2024](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2024/631), [suunnitelmat ja selvitykset 216/2015](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2015/216), [Ympäristöministeriön rakentamismääräykset](https://ym.fi/rakentamismaaraykset). Viittaukset eivät ole vaatimustenmukaisuusvakuutus.
 

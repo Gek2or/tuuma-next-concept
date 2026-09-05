@@ -12,8 +12,12 @@ Generated with the built-in imagegen tool. No real property photography was used
 - **Balcony furnished:** edit the exact empty balcony; add two oak chairs with linen cushions and a small table. Preserve all architecture, view and camera. Save: `public/art/a12-balcony-furnished-v2.webp`.
 - **Hall:** white entrance door, white built-in storage, oak floor matching the living palette; no movable furniture. Save: `public/art/a12-hall-empty-v2.webp`.
 - **Oak texture:** top-down orthographic albedo inspired by the empty living floor, eight oak boards with staggered joints, flat diffuse illumination, no perspective, objects or shadows. Save: `public/art/a12-oak-albedo.webp`.
+- **Bathroom tile texture:** warm beige matte porcelain, rectangular horizontal tile bond, fine grout and flat illumination. Save: `public/art/a12-bathroom-tile-albedo.webp`.
+- **Linen texture:** neutral greige natural linen weave with no folds or lighting direction. Save: `public/art/a12-linen-albedo.webp`.
 
 All empty/furnished pairs were inspected visually. Exact original empty images are retained. Small generative differences are possible; this workflow is not deterministic photogrammetry. New rooms share the material direction, but are not ray-traced from the interactive model. Final room images are native 1536 × 1024, texture 1254 × 1254. Requested larger output was not returned; files have not been artificially upscaled. WebP quality 94 is used for delivery.
+
+The interactive A12 model uses the three texture assets in its own materials, plus a simple modeled balcony, birch-yard backdrop, window glazing and furnishings. It offers room camera points, mouse/touch look, keyboard look and bounded WASD movement within the current room. This is a real-time concept model rather than a photographic or laser-scanned twin; it must not be described as a measured 360° capture.
 
 ## Future actual-property production
 

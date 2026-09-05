@@ -81,7 +81,7 @@ export function useSurface(kind: "wood" | "tile" | "brick" | "timber", base: str
     useEffect(() => () => texture.dispose(), [texture]);
     return texture;
 }
-export function Block({ p, s, color = "#eeeae3", map, round = false, roughness = .75 }: {
+export function Block({ p, s, color = "#eeeae3", map, round = false, roughness = .75, metalness = 0 }: {
     p: [
         number,
         number,
@@ -96,24 +96,26 @@ export function Block({ p, s, color = "#eeeae3", map, round = false, roughness =
     map?: THREE.Texture;
     round?: boolean;
     roughness?: number;
+    metalness?: number;
 }) {
-    const material = <meshStandardMaterial color={color} map={map} roughness={roughness} bumpMap={map} bumpScale={map ? .002 : 0}/>;
+    const material = <meshStandardMaterial color={color} map={map} roughness={roughness} metalness={metalness} bumpMap={map} bumpScale={map ? .002 : 0}/>;
     return round ? <RoundedBox position={p} args={s} radius={Math.min(.04, ...s.map(v => v / 4))} smoothness={2} castShadow receiveShadow>{material}</RoundedBox> : <mesh position={p} castShadow receiveShadow><boxGeometry args={s}/>{material}</mesh>;
 }
-function Furniture({ item: i, style, wood }: {
+function Furniture({ item: i, style, wood, linen }: {
     item: Fitting;
     style: InteriorStyle;
     wood: THREE.Texture;
+    linen?: THREE.Texture;
 }) {
     const w = i.w / 1000, d = i.d / 1000, p = styles[style];
     const box = (x: number, y: number, z: number, a: number, b: number, c: number, color: string, round = false, map?: THREE.Texture) => <Block p={[x, y, z]} s={[a, b, c]} color={color} round={round} map={map}/>;
     let shape;
     switch (i.kind) {
         case "bed":
-            shape = <>{box(w / 2, .23, d / 2, w, .32, d, "#fff", false, wood)}{box(w / 2, .46, d / 2, w - .04, .22, d - .04, "#faf8f0", true)}{box(w / 2, .59, d * .65, w - .06, .1, d * .6, p.fabric, true)}{box(w / 2, .70, .08, w + .02, 1.05, .10, p.fabric, true)}{[.28, .72].map(x => <Block key={x} p={[w * x, .61, .36]} s={[w * .40, .16, .46]} color="#f8f5ee" round/>)}</>;
+            shape = <>{box(w / 2, .23, d / 2, w, .32, d, "#fff", false, wood)}{box(w / 2, .46, d / 2, w - .04, .22, d - .04, "#faf8f0", true, linen)}{box(w / 2, .59, d * .65, w - .06, .1, d * .6, p.fabric, true, linen)}{box(w / 2, .70, .08, w + .02, 1.05, .10, p.fabric, true, linen)}{[.28, .72].map(x => <Block key={x} p={[w * x, .61, .36]} s={[w * .40, .16, .46]} color="#f8f5ee" round map={linen}/>)}</>;
             break;
         case "sofa":
-            shape = <>{box(w / 2, .28, d / 2, w, .38, d, p.fabric, true)}{box(w / 2, .74, .1, w, .60, .20, p.fabric, true)}{[.08, w - .08].map(x => <Block key={x} p={[x, .57, d / 2]} s={[.16, .60, d]} color={p.fabric} round/>)}{[.25, .5, .75].map(x => <Block key={x} p={[w * x, .54, d * .57]} s={[w * .24, .18, d * .70]} color={p.fabric} round/>)}{box(.40, .72, .40, .42, .40, .16, "#e8dcc8", true)}</>;
+            shape = <>{box(w / 2, .28, d / 2, w, .38, d, p.fabric, true, linen)}{box(w / 2, .74, .1, w, .60, .20, p.fabric, true, linen)}{[.08, w - .08].map(x => <Block key={x} p={[x, .57, d / 2]} s={[.16, .60, d]} color={p.fabric} round map={linen}/>) }{[.25, .5, .75].map(x => <Block key={x} p={[w * x, .54, d * .57]} s={[w * .24, .18, d * .70]} color={p.fabric} round map={linen}/>) }{box(.40, .72, .40, .42, .40, .16, "#e8dcc8", true, linen)}</>;
             break;
         case "rug":
             shape = box(w / 2, .012, d / 2, w, .018, d, "#d6cbbc", true);
@@ -122,7 +124,7 @@ function Furniture({ item: i, style, wood }: {
             shape = <>{box(w / 2, .74, d / 2, w, .06, d, "white", true, wood)}{[.1, w - .1].flatMap(x => [.1, d - .1].map(z => <Block key={`${x}-${z}`} p={[x, .36, z]} s={[.055, .72, .055]} color="#86694c"/>))}</>;
             break;
         case "chair":
-            shape = <>{box(w / 2, .44, d / 2, w, .07, d, p.fabric, true)}{box(w / 2, .70, .03, w, .48, .04, p.cabinet, true)}{[.05, w - .05].flatMap(x => [.05, d - .05].map(z => <Block key={`${x}-${z}`} p={[x, .22, z]} s={[.035, .44, .035]} color="#81684c"/>))}</>;
+            shape = <>{box(w / 2, .44, d / 2, w, .07, d, p.fabric, true, linen)}{box(w / 2, .70, .03, w, .48, .04, p.cabinet, true)}{[.05, w - .05].flatMap(x => [.05, d - .05].map(z => <Block key={`${x}-${z}`} p={[x, .22, z]} s={[.035, .44, .035]} color="#81684c"/>))}</>;
             break;
         case "kitchen":
             shape = <>{box(w / 2, .42, d / 2, w, .80, d, p.cabinet)}{box(w / 2, .85, d / 2, w + .02, .045, d + .04, "#e6e0d4", false)}{box(w / 2, 1.18, .02, w, .60, .03, "#ede8df")}{Array.from({ length: Math.ceil(w / .6) }, (_, n) => <group key={n}><Block p={[n * .58 + .285, .43, d + .008]} s={[.56, .75, .025]} color={p.cabinet}/><Block p={[n * .58 + .285, .72, d + .03]} s={[.22, .012, .024]} color="#72736b"/></group>)}{box(w / 2, 1.87, .18, w, .72, .36, p.cabinet)}</>;
@@ -158,18 +160,19 @@ function Furniture({ item: i, style, wood }: {
     }
     return <group position={[i.x / 1000, 0, i.z / 1000]}>{shape}</group>;
 }
-function ArchitecturalWall({ wall: w, height, wallColor, cutaway }: {
+function ArchitecturalWall({ wall: w, height, wallColor, cutaway, surface }: {
     wall: Wall;
     height: number;
     wallColor: string;
     cutaway: boolean;
+    surface?: THREE.Texture;
 }) {
     const h = cutaway ? Math.min(height, 1.15) : height, o = w.opening, t = w.thickness / 1000;
-    const box = (start: number, end: number, bottom: number, top: number, color = wallColor) => top > bottom && end > start ? <Block p={[(start + end) / 2000, (bottom + top) / 2, 0]} s={[(end - start) / 1000, top - bottom, t]} color={color}/> : null;
+    const box = (start: number, end: number, bottom: number, top: number, color = wallColor) => top > bottom && end > start ? <Block p={[(start + end) / 2000, (bottom + top) / 2, 0]} s={[(end - start) / 1000, top - bottom, t]} color={color} map={surface} roughness={surface ? .82 : .9}/> : null;
     return <group position={w.axis === "x" ? [0, 0, w.at / 1000] : [w.at / 1000, 0, 0]} rotation={[0, w.axis === "x" ? 0 : -Math.PI / 2, 0]}>
     {o ? <>{box(w.start, o.start, 0, h)}{box(o.start + o.width, w.end, 0, h)}{box(o.start, o.start + o.width, 0, Math.min(h, o.sill / 1000))}{box(o.start, o.start + o.width, (o.sill + o.height) / 1000, h)}
       {o.kind === "window" && <group position={[(o.start + o.width / 2) / 1000, 0, 0]}>
-        <mesh position={[0, (o.sill / 1000 + Math.min(h, (o.sill + o.height) / 1000)) / 2, 0]}><boxGeometry args={[o.width / 1000, .001 + Math.min(o.height / 1000, h - o.sill / 1000), .015]}/><meshPhysicalMaterial color="#b6d8e1" transparent opacity={.18} roughness={.08} metalness={.12} depthWrite={false}/></mesh>
+        <mesh position={[0, (o.sill / 1000 + Math.min(h, (o.sill + o.height) / 1000)) / 2, 0]}><boxGeometry args={[o.width / 1000, .001 + Math.min(o.height / 1000, h - o.sill / 1000), .015]}/><meshPhysicalMaterial color="#b6d8e1" transparent opacity={.24} roughness={.04} metalness={.05} transmission={.15} ior={1.45} depthWrite={false}/></mesh>
         {[o.sill / 1000, Math.min(h, (o.sill + o.height) / 1000)].map(y => <Block key={y} p={[0, y, 0]} s={[o.width / 1000, .055, .13]} color="#e4e2d9"/>)}
         {[-o.width / 2000, 0, o.width / 2000].map(x => <Block key={x} p={[x, (o.sill / 1000 + Math.min(h, (o.sill + o.height) / 1000)) / 2, 0]} s={[.055, Math.max(.05, Math.min(h - o.sill / 1000, o.height / 1000)), .13]} color="#dadbd3"/>)}
         {o.sill > 0 && <Block p={[0, .38, t / 2 + .08]} s={[o.width / 1000 - .20, .45, .09]} color="#e9e9e1"/>}
@@ -178,6 +181,46 @@ function ArchitecturalWall({ wall: w, height, wallColor, cutaway }: {
     </> : box(w.start, w.end, 0, h)}
     {(o ? [[w.start, o.start], [o.start + o.width, w.end]] : [[w.start, w.end]]).map(([a, b], i) => <group key={i}>{[-t / 2, t / 2].map(z => <Block key={z} p={[(a + b) / 2000, .045, z]} s={[(b - a) / 1000, .09, .025]} color="#d7d5c9"/>)}</group>)}
   </group>;
+}
+
+function Birch({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
+    const crown = [[0, 3.65, 0, .78], [.46, 4.05, .10, .63], [-.42, 3.95, -.10, .58], [.18, 4.52, 0, .46]] as const;
+    return <group position={[x, 0, z]} scale={scale}>
+      <mesh position={[0, 1.92, 0]} castShadow><cylinderGeometry args={[.065, .09, 3.84, 10]}/><meshStandardMaterial color="#e9e5dc" roughness={.95}/></mesh>
+      {[.6, 1.42, 2.25, 3.1].map((y, index) => <mesh key={y} position={[index % 2 ? .055 : -.055, y, .072]} rotation={[0, .35, 0]}><boxGeometry args={[.14, .035, .012]}/><meshStandardMaterial color="#524e45" roughness={1}/></mesh>)}
+      {crown.map(([cx, cy, cz, radius], index) => <mesh key={index} position={[cx, cy, cz]} castShadow><sphereGeometry args={[radius, 12, 10]}/><meshStandardMaterial color={index % 2 ? "#839c73" : "#97ad82"} roughness={1}/></mesh>)}
+    </group>;
+}
+
+function A12Exterior() {
+    return <group>
+      <mesh position={[4, 4.1, -11]}><planeGeometry args={[24, 11]}/><meshBasicMaterial color="#b6d1dc" side={THREE.DoubleSide}/></mesh>
+      <mesh position={[4, -.18, -6.4]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[26, 18]}/><meshStandardMaterial color="#849878" roughness={1}/></mesh>
+      <Birch x={-.3} z={-4.4} scale={1.08}/><Birch x={2.35} z={-5.5} scale={1.36}/><Birch x={5.15} z={-4.8} scale={.95}/><Birch x={8.3} z={-6.1} scale={1.22}/><Birch x={10.1} z={-4.5} scale={.88}/>
+      <mesh position={[9.1, 1.65, -7.2]}><boxGeometry args={[3.2, 3.3, .25]}/><meshStandardMaterial color="#e7e5de" roughness={.82}/></mesh>
+      <mesh position={[9.1, 2.4, -7.05]}><planeGeometry args={[2.5, 1.45]}/><meshStandardMaterial color="#c5d7d8" roughness={.18} metalness={.08}/></mesh>
+    </group>;
+}
+
+function A12FurnishedDetails({ wood, linen }: { wood: THREE.Texture; linen?: THREE.Texture }) {
+    return <group>
+      <group position={[3.82, 0, 3.64]}>
+        <mesh position={[0, .12, 0]} castShadow><cylinderGeometry args={[.19, .23, .24, 24]}/><meshStandardMaterial color="#c7b592" roughness={.82}/></mesh>
+        {[[-.08, .48, 0], [.08, .62, .03], [0, .76, -.08], [.16, .52, -.08], [-.16, .57, .08]].map(([x, y, z], index) => <mesh key={index} position={[x, y, z]} rotation={[index * .3, index, 0]} castShadow><sphereGeometry args={[.17, 10, 8]}/><meshStandardMaterial color={index % 2 ? "#5f7a61" : "#78916e"} roughness={1}/></mesh>)}
+      </group>
+      <group position={[4.03, 0, .72]}>
+        <mesh position={[0, .85, 0]}><cylinderGeometry args={[.025, .035, 1.7, 12]}/><meshStandardMaterial color="#3b4542" metalness={.65} roughness={.28}/></mesh>
+        <mesh position={[0, 1.75, 0]}><cylinderGeometry args={[.22, .18, .24, 18, 1, true]}/><meshStandardMaterial color="#ded8ca" map={linen} roughness={.84}/></mesh>
+      </group>
+      <group position={[1.95, 0, 2.46]}>
+        <mesh position={[0, .37, 0]}><cylinderGeometry args={[.31, .35, .025, 28]}/><meshStandardMaterial color="#d9c7a7" map={wood} roughness={.48}/></mesh>
+        <mesh position={[0, .47, 0]}><cylinderGeometry args={[.11, .11, .19, 18]}/><meshStandardMaterial color="#e6e1d6" roughness={.8}/></mesh>
+        <mesh position={[0, .60, 0]}><sphereGeometry args={[.06, 12, 8]}/><meshStandardMaterial color="#71825f" roughness={1}/></mesh>
+      </group>
+      <group position={[1.45, 0, 5.98]}>
+        {[[-.38, 0, 0], [.38, 0, 0]].map(([x, y, z], index) => <group key={index} position={[x, y, z]}><mesh position={[0, .42, 0]}><cylinderGeometry args={[.035, .05, .84, 10]}/><meshStandardMaterial color="#77756d" metalness={.25} roughness={.5}/></mesh><mesh position={[0, .87, 0]}><sphereGeometry args={[.18, 16, 10]}/><meshStandardMaterial color="#f3efe4" map={linen} roughness={.86}/></mesh></group>)}
+      </group>
+    </group>;
 }
 type ModelProps = {
     design: Design;
@@ -202,27 +245,29 @@ function RoomFloor({ x, z, width, depth, texture, tiled }: { x: number; z: numbe
     return <mesh position={[x, .007, z]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[width, depth]}/><meshStandardMaterial map={map} roughness={tiled ? .78 : .57}/></mesh>;
 }
 
-function BaseModel({ design, style = "nordic", furnished = true, cutaway = false, interior = false, oak }: ModelProps & { oak?: THREE.Texture }) {
+function BaseModel({ design, style = "nordic", furnished = true, cutaway = false, interior = false, oak, a12Tile, a12Linen }: ModelProps & { oak?: THREE.Texture; a12Tile?: THREE.Texture; a12Linen?: THREE.Texture }) {
     const palette = styles[style];
     const proceduralWood = useSurface("wood", palette.wood), tile = useSurface("tile", "#cbc9c0");
-    const wood = oak ?? proceduralWood;
+    const wood = oak ?? proceduralWood, bathroomTile = a12Tile ?? tile;
     return <group>
     <Block p={[design.width / 2000, -.12, design.depth / 2000]} s={[design.width / 1000 + .30, .22, design.depth / 1000 + .30]} color="#cecfc7"/>
     {design.rooms.map(r => <group key={r.id}>
-      <RoomFloor x={(r.x + r.w / 2) / 1000} z={(r.z + r.d / 2) / 1000} width={r.w / 1000} depth={r.d / 1000} texture={r.kind === "bathroom" ? tile : wood} tiled={r.kind === "bathroom"}/>
+      <RoomFloor x={(r.x + r.w / 2) / 1000} z={(r.z + r.d / 2) / 1000} width={r.w / 1000} depth={r.d / 1000} texture={r.kind === "bathroom" ? bathroomTile : wood} tiled={r.kind === "bathroom"}/>
       {interior && <mesh position={[(r.x + r.w / 2) / 1000, design.height / 1000, (r.z + r.d / 2) / 1000]} rotation={[Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[r.w / 1000, r.d / 1000]}/><meshStandardMaterial color="#f6f3eb"/></mesh>}
       {interior && <pointLight position={[(r.x + r.w / 2) / 1000, 2.38, (r.z + r.d / 2) / 1000]} color={r.kind === "sauna" ? "#ffcd83" : "#fff0d8"} intensity={r.kind === "sauna" ? 5 : 9} distance={6} decay={2}/>}
       {interior && <mesh position={[(r.x + r.w / 2) / 1000, 2.56, (r.z + r.d / 2) / 1000]} rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[.16, 24]}/><meshStandardMaterial color="#fff5d7" emissive="#fff3d3" emissiveIntensity={2}/></mesh>}
     </group>)}
-    {design.walls.map(w => <ArchitecturalWall key={w.id} wall={w} height={design.height / 1000} wallColor={w.rooms.includes("s") ? "#c1a27b" : palette.wall} cutaway={cutaway}/>)}
-    {design.fittings.filter(f => furnished || f.fixed).map(f => <Furniture key={f.id} item={f} style={style} wood={wood}/>)}
+    {design.walls.map(w => <ArchitecturalWall key={w.id} wall={w} height={design.height / 1000} wallColor={w.rooms.includes("s") ? "#c1a27b" : palette.wall} cutaway={cutaway} surface={a12Tile && w.rooms.includes("kph") ? bathroomTile : undefined}/>)}
+    {design.fittings.filter(f => furnished || f.fixed).map(f => <Furniture key={f.id} item={f} style={style} wood={wood} linen={a12Linen}/>)}
     <group position={[design.outdoor.x / 1000, 0, design.outdoor.z / 1000]}><Block p={[design.outdoor.w / 2000, -.045, design.outdoor.d / 2000]} s={[design.outdoor.w / 1000, .08, design.outdoor.d / 1000]} color="white" map={wood}/>{!design.outdoor.terrace && <><Block p={[design.outdoor.w / 2000, 1.05, .04]} s={[design.outdoor.w / 1000, .04, .04]} color="#596f75"/><mesh position={[design.outdoor.w / 2000, .55, .04]}><boxGeometry args={[design.outdoor.w / 1000, 1, .012]}/><meshPhysicalMaterial color="#9cbdc5" transparent opacity={.3} roughness={.12} depthWrite={false}/></mesh></>}</group>
+    {design.id === "A12" && <A12Exterior/>}
+    {design.id === "A12" && furnished && <A12FurnishedDetails wood={wood} linen={a12Linen}/>}
   </group>;
 }
 
 function TexturedA12(props: ModelProps) {
-    const oak = useTexture("/art/a12-oak-albedo.webp");
-    return <BaseModel {...props} oak={oak}/>;
+    const [oak, tile, linen] = useTexture(["/art/a12-oak-albedo.webp", "/art/a12-bathroom-tile-albedo.webp", "/art/a12-linen-albedo.webp"]);
+    return <BaseModel {...props} oak={oak} a12Tile={tile} a12Linen={linen}/>;
 }
 
 export function ArchitecturalModel(props: ModelProps) {
