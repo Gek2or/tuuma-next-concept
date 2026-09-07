@@ -21,11 +21,10 @@ import {
 } from "lucide-react";
 import { apartments } from "@/lib/data";
 import { useLanguage, type LocalizedText } from "./LanguageProvider";
-import { ApartmentPlan } from "./ApartmentPlan";
 import { ApartmentGallery } from "./ApartmentGallery";
+import { SpatialPlanSwitcher } from "./SpatialPlanSwitcher";
 
 const BuildingScene = dynamic(() => import("./BuildingScene"), { ssr: false });
-const ApartmentDollhouse = dynamic(() => import("./ApartmentDollhouse"), { ssr: false });
 const Tour360Viewer = dynamic(() => import("./Tour360Viewer"), {
   ssr: false,
   loading: () => <div className="grid min-h-[520px] place-items-center rounded-[30px] bg-[#0a223d] text-sm font-bold text-white/70">360°‑kierros latautuu…</div>,
@@ -33,9 +32,12 @@ const Tour360Viewer = dynamic(() => import("./Tour360Viewer"), {
 
 const units = apartments.map((item) => ({
   id: item.id,
-  r: `${item.rooms}H+KT`,
+  r: item.layoutLabel ?? `${item.rooms}H+KT`,
   s: `${item.size.toString().replace(".", ",")} m²`,
   rent: item.rent,
+  priceIsDemo: item.priceIsDemo,
+  showcaseReady: item.showcaseReady,
+  levels: item.levels ?? 1,
   free: !item.available.toLowerCase().includes("varattu"),
   availability: item.available,
 }));
@@ -101,6 +103,12 @@ const standardCopy: Record<string, LocalizedText> = {
   "Huoneistokohtainen ilmanvaihto": { fi: "Huoneistokohtainen ilmanvaihto", en: "Apartment-specific ventilation", sv: "Lägenhetsspecifik ventilation" },
   "Oma piha ja lämmin varasto": { fi: "Oma piha ja lämmin varasto", en: "Private yard and warm storage", sv: "Egen gård och varmt förråd" },
   "EV-latausvalmius pihapaikalla": { fi: "EV-latausvalmius pihapaikalla", en: "EV-ready outdoor parking", sv: "Elbilsklar gårdsplats" },
+  "Vesikiertoinen lattialämmitys": { fi: "Vesikiertoinen lattialämmitys", en: "Water-based underfloor heating", sv: "Vattenburen golvvärme" },
+  "50 Mbit/s laajakaista sisältyy vuokraan": { fi: "50 Mbit/s laajakaista sisältyy vuokraan", en: "50 Mbps broadband included in rent", sv: "50 Mbit/s bredband ingår i hyran" },
+  "Savuton kohde": { fi: "Savuton kohde", en: "Smoke-free property", sv: "Rökfritt boende" },
+  "Hidas EV-lataus 3,6 kW": { fi: "Hidas EV-lataus 3,6 kW", en: "3.6 kW slow EV charging", sv: "Långsam elbilsladdning 3,6 kW" },
+  "iLOQ-lukitus": { fi: "iLOQ-lukitus", en: "iLOQ smart locking", sv: "iLOQ-låsning" },
+  "Lemmikit tervetulleita": { fi: "Lemmikit tervetulleita", en: "Pets welcome", sv: "Husdjur välkomna" },
 };
 
 const materialCopy: Record<string, LocalizedText> = {
@@ -146,10 +154,14 @@ export function KalliolinnaExperience() {
   const [fav, setFav] = useState(false);
   const selectedUnit = useMemo(() => units.find((unit) => unit.id === apt) ?? units[0], [apt]);
   const selectedApartment = useMemo(() => apartments.find((item) => item.id === apt) ?? apartments[0], [apt]);
-  const floors = { kalliolinna:5, asemanvalo:4, ruukinranta:1, peltokaarre:3, keravanjoen:1 }[selectedApartment.variant];
+  const floors = selectedApartment.showcaseReady ? (selectedApartment.levels ?? 1) : { kalliolinna:5, asemanvalo:4, ruukinranta:1, peltokaarre:3, keravanjoen:1 }[selectedApartment.variant];
   const propertyChoices = apartments.filter((item,index,list)=>list.findIndex(other=>other.variant===item.variant)===index);
-  const floorUnits = units.filter(unit=>apartments.some(item=>item.id===unit.id&&item.variant===selectedApartment.variant&&item.floor===floor));
-  function selectFloor(next:number) { setFloor(next); const home=apartments.find(item=>item.variant===selectedApartment.variant&&item.floor===next); if(home) {setApt(home.id);} }
+  const showcaseChoices = apartments.filter((item) => item.showcaseReady);
+  const floorUnits = selectedApartment.showcaseReady ? [selectedUnit] : units.filter(unit=>apartments.some(item=>item.id===unit.id&&item.variant===selectedApartment.variant&&item.floor===floor));
+  function selectFloor(next:number) { setFloor(next); if (selectedApartment.showcaseReady) return; const home=apartments.find(item=>item.variant===selectedApartment.variant&&item.floor===next); if(home) {setApt(home.id);} }
+  function selectApartment(id: string) { const home = apartments.find(item => item.id === id); if (!home) return; setApt(home.id); setFloor(home.floor); }
+  const money = (value: number) => new Intl.NumberFormat("fi-FI", { maximumFractionDigits: 2 }).format(value);
+  const rentLabel = `${selectedApartment.priceIsDemo ? "Demo " : ""}${money(selectedUnit.rent)} €`;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -175,16 +187,22 @@ export function KalliolinnaExperience() {
             <div>
               <p className="eyebrow text-[#5f7180]">Digital Concept / {selectedApartment.area}</p>
               <h1 className="display mt-3 text-5xl text-[#102f4b] sm:text-7xl">{selectedApartment.title.split(" ")[0]}</h1>
-              <p className="mt-3 max-w-xl text-base leading-7 text-[#617381]">{selectedApartment.address}, Tuusula · {text(pageCopy.addressLead)}</p>
+              <p className="mt-3 max-w-xl text-base leading-7 text-[#617381]">{selectedApartment.address} · {text(pageCopy.addressLead)}</p>
             </div>
             <span className="rounded-full border border-[#d2bd82] bg-[#fffdf8] px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#7f6421]">Concept · Demo</span>
           </div>
+
+          <section className="mt-7 rounded-[26px] border border-[#c9dae0] bg-[#edf5f6] p-4 shadow-[0_18px_45px_rgba(48,75,88,.08)] sm:p-5" aria-label={text({ fi: "Täydet konseptiesimerkit", en: "Complete concept examples", sv: "Kompletta konceptexempel" })}>
+            <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="eyebrow text-[#2e6275]">Mahlamäentie 14 · Kalliolinna</p><h2 className="mt-2 text-lg font-black text-[#153c55] sm:text-xl">{text({ fi: "Kolme täyttä esimerkkiä valmiina esitettäväksi", en: "Three complete examples ready to present", sv: "Tre kompletta exempel redo att presenteras" })}</h2></div><span className="rounded-full bg-[#173655] px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-white">{text({ fi: "Alkuperäinen mallinnus", en: "Original modelling", sv: "Ursprunglig modellering" })}</span></div>
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">{showcaseChoices.map(home => <button key={home.id} onClick={() => selectApartment(home.id)} aria-pressed={apt === home.id} className={`relative overflow-hidden rounded-[20px] border p-4 text-left transition ${apt === home.id ? "border-[#0b58a8] bg-white shadow-md ring-2 ring-[#9bc3d8]" : "border-[#d4e0df] bg-white/75 hover:border-[#79a8bc] hover:bg-white"}`}><div className="flex items-start justify-between gap-3"><div><span className="text-[10px] font-black uppercase tracking-[.14em] text-[#34728a]">{home.id} · {home.layoutLabel}</span><b className="mt-1 block text-lg text-[#173655]">{home.size.toString().replace(".", ",")} m²{home.levels && home.levels > 1 ? ` · ${home.levels} ${text({ fi: "tasoa", en: "levels", sv: "plan" })}` : ""}</b></div><span className="rounded-full bg-[#e6f3ee] px-2 py-1 text-[10px] font-black text-[#08765f]">{text({ fi: "VALMIS", en: "READY", sv: "KLAR" })}</span></div><span className="mt-3 block text-sm text-[#5c7281]">{home.address}</span><span className="mt-2 block text-xs font-bold text-[#2d6b85]">{text({ fi: "Piirustus · 3D · 360°", en: "Plan · 3D · 360°", sv: "Plan · 3D · 360°" })}</span></button>)}</div>
+            <p className="mt-4 text-xs leading-5 text-[#5d7180]">{text({ fi: "Osoitteet, asuntotyypit ja koot perustuvat julkisiin kohdetietoihin. Piirustukset, kuvat ja 3D-tilamallit ovat Tuuma Nextin alkuperäisiä demo-mallinnuksia — eivät virallisia rakennuspiirustuksia.", en: "Addresses, unit types and sizes use public property information. The drawings, images and 3D spatial models are original Tuuma Next demo models, not official construction drawings.", sv: "Adresser, bostadstyper och storlekar bygger på offentlig objektinformation. Ritningar, bilder och 3D-rumsmodeller är ursprungliga Tuuma Next-demomodeller, inte officiella byggritningar." })}</p>
+          </section>
 
           <nav className="mt-7 flex gap-2 overflow-x-auto pb-2" aria-label={text({fi:"Valitse talo",en:"Choose a building",sv:"Välj hus"})}>{propertyChoices.map(home=><button key={home.variant} aria-pressed={selectedApartment.variant===home.variant} onClick={()=>{setApt(home.id);setFloor(home.floor);}} className={`min-h-12 shrink-0 rounded-full border px-5 text-sm font-bold ${selectedApartment.variant===home.variant?"border-[#173655] bg-[#173655] text-white":"border-[#d7d7cc] bg-white text-[#173655]"}`}>{home.title.replace(` ${home.id}`,"")}</button>)}</nav>
           <div className="mt-5 grid overflow-hidden rounded-[30px] border border-[#e0d8c8] bg-[#fffdf8] shadow-[0_25px_80px_rgba(65,70,65,.12)] lg:grid-cols-[1.12fr_.88fr]">
             <div className="relative h-[min(58svh,420px)] min-h-[340px] bg-[#dfe9eb] sm:h-[600px]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,.65),transparent_35%)]" />
-              <BuildingScene variant={selectedApartment.variant} floor={floor} onFloorSelect={selectFloor} />
+              <BuildingScene variant={selectedApartment.variant} floor={floor} onFloorSelect={selectFloor} showcaseStoreys={selectedApartment.showcaseReady ? selectedApartment.levels : undefined} />
               <div className="absolute left-4 top-4 rounded-2xl border border-white/70 bg-[#fffdf8]/92 p-2 shadow-lg backdrop-blur sm:left-6 sm:top-6">
                 <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[.16em] text-[#687b89]">{text(pageCopy.chooseFloor)}</p>
                 <div className="grid grid-cols-5 gap-1 sm:block">
@@ -205,7 +223,7 @@ export function KalliolinnaExperience() {
             </div>
 
             <div className="p-5 sm:p-9">
-              <p className="eyebrow">{floor}. {text({ fi: "kerros", en: "floor", sv: "våning" })} · {text(pageCopy.selectHome)}</p>
+              <p className="eyebrow">{selectedApartment.levels && selectedApartment.levels > 1 ? `${selectedApartment.levels} ${text({ fi: "tasoa", en: "levels", sv: "plan" })}` : `${floor}. ${text({ fi: "kerros", en: "floor", sv: "våning" })}`} · {text(pageCopy.selectHome)}</p>
               <h2 className="display mt-3 text-4xl text-[#102f4b] sm:text-5xl">{text(pageCopy.heroTitle)}</h2>
               <p className="mt-4 max-w-md text-sm leading-6 text-[#647786]">{text(pageCopy.heroIntro)}</p>
               <div className="mt-7 grid gap-3">
@@ -213,13 +231,13 @@ export function KalliolinnaExperience() {
                 {floorUnits.map((unit) => (
                   <button key={unit.id} disabled={!unit.free} onClick={() => { setApt(unit.id); setFloor(apartments.find((item) => item.id === unit.id)?.floor ?? 3);  }} className={`flex items-center justify-between rounded-2xl border p-4 text-left transition ${apt === unit.id ? "border-[#0b58a8] bg-[#edf5fb] shadow-sm" : "border-[#dbe3e3] bg-white hover:border-[#94b4cc]"} ${!unit.free ? "cursor-not-allowed opacity-45" : ""}`}>
                     <span><b className="block text-lg text-[#173655]">{unit.id}</b><small className="text-[#687c8d]">{unit.r} · {unit.s}</small></span>
-                    <span className="text-right"><b className="block text-[#173655]">{unit.rent} € / kk</b><small className={unit.free ? "text-[#08765f]" : "text-[#798a99]"}>{unit.availability}</small></span>
+                    <span className="text-right"><b className="block text-[#173655]">{unit.priceIsDemo ? "Demo " : ""}{money(unit.rent)} € / kk</b><small className={unit.free ? "text-[#08765f]" : "text-[#798a99]"}>{unit.availability}</small></span>
                   </button>
                 ))}
               </div>
               <AnimatePresence mode="wait">
                 <motion.div key={apt} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-7 rounded-[22px] bg-[#102f4b] p-5 text-white">
-                  <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#a8c7df]">{text(pageCopy.selectedHome)}</p><b className="mt-2 block text-2xl">{selectedUnit.id} · {selectedUnit.r}</b><span className="mt-1 block text-sm text-white/65">{selectedUnit.s} · {selectedUnit.availability}</span></div><span className="text-xl font-black">{selectedUnit.rent} €</span></div>
+                  <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#a8c7df]">{selectedUnit.showcaseReady ? text({ fi: "Täysi esimerkki valmis", en: "Complete example ready", sv: "Komplett exempel klart" }) : text(pageCopy.selectedHome)}</p><b className="mt-2 block text-2xl">{selectedUnit.id} · {selectedUnit.r}</b><span className="mt-1 block text-sm text-white/65">{selectedUnit.s} · {selectedUnit.levels > 1 ? `${selectedUnit.levels} ${text({ fi: "tasoa", en: "levels", sv: "plan" })}` : selectedUnit.availability}</span></div><span className="text-xl font-black">{rentLabel}</span></div>
                   <a href="#asunto" className="mt-5 flex items-center justify-between rounded-xl bg-[#f0bd58] px-4 py-3 font-black text-[#173655]">{text(pageCopy.exploreHome)} <ChevronRight size={18} /></a>
                 </motion.div>
               </AnimatePresence>
@@ -234,10 +252,13 @@ export function KalliolinnaExperience() {
 
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <p className="eyebrow">{selectedApartment.title}</p>
+            {selectedApartment.showcaseReady && <span className="mt-3 inline-flex rounded-full bg-[#e7f4ef] px-3 py-2 text-[10px] font-black uppercase tracking-[.13em] text-[#08765f]">{text({ fi: "Täysi konseptiesimerkki valmis", en: "Complete concept example ready", sv: "Komplett konceptexempel klart" })}</span>}
             <h2 className="display mt-3 text-5xl text-[#102f4b]">{selectedUnit.r}</h2>
-            <div className="mt-4 flex items-baseline justify-between gap-4"><span className="text-xl font-bold text-[#2d4c66]">{selectedUnit.s} · {selectedApartment.floor}. {text({ fi: "kerros", en: "floor", sv: "våning" })}</span><b className="text-2xl text-[#102f4b]">{selectedUnit.rent} €<small className="text-sm font-medium text-[#6d7d8e]"> / kk</small></b></div>
+            <div className="mt-4 flex items-baseline justify-between gap-4"><span className="text-xl font-bold text-[#2d4c66]">{selectedUnit.s} · {selectedApartment.levels && selectedApartment.levels > 1 ? `${selectedApartment.levels} ${text({ fi: "tasoa", en: "levels", sv: "plan" })}` : `${selectedApartment.floor}. ${text({ fi: "kerros", en: "floor", sv: "våning" })}`}</span><b className="text-2xl text-[#102f4b]">{rentLabel}<small className="text-sm font-medium text-[#6d7d8e]"> / kk</small></b></div>
             <p className="mt-4 flex items-center gap-2 text-[#587087]"><MapPin size={17} /> {selectedApartment.address}, {selectedApartment.area}</p>
             <p className="mt-4 text-sm leading-6 text-[#5f7488]">{selectedApartment.description}</p>
+            {selectedApartment.priceIsDemo && <p className="mt-3 text-xs leading-5 text-[#6f7f8f]">{text({ fi: "Demovuokra: ei kohteen tämänhetkinen tarjous tai virallinen vuokra.", en: "Demo rent: not the property’s current offer or official rent.", sv: "Demohyra: inte objektets aktuella erbjudande eller officiella hyra." })}</p>}
+            {selectedApartment.publicSource && <a href={selectedApartment.publicSource} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-bold text-[#0b58a8] underline underline-offset-4">{text({ fi: "Julkiset Kalliolinna-kohdetiedot", en: "Public Kalliolinna property information", sv: "Offentlig Kalliolinna-objektinformation" })}</a>}
             <div className="mt-7 grid grid-cols-2 gap-3">
               {[[Wifi, "broadband"], [Car, "parking"], [PawPrint, "pets"], [Accessibility, "accessible"], [Building2, "lift"], [Box, "balcony"]].map(([Icon, key]) => { const I = Icon as typeof Wifi; const featureKey = key as keyof typeof apartmentFeatureCopy; const label = text(apartmentFeatureCopy[featureKey]); const value = featureKey === "parking" && !selectedApartment.parking ? text({ fi: "Ei autopaikkaa", en: "No parking", sv: "Ingen bilplats" }) : featureKey === "balcony" && !selectedApartment.balcony ? text({ fi: "Ei parveketta", en: "No balcony", sv: "Ingen balkong" }) : featureKey === "pets" && !selectedApartment.pets ? text({ fi: "Ei lemmikkejä", en: "No pets", sv: "Inga husdjur" }) : label; return <div key={featureKey} className="flex items-center gap-3 rounded-2xl border border-[#e0e6e5] bg-[#fffdf8] p-4 text-sm font-bold text-[#2f4b63]"><I size={19} className="text-[#0b58a8]" />{value}</div>; })}
             </div>
@@ -251,13 +272,10 @@ export function KalliolinnaExperience() {
           </aside>
         </div>
       </section>
-      <a href={`/hae?asunto=${selectedUnit.id}`} className="mobile-apply-cta fixed left-3 right-3 z-30 flex min-h-14 items-center justify-between rounded-full bg-[#0b58a8] px-5 font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.32)] lg:hidden"><span>{text({ fi: "Hae asuntoa", en: "Apply", sv: "Ansök" })}</span><span>{selectedUnit.rent} € / kk</span></a>
+      <a href={`/hae?asunto=${selectedUnit.id}`} className="mobile-apply-cta fixed left-3 right-3 z-30 flex min-h-14 items-center justify-between rounded-full bg-[#0b58a8] px-5 font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.32)] lg:hidden"><span>{text({ fi: "Hae asuntoa", en: "Apply", sv: "Ansök" })}</span><span>{rentLabel} / kk</span></a>
 
       <section className="shell pb-16 sm:pb-20">
-        <div className="grid gap-6">
-          <ApartmentPlan key={`plan-${selectedUnit.id}`} initialApartment={selectedUnit.id} />
-          <ApartmentDollhouse key={`dollhouse-${selectedApartment.id}`} apartment={selectedApartment} />
-        </div>
+        <SpatialPlanSwitcher key={`spatial-${selectedApartment.id}`} apartment={selectedApartment} />
       </section>
 
       <section className="bg-[#efe8d7] py-16 sm:py-20">

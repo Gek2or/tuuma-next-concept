@@ -7,7 +7,7 @@ import type { ApartmentVariant } from "@/lib/data";
 import { Block, useSurface } from "./ArchitecturalModel";
 import { SceneBoundary, useSceneReady } from "./ApartmentDollhouse";
 import { useLanguage } from "./LanguageProvider";
-export const buildingSpecs: Record<ApartmentVariant, {
+export type BuildingSpec = {
     name: string;
     floors: number;
     units: number;
@@ -19,7 +19,8 @@ export const buildingSpecs: Record<ApartmentVariant, {
     roof: string;
     pitched: boolean;
     wing?: boolean;
-}> = {
+};
+export const buildingSpecs: Record<ApartmentVariant, BuildingSpec> = {
     kalliolinna: { name: "Kalliolinna", floors: 5, units: 3, width: 24, depth: 11, surface: "brick", base: "#ddd8ca", accent: "#b39468", roof: "#626b69", pitched: false },
     asemanvalo: { name: "Asemanvalo", floors: 4, units: 3, width: 21, depth: 10, surface: "brick", base: "#a36145", accent: "#d7c6ab", roof: "#39494d", pitched: false, wing: true },
     ruukinranta: { name: "Ruukinranta", floors: 1, units: 4, width: 24.8, depth: 7.9, surface: "timber", base: "#718374", accent: "#d0b994", roof: "#495452", pitched: true },
@@ -45,19 +46,18 @@ function Window({ x, y, z, accent, balcony = false, width = 1.7 }: {
 }) {
     return <group position={[x, y, z]}><Block p={[0, 0, 0]} s={[width + .18, 1.76, .14]} color="#deded6"/><Block p={[0, 0, .08]} s={[width, 1.60, .06]} color="#658797" roughness={.12}/><Block p={[width * .15, 0, .12]} s={[.055, 1.63, .03]} color="#deded6"/><Block p={[0, -.87, .1]} s={[width + .28, .055, .25]} color={accent}/>{balcony && <group position={[0, -1.4, .1]}><Block p={[0, 0, .7]} s={[3.2, .16, 1.7]} color="#c5c4b9"/><Block p={[0, 1.12, 1.5]} s={[3.2, .06, .06]} color="#63787e"/>{[-1.55, 1.55].map(x => <Block key={x} p={[x, .60, 1.5]} s={[.055, 1.1, .055]} color="#63787e"/>)}<mesh position={[0, .62, 1.5]}><boxGeometry args={[3.1, 1.03, .018]}/><meshPhysicalMaterial color="#99b8c0" transparent opacity={.48} roughness={.1} depthWrite={false}/></mesh></group>}</group>;
 }
-function Building({ variant, floor, onFloorSelect }: {
-    variant: ApartmentVariant;
+function Building({ spec: s, floor, onFloorSelect }: {
+    spec: BuildingSpec;
     floor?: number;
     onFloorSelect?: (n: number) => void;
 }) {
-    const s = buildingSpecs[variant];
     const texture = useSurface(s.surface, s.base);
     const [hover, setHover] = useState<number | null>(null);
     const bay = s.width / s.units;
     return <group position={[-s.width / 2, 0, -s.depth / 2]}>
     <Block p={[s.width / 2, -.15, s.depth / 2]} s={[s.width + .5, .3, s.depth + .5]} color="#b4b6ad"/>
     {Array.from({ length: s.floors }, (_, f) => {
-            const setback = variant === "kalliolinna" && f === 4 ? 1 : 0;
+            const setback = s.surface === "brick" && s.name === "Kalliolinna" && f === 4 ? 1 : 0;
             return <group key={f} onPointerOver={e => { e.stopPropagation(); setHover(f + 1); }} onPointerOut={() => setHover(null)} onClick={e => { e.stopPropagation(); onFloorSelect?.(f + 1); }}>
         <Block p={[s.width / 2, f * 3 + 1.5, s.depth / 2]} s={[s.width - setback * 2, 2.97, s.depth - setback * 2]} color={hover === f + 1 ? "#fff2d5" : "#ffffff"} map={texture}/>
         <Block p={[s.width / 2, f * 3 + .04, s.depth + .05 - setback]} s={[s.width - setback * 2, .09, .20]} color={floor === f + 1 ? "#d49b3c" : "#b8b8ab"}/>
@@ -72,15 +72,19 @@ function Building({ variant, floor, onFloorSelect }: {
     {s.floors === 1 && Array.from({ length: s.units }, (_, i) => <Block key={i} p={[bay * (i + .5), -.18, s.depth + 5.2]} s={[bay - .7, .09, 3.2]} color="#91a084"/>)}
   </group>;
 }
-export default function BuildingScene({ variant = "kalliolinna", floor, onFloorSelect }: {
+export default function BuildingScene({ variant = "kalliolinna", floor, onFloorSelect, showcaseStoreys }: {
     variant?: ApartmentVariant;
     floor?: number;
     onFloorSelect?: (n: number) => void;
+    /** Use the actual low-rise character for the three complete Mahlamäentie examples. */
+    showcaseStoreys?: number;
 }) {
-    const { text } = useLanguage(), s = buildingSpecs[variant];
+    const { text } = useLanguage();
+    const base = buildingSpecs[variant];
+    const s: BuildingSpec = showcaseStoreys ? { name: "Kalliolinna", floors: showcaseStoreys, units: 3, width: 30, depth: 9.6, surface: "timber", base: "#384344", accent: "#c5a372", roof: "#293233", pitched: true } : base;
     const { ref, ready, unavailable } = useSceneReady();
     return <div ref={ref} className="h-full w-full"><SceneBoundary fallback={<div className="grid h-full place-items-center bg-[#e5eae6] p-8 text-center text-[#173655]"><div><h3 className="text-2xl">{s.name}</h3><p className="mt-3">{s.floors} {text({ fi: "kerrosta", en: "storeys", sv: "våningar" })} · {s.width} × {s.depth} m</p><p className="mt-3 text-sm">{text({ fi: "3D vaatii WebGL-tuen. Pohjapiirustukset ovat saatavilla.", en: "3D requires WebGL. Floor drawings are available.", sv: "3D kräver WebGL. Planritningar är tillgängliga." })}</p></div></div>}>
     {unavailable && <div className="grid h-full place-items-center p-8 text-center text-[#173655]"><div><h3 className="text-2xl font-semibold">{s.name}</h3><p className="mt-4">{s.floors} {text({ fi: "kerrosta", en: "storeys", sv: "våningar" })} · {s.width} × {s.depth} m</p><p className="mt-4 max-w-xs text-sm leading-6">{text({ fi: "Selaimen 3D-tuki ei ole käytettävissä. Asuntojen piirustukset toimivat normaalisti.", en: "This browser has no available 3D support. Apartment drawings remain available.", sv: "Webbläsarens 3D-stöd är inte tillgängligt. Planritningarna fungerar normalt." })}</p></div></div>}
-    {ready && <Canvas key={variant} shadows dpr={[1, 2]} camera={{ position: [s.width * .9, Math.max(s.floors * 3 + 6, 15), s.width * 1.1], fov: 43, near: .1, far: 150 }} gl={{ antialias: true }}><color attach="background" args={["#e4eae7"]}/><hemisphereLight args={["#f5f8ff", "#a6a290", 2]}/><directionalLight position={[-18, 32, 15]} intensity={3} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-bias={-.0002}/><Building variant={variant} floor={floor} onFloorSelect={onFloorSelect}/><ContactShadows position={[0, -.34, 0]} opacity={.4} scale={65} far={20} blur={2.4} frames={1}/><OrbitControls target={[0, s.floors * 1.3, 1]} minDistance={15} maxDistance={65} maxPolarAngle={Math.PI / 2.1} enableDamping/></Canvas>}
+    {ready && <Canvas key={`${variant}-${showcaseStoreys ?? 0}`} shadows dpr={[1, 2]} camera={{ position: [s.width * .9, Math.max(s.floors * 3 + 6, 15), s.width * 1.1], fov: 43, near: .1, far: 150 }} gl={{ antialias: true }}><color attach="background" args={["#e4eae7"]}/><hemisphereLight args={["#f5f8ff", "#a6a290", 2]}/><directionalLight position={[-18, 32, 15]} intensity={3} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-bias={-.0002}/><Building spec={s} floor={floor} onFloorSelect={onFloorSelect}/><ContactShadows position={[0, -.34, 0]} opacity={.4} scale={65} far={20} blur={2.4} frames={1}/><OrbitControls target={[0, s.floors * 1.3, 1]} minDistance={15} maxDistance={65} maxPolarAngle={Math.PI / 2.1} enableDamping/></Canvas>}
   </SceneBoundary></div>;
 }

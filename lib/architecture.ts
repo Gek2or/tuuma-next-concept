@@ -8,6 +8,8 @@ export type DesignRoom = {
     z: number;
     w: number;
     d: number;
+    /** Storeys are deliberately explicit for the original duplex concept models. */
+    level?: number;
 };
 export type Wall = {
     id: string;
@@ -17,6 +19,7 @@ export type Wall = {
     end: number;
     rooms: string[];
     thickness: number;
+    level?: number;
     opening?: {
         start: number;
         width: number;
@@ -28,13 +31,14 @@ export type Wall = {
 export type Fitting = {
     id: string;
     room: string;
-    kind: "bed" | "sofa" | "table" | "chair" | "kitchen" | "fridge" | "sink" | "hob" | "wardrobe" | "shower" | "wc" | "basin" | "washer" | "bench" | "heater" | "rug";
+    kind: "bed" | "sofa" | "table" | "chair" | "kitchen" | "fridge" | "sink" | "hob" | "wardrobe" | "shower" | "wc" | "basin" | "washer" | "bench" | "heater" | "rug" | "stairs";
     x: number;
     z: number;
     w: number;
     d: number;
     angle?: number;
     fixed: boolean;
+    level?: number;
 };
 export type Design = {
     id: string;
@@ -52,14 +56,16 @@ export type Design = {
         terrace: boolean;
     };
     name: string;
+    levels: number;
 };
-const r = (id: string, kind: RoomKind, code: string, x: number, z: number, w: number, d: number): DesignRoom => ({ id, kind, code, x, z, w, d });
+const r = (id: string, kind: RoomKind, code: string, x: number, z: number, w: number, d: number, level = 1): DesignRoom => ({ id, kind, code, x, z, w, d, level });
 const layouts: Record<string, {
     name: string;
     width: number;
     depth: number;
     rooms: DesignRoom[];
     terrace?: boolean;
+    levels?: number;
 }> = {
     A12: { name: "2H + KT", width: 8000, depth: 7500, rooms: [r("oh", "living", "OH", 0, 0, 4500, 4300), r("kt", "kitchen", "KT", 0, 4300, 2700, 3200), r("et", "hall", "ET", 2700, 4300, 5300, 1400), r("mh1", "bedroom", "MH", 4500, 0, 3500, 4300), r("kph", "bathroom", "KPH", 4500, 5700, 3500, 1800), r("vh", "storage", "VH", 2700, 5700, 1800, 1800)] },
     A14: { name: "3H + KT", width: 10000, depth: 7300, rooms: [r("oh", "living", "OH", 0, 0, 6500, 4000), r("kph", "bathroom", "KPH", 0, 4000, 2600, 3300), r("et", "hall", "ET", 2600, 4000, 1600, 3300), r("kt", "kitchen", "KT", 4200, 4000, 2300, 3300), r("mh1", "bedroom", "MH1", 6500, 0, 3500, 3650), r("mh2", "bedroom", "MH2", 6500, 3650, 3500, 3650)] },
@@ -68,8 +74,13 @@ const layouts: Record<string, {
     A31: { name: "4H + KT + S", width: 11800, depth: 7400, rooms: [r("mh1", "bedroom", "MH1", 0, 0, 3700, 3200), r("mh2", "bedroom", "MH2", 3700, 0, 3300, 3200), r("mh3", "bedroom", "MH3", 7000, 0, 2800, 3200), r("s", "sauna", "S", 9800, 0, 2000, 1400), r("kph", "bathroom", "KPH", 9800, 1400, 2000, 3000), r("et", "hall", "ET", 0, 3200, 9800, 1200), r("oh", "living", "OH", 0, 4400, 7000, 3000), r("kt", "kitchen", "KT", 7000, 4400, 4800, 3000)] },
     D18: { name: "1H + KT", width: 5500, depth: 7100, rooms: [r("oh", "living", "OH / ALK", 0, 0, 5500, 4100), r("kt", "kitchen", "KT", 0, 4100, 2500, 3000), r("et", "hall", "ET", 2500, 4100, 3000, 1200), r("kph", "bathroom", "KPH", 2500, 5300, 3000, 1800)] },
     E05: { name: "3H + KT + S", width: 7800, depth: 9900, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 7800, 3300), r("mh1", "bedroom", "MH1", 0, 3300, 3200, 3500), r("et", "hall", "ET", 3200, 3300, 1400, 6600), r("kt", "kitchen", "KT", 4600, 3300, 3200, 3500), r("mh2", "bedroom", "MH2", 0, 6800, 3200, 3100), r("kph", "bathroom", "KPH", 4600, 6800, 3200, 1900), r("s", "sauna", "S", 4600, 8700, 2000, 1200), r("vh", "storage", "VH", 6600, 8700, 1200, 1200)] },
+    // Original digital-twin concept layouts. Public unit type and size informed these models;
+    // they are not copies of permit or construction drawings.
+    C09: { name: "2H + KK · konseptipohja", width: 8000, depth: 7200, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 4700, 4000), r("mh1", "bedroom", "MH", 4700, 0, 3300, 4000), r("kt", "kitchen", "KK", 0, 4000, 3000, 3200), r("vh", "storage", "VH", 3000, 4000, 3000, 1600), r("et", "hall", "ET", 3000, 5600, 3000, 1600), r("kph", "bathroom", "KPH", 6000, 4000, 2000, 3200)] },
+    E15: { name: "3H + K · 2 tasoa · konseptipohja", width: 9000, depth: 4300, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4300, 1), r("kt", "kitchen", "K", 5200, 0, 3800, 2600, 1), r("et", "hall", "ET", 5200, 2600, 2000, 1700, 1), r("porras1", "hall", "PORRAS", 7200, 2600, 1800, 1700, 1), r("mh1", "bedroom", "MH1", 0, 0, 3600, 2600, 2), r("mh2", "bedroom", "MH2", 3600, 0, 3100, 2600, 2), r("kph", "bathroom", "KPH", 6700, 0, 2300, 2600, 2), r("hall2", "hall", "AULA", 0, 2600, 4500, 1700, 2), r("vh", "storage", "VH", 4500, 2600, 2200, 1700, 2), r("porras2", "hall", "PORRAS", 6700, 2600, 2300, 1700, 2)] },
+    F20: { name: "4H + K · 2 tasoa · konseptipohja", width: 11000, depth: 4350, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4350, 1), r("kt", "kitchen", "K", 5200, 0, 3500, 2600, 1), r("et", "hall", "ET", 8700, 0, 2300, 2600, 1), r("kph", "bathroom", "KPH", 5200, 2600, 2100, 1750, 1), r("porras1", "hall", "PORRAS", 7300, 2600, 3700, 1750, 1), r("mh1", "bedroom", "MH1", 0, 0, 3600, 3000, 2), r("mh2", "bedroom", "MH2", 3600, 0, 3400, 3000, 2), r("mh3", "bedroom", "MH3", 7000, 0, 4000, 3000, 2), r("hall2", "hall", "AULA", 0, 3000, 5000, 1350, 2), r("kph2", "bathroom", "KPH", 5000, 3000, 2500, 1350, 2), r("porras2", "hall", "PORRAS", 7500, 3000, 3500, 1350, 2)] },
 };
-function createWalls(rooms: DesignRoom[]): Wall[] {
+function createWallsForFloor(rooms: DesignRoom[]): Wall[] {
     const lines = new Map<string, {
         axis: "x" | "z";
         at: number;
@@ -127,10 +138,14 @@ function createWalls(rooms: DesignRoom[]): Wall[] {
     }
     return walls;
 }
+function createWalls(rooms: DesignRoom[]): Wall[] {
+    const levels = [...new Set(rooms.map(room => room.level ?? 1))].sort((a, b) => a - b);
+    return levels.flatMap(level => createWallsForFloor(rooms.filter(room => (room.level ?? 1) === level)).map(wall => ({ ...wall, id: `${wall.id}:L${level}`, level })));
+}
 function createFittings(rooms: DesignRoom[]): Fitting[] {
     const items: Fitting[] = [];
     for (const room of rooms) {
-        const add = (kind: Fitting["kind"], x: number, z: number, w: number, d: number, fixed = false) => items.push({ id: `${room.id}-${kind}-${items.length}`, room: room.id, kind, x: room.x + x, z: room.z + z, w, d, fixed });
+        const add = (kind: Fitting["kind"], x: number, z: number, w: number, d: number, fixed = false) => items.push({ id: `${room.id}-${kind}-${items.length}`, room: room.id, kind, x: room.x + x, z: room.z + z, w, d, fixed, level: room.level ?? 1 });
         if (room.kind === "bedroom") {
             add("bed", 250, 250, room.w > 3000 ? 1600 : 1200, 2100);
             add("wardrobe", room.w - 750, 200, 600, 1200, true);
@@ -148,9 +163,10 @@ function createFittings(rooms: DesignRoom[]): Fitting[] {
             add("sink", 280, 210, 500, 500, true);
             add("hob", 980, 230, 500, 480, true);
             if (room.d > 2500) {
-                add("table", 500, 1500, 1300, 750);
-                add("chair", 600, 1150, 420, 400);
-                add("chair", 600, 2330, 420, 400);
+                const tableZ = Math.max(950, Math.min(1500, room.d - 1200));
+                add("table", 500, tableZ, 1300, 750);
+                add("chair", 600, Math.max(180, tableZ - 350), 420, 400);
+                add("chair", 600, Math.min(room.d - 400, tableZ + 830), 420, 400);
             }
         }
         if (room.kind === "bathroom") {
@@ -166,6 +182,8 @@ function createFittings(rooms: DesignRoom[]): Fitting[] {
         }
         if (room.kind === "storage" && room.w > 1000)
             add("wardrobe", 180, 180, 600, Math.max(600, room.d - 360), true);
+        if (room.code === "PORRAS")
+            add("stairs", 170, 160, room.w - 340, room.d - 320, true);
     }
     return items;
 }
@@ -174,10 +192,10 @@ export const designs: Record<string, Design> = Object.fromEntries(Object.entries
     const living = layout.rooms.find(room => room.kind === "living")!;
     const bottom = living.z > layout.depth / 2;
     const outdoor = { x: living.x + 300, z: bottom ? layout.depth + 150 : -1950, w: Math.min(living.w - 600, 4200), d: 1800, terrace: !!layout.terrace };
-    const facade = walls.find(w => w.axis === "x" && w.at === (bottom ? layout.depth : 0) && w.rooms.includes(living.id));
+    const facade = walls.find(w => w.level === (living.level ?? 1) && w.axis === "x" && w.at === (bottom ? layout.depth : 0) && w.rooms.includes(living.id));
     if (facade)
         facade.opening = { start: outdoor.x + 200, width: Math.min(2800, outdoor.w - 400), kind: "window", sill: 0, height: 2300 };
-    return [id, { id, ...layout, height: 2600, walls, fittings: createFittings(layout.rooms), outdoor }];
+    return [id, { id, ...layout, height: 2600, levels: layout.levels ?? 1, walls, fittings: createFittings(layout.rooms), outdoor }];
 }));
 export const designFor = (id: string) => designs[id] ?? designs.A12;
 export const roomArea = (room: DesignRoom) => ((room.w - 150) * (room.d - 150) / 1e6);

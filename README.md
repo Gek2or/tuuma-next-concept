@@ -6,7 +6,7 @@ Itsenäinen, Finnish-first konseptidemo modernista vuokra-asumisen digipalvelust
 
 ### Arkkitehtuuripäivitys / syyskuu 2026
 
-- `lib/architecture.ts` on yhteinen millimetripohjainen lähde seitsemälle erilaiselle tilaratkaisulle. Pohjapiirustus, 3D-leikkaus ja sisäkierros käyttävät samoja seiniä, aukkoja ja kalusteita.
+- `lib/architecture.ts` on yhteinen millimetripohjainen lähde kymmenelle erilaiselle tilaratkaisulle. Pohjapiirustus, 3D-leikkaus ja sisäkierros käyttävät samoja seiniä, aukkoja ja kalusteita. Kaksitasoiset konseptikodit erottelevat tasot myös piirustuksessa ja sisäkierroksessa.
 - Viisi rakennustyyppiä: Kalliolinnan porrastettu 5-kerroksinen talo, Asemanvalon 4-kerroksinen tiilitalo siipiosalla, Ruukinrannan harjakattoinen puuverhoiltu rivitalo, Peltokaarteen 3-kerroksinen harjakattoinen talo ja Keravanjoen pihan puuverhoiltu rivitalo. Rakennukset ovat ulkomuotokonsepteja, eivät toteutussuunnitelmia.
 - ARK 101 / pohja ja ARK 201 / periaateleikkaus: A3, 1:50 tulostettuna 100 % koossa. Vektori-SVG-lataus ja selaimen Tulosta/PDF. Akselimitoitus, seinävahvuudet, ikkuna- ja oviaukot, ovikaaret, keittiö, märkätilat, saunat, tilaluettelo ja mittajana.
 - Uusi 360°-näkymä on **reaaliaikainen mallinnettu sisäkierros**, ei valokuvapanoraama. Vanhat matalaresoluutioiset panoraamat eivät enää pyöri huoneiden korvikkeina. Jokainen huone avaa oman kamerapaikan yhteisessä mallissa.
@@ -14,7 +14,7 @@ Itsenäinen, Finnish-first konseptidemo modernista vuokra-asumisen digipalvelust
 - WebGL2, kosketus-/hiirikatse, nuolinäppäimet, huonenavigointi, ovien hotspotit, todellinen pohjakartta ja selaimen fullscreen. Ei teeskenneltyä gyro-painiketta.
 - Renderöinti käynnistyy vasta näkymän lähellä ja pysähtyy sen poistuessa ruudulta. Ei ulkoista HDRI-latausta. Ilman WebGL2-tukea esitetään piirustus ja selkeä ilmoitus.
 
-**Rajat:** malleissa on proseduraaliset materiaalit ja mallinnetut kalusteet sekä A12:ssa erillinen tammitekstuuri; ne eivät ole valokuvarealistisia laserkeilauksia tai oikean kohteen mittausaineistoa. Konseptikuvat havainnollistavat tunnelmaa eivätkä todista tilamallin mittoja. Huoneluettelon pinta-alat ovat suuntaa-antavia, eivät SFS-standardin mukaisesti varmennettuja huoneistoaloja; katalogin ilmoitusala ja luonnoksen tilapinta-ala voivat poiketa. Rakenteet, paloturvallisuus, esteettömyys, ikkunamitoitus ja rakennuspaikan kaava tulee tarkistaa pätevän suunnittelijan kanssa ennen käyttöä oikean kohteen asiakirjoina.
+**Rajat:** malleissa on proseduraaliset materiaalit ja mallinnetut kalusteet; A12, C09, E15 ja F20 käyttävät lisäksi kohdistettuja tammi-, laatta- ja pellavatekstuuripintoja. Ne eivät ole valokuvarealistisia laserkeilauksia tai oikean kohteen mittausaineistoa. Konseptikuvat havainnollistavat tunnelmaa eivätkä todista tilamallin mittoja. Huoneluettelon pinta-alat ovat suuntaa-antavia, eivät SFS-standardin mukaisesti varmennettuja huoneistoaloja; katalogin ilmoitusala ja luonnoksen tilapinta-ala voivat poiketa. Rakenteet, paloturvallisuus, esteettömyys, ikkunamitoitus ja rakennuspaikan kaava tulee tarkistaa pätevän suunnittelijan kanssa ennen käyttöä oikean kohteen asiakirjoina.
 
 ### A12:n kuvallinen esittely – tyhjä tila ensin
 
@@ -24,22 +24,28 @@ A12 sisältää viisi näkymää: olohuone/keittiö, makuuhuone, kylpyhuone, ete
 
 Kuvien alkuperäinen koko on 1536 × 1024; WebP-julkaisu käyttää laatua 94 ilman keinotekoista skaalausta. Nämä ovat konseptirendereitä, eivät oikean asunnon valokuvia tai 3D-mallista laskettuja täsmällisiä kamerakuvia. Kuvagallerian ja teknisen tilamallin aukot ja sijainnit eivät vielä muodosta yhtä varmennettua digitaalista kaksosta. Reaaliaikainen kierros käyttää edelleen tilamallia; staattisia kuvia ei esitetä 360°-panoraamoina.
 
-A12:n 3D-lattia käyttää 1254 × 1254 tammialbedoa (`public/art/a12-oak-albedo.webp`), kylpyhuone lämpimän sävyistä posliinilaattaa ja sohvat/päädyt pellavatekstuuria. UV-toisto perustuu huoneen fyysisiin metreihin. A12:n näkymään sisältyy mallinnettu lasitettu parveke, pihapuusto, kiinteät kalusteet ja huonekohtaiset kamerapaikat. Tekstuurit eivät ole mitattuja PBR-materiaalipaketteja. Kalustuksen vaihto säilyttää lattian ja geometrian. Kuvien tuotantomuistiinpanot: `docs/a12-media.md`.
+A12:n ja kolmen täyden Kalliolinna-esimerkin 3D-lattia käyttää 1254 × 1254 tammialbedoa (`public/art/a12-oak-albedo.webp`), kylpyhuone lämpimän sävyistä posliinilaattaa ja sohvat/päädyt pellavatekstuuria. UV-toisto perustuu huoneen fyysisiin metreihin. Tekstuurit eivät ole mitattuja PBR-materiaalipaketteja. Kalustuksen vaihto säilyttää lattian ja geometrian. Kuvien tuotantomuistiinpanot: `docs/a12-media.md`.
+
+### Kolme Mahlamäentie 14 -täysesimerkkiä
+
+C09 (2H+KK, 56,5 m²), E15 (3H+K, 77 m²) ja F20 (4H+K, 92 m²) perustuvat julkisesti esitettyihin Kalliolinnan asuntotyyppeihin ja osoitekohtaisiin tietoihin. Jokaiselle on tuotettu **alkuperäinen** Tuuma Next -konseptipohja, oma julkisivu- ja sisäkuvapari, tyhjä/kalustettu vertailu, teksturoitu 3D-dollhouse sekä reaaliaikainen huonetason sisäkierros. E15- ja F20-kodeissa taso valitaan sekä piirustuksessa että 3D-kierroksessa.
+
+Pohjat, renderit ja hinnat eivät ole Tuuma Koditin virallisia rakennuspiirustuksia, myyntimateriaalia tai hintatietoja; ne ovat pitchiä varten tehtyjä demoja. Julkisen kohteen lähde: [Tuuma Kodit – Kalliolinna](https://tuumakodit.fi/kalliolinna/).
 
 Suunnittelun taustaviitteet: [YM asuin-, majoitus- ja työtilat 631/2024](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2024/631), [suunnitelmat ja selvitykset 216/2015](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2015/216), [Ympäristöministeriön rakentamismääräykset](https://ym.fi/rakentamismaaraykset). Viittaukset eivät ole vaatimustenmukaisuusvakuutus.
 
-Geometriatarkistus: `node --experimental-strip-types --test tests/architecture.test.mjs` tarkistaa seitsemän uniikkia pohjaa, huoneiden päällekkäisyydettömyyden, kulkuyhteydet, sisäänkäynnit, makuuhuoneiden ikkunat, kalusteiden sijainnin huoneen sisällä ja saunojen yhteyden pesuhuoneeseen. GPU-renderöinnin visuaalinen tarkistus on tehtävä WebGL2-laitteella; agentin testiselaimessa WebGL on pois käytöstä.
+Geometriatarkistus: `node --experimental-strip-types --test tests/architecture.test.mjs` tarkistaa kymmenen uniikkia pohjaa tasokohtaisesti, huoneiden päällekkäisyydettömyyden, kulkuyhteydet, sisäänkäynnit, makuuhuoneiden ikkunat, kalusteiden sijainnin huoneen sisällä ja saunojen yhteyden pesuhuoneeseen. GPU-renderöinnin visuaalinen tarkistus on tehtävä WebGL2-laitteella; agentin testiselaimessa WebGL on pois käytöstä.
 
 ### Palvelutoiminnot
 
 - älykäs, vaiheittainen Smart Home Matcher ja perustellut match-tulokset
 - moderni asuntohaku, mobiilisuodattimet (alue, vuokra, huoneet, pinta-ala, talotyyppi, varusteet), lajittelu, karttanäkymä, suosikit ja 2–3 asunnon vertailu
 - Kalliolinna Digital Concept: kevyt 3D-rakennus, kerros- ja asuntovalitsin
-- mitoitettu, klikattava SVG-pohjapiirros kaikille demoasunnoille (A12, A14, B24, C07, A31, D18, E05)
+- mitoitettu, klikattava SVG-pohjapiirros kaikille demoasunnoille (A12, A14, B24, C07, A31, D18, E05, C09, E15, F20), kaksitasoisissa tasovalinta
 - teksturoitu 3D-dollhouse: puu- ja laattapinnat, julkisivun materiaalivariantit, valittava sisustustyyli sekä tyhjä / kalustettu tila
 - asunnon tietosivu, media, varusteet ja hakemuksen Tampuuri-handoff-konsepti
 - reaaliaikainen Three.js-sisäkierros: huonenavigointi, hotspotit, pohjakartta, fullscreen, näppäimistö ja touch
-- apartment-specific media: jokaisella demoasunnolla oma korkearesoluutioinen kalustettu ja tyhjä kansikuva, galleria, 2:1-panoraama ja eri material palette
+- apartment-specific media: kolmella täydellä Kalliolinna-kodilla oma korkearesoluutioinen julkisivu, tyhjä ja kalustettu saman tilan kuvapari sekä materiaalipaletti; muut asunnot säilyvät kevyinä esimerkkeinä
 - alkuperäinen Nordic editorial -kuvitus Hyrylään, Jokelaan ja Kellokoskelle sekä paikalliset 2:1-konseptipanoraamat `public/art`-hakemistossa
 - hyväksyttyihin ohjeisiin rajattu `Kysy Tuumalta` -asukasapuri
 - apurin lähteet, tarkistuspäivä, epävarman vastauksen fallback ja kiiretilanteiden guardrail
