@@ -709,6 +709,64 @@ function A12Exterior() {
   );
 }
 
+/**
+ * F20 gets a deliberately small exterior set instead of a second, unrelated
+ * building.  The same terrace and timber context is visible in both empty and
+ * furnished modes; only movable furniture is toggled below.  The backdrop is
+ * an original concept render used as a distant WebGL texture, not a property
+ * photograph or a panoramic capture.
+ */
+function F20Exterior({ windowView }: { windowView?: THREE.Texture }) {
+  const view = useMemo(() => {
+    if (!windowView) return undefined;
+    const result = windowView.clone();
+    result.colorSpace = THREE.SRGBColorSpace;
+    result.anisotropy = 8;
+    // Crop away the generated image's edge framing so the architectural window
+    // remains the only frame the visitor reads in the tour.
+    result.repeat.set(1.17, 1.08);
+    result.offset.set(-0.085, -0.04);
+    result.needsUpdate = true;
+    return result;
+  }, [windowView]);
+  useEffect(() => () => view?.dispose(), [view]);
+  return (
+    <group>
+      <mesh position={[2.6, 3.15, -8.1]}>
+        <planeGeometry args={[18, 8.8]} />
+        {view ? (
+          <meshBasicMaterial map={view} toneMapped={false} />
+        ) : (
+          <meshBasicMaterial color="#b8ccd4" />
+        )}
+      </mesh>
+      <mesh
+        position={[4.6, -0.2, -4.65]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[20, 12]} />
+        <meshStandardMaterial color="#7f9575" roughness={1} />
+      </mesh>
+      <mesh position={[2.6, 0.03, -2.95]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[8.5, 1.9]} />
+        <meshStandardMaterial color="#a59d91" roughness={0.88} />
+      </mesh>
+      <mesh position={[-1.18, 1.1, -2.1]} castShadow>
+        <boxGeometry args={[0.12, 2.2, 0.12]} />
+        <meshStandardMaterial color="#29383a" metalness={0.28} roughness={0.53} />
+      </mesh>
+      <mesh position={[6.42, 1.1, -2.1]} castShadow>
+        <boxGeometry args={[0.12, 2.2, 0.12]} />
+        <meshStandardMaterial color="#29383a" metalness={0.28} roughness={0.53} />
+      </mesh>
+      <Birch x={-0.8} z={-4.45} scale={0.9} />
+      <Birch x={3.4} z={-5.25} scale={1.12} />
+      <Birch x={7.25} z={-4.8} scale={0.82} />
+    </group>
+  );
+}
+
 function A12FurnishedDetails({
   wood,
   linen,
@@ -929,10 +987,12 @@ function BaseModel({
   oak,
   a12Tile,
   a12Linen,
+  windowView,
 }: ModelProps & {
   oak?: THREE.Texture;
   a12Tile?: THREE.Texture;
   a12Linen?: THREE.Texture;
+  windowView?: THREE.Texture;
 }) {
   const palette = styles[style];
   const proceduralWood = useSurface("wood", palette.wood),
@@ -1060,6 +1120,7 @@ function BaseModel({
         )}
       </group>
       {design.id === "A12" && <A12Exterior />}
+      {design.id === "F20" && <F20Exterior windowView={windowView} />}
       {design.id === "A12" && furnished && (
         <A12FurnishedDetails wood={wood} linen={a12Linen} />
       )}
@@ -1071,12 +1132,13 @@ function BaseModel({
 }
 
 function TexturedKalliolinna(props: ModelProps) {
-  const [oak, tile, linen] = useTexture([
+  const [oak, tile, linen, windowView] = useTexture([
     "/art/a12-oak-albedo.webp",
     "/art/a12-bathroom-tile-albedo.webp",
     "/art/a12-linen-albedo.webp",
+    "/art/kalliolinna-f20-window-view-v2.webp",
   ]);
-  return <BaseModel {...props} oak={oak} a12Tile={tile} a12Linen={linen} />;
+  return <BaseModel {...props} oak={oak} a12Tile={tile} a12Linen={linen} windowView={windowView} />;
 }
 
 export function ArchitecturalModel(props: ModelProps) {

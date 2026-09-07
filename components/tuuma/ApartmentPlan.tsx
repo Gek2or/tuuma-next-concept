@@ -175,8 +175,13 @@ export function PlanGeometry({
           )}
         </>
       )}
-      {rooms.map((room) => (
-        <g
+      {rooms.map((room) => {
+        const labelScale = Math.min(1, room.w / 1800, room.d / 1500);
+        const showArea = labelScale > .73;
+        const labelWidth = Math.min(980, Math.max(480, room.w - 260));
+        const labelHeight = showArea ? 520 : 300;
+        const labelY = room.z + room.d / 2 - labelHeight / 2;
+        return <g
           key={room.id}
           role={select ? "button" : undefined}
           tabIndex={select ? 0 : undefined}
@@ -213,37 +218,37 @@ export function PlanGeometry({
           {labels && (
             <g pointerEvents="none">
               <rect
-                x={room.x + room.w / 2 - 490}
-                y={room.z + room.d * 0.6 - 170}
-                width="980"
-                height="580"
-                rx="70"
+                x={room.x + room.w / 2 - labelWidth / 2}
+                y={labelY}
+                width={labelWidth}
+                height={labelHeight}
+                rx="55"
                 fill="white"
-                fillOpacity=".88"
+                fillOpacity=".92"
               />
               <text
                 x={room.x + room.w / 2}
-                y={room.z + room.d * 0.6 + 80}
+                y={labelY + (showArea ? 210 : 195)}
                 textAnchor="middle"
-                fontSize="240"
+                fontSize={showArea ? "235" : "180"}
                 fontWeight="600"
                 fill="#1e3546"
               >
                 {room.code}
               </text>
-              <text
+              {showArea && <text
                 x={room.x + room.w / 2}
-                y={room.z + room.d * 0.6 + 310}
+                y={labelY + 405}
                 textAnchor="middle"
-                fontSize="180"
+                fontSize="165"
                 fill="#526571"
               >
                 {roomArea(room).toFixed(1)} m²*
-              </text>
+              </text>}
             </g>
           )}
-        </g>
-      ))}
+        </g>;
+      })}
       {walls.map((w) => {
         const o = w.opening;
         return (
@@ -285,23 +290,9 @@ export function PlanGeometry({
               </g>
             )}
             {o && o.kind === "door" && (
-              <g fill="none" stroke="#7a878c" strokeWidth="16">
-                <path
-                  d={`M${o.start} 0V${o.width} M${o.start} ${o.width}A${o.width} ${o.width} 0 0 0 ${o.start + o.width} 0`}
-                />
-                <path d={`M${o.start} 0h${o.width}`} strokeDasharray="45 45" />
-                {labels && (
-                  <text
-                    x={o.start + o.width / 2}
-                    y="-180"
-                    fontSize="130"
-                    fill="#6b797f"
-                    stroke="none"
-                    textAnchor="middle"
-                  >
-                    {o.width} / {o.height}
-                  </text>
-                )}
+              <g fill="none" stroke="#697b82" strokeWidth="16">
+                <path d={`M${o.start} 0V${o.width} M${o.start} ${o.width}A${o.width} ${o.width} 0 0 0 ${o.start + o.width} 0`} />
+                <path d={`M${o.start} 0h${o.width}`} strokeDasharray="42 38" stroke="#9eabb0" />
               </g>
             )}
           </g>
@@ -309,6 +300,33 @@ export function PlanGeometry({
       })}
     </g>
   );
+}
+
+function SectionDrawing({ design }: { design: Design }) {
+  const floorThickness = 220;
+  const storeyRise = design.height + floorThickness;
+  const top = -((design.levels - 1) * storeyRise + floorThickness);
+  const baseline = design.levels > 1 ? 10400 : 5000;
+  const crossLine = design.depth * .48;
+  return <g transform={`translate(1700 ${baseline})`}>
+    <rect x="-150" y={top} width={design.width + 300} height={2600 - top + 300} fill="#f8f8f4" stroke="#394950" strokeWidth="300" />
+    {Array.from({ length: design.levels }, (_, index) => {
+      const level = index + 1;
+      const y = -(level - 1) * storeyRise;
+      return <g key={level}>
+        <rect x="-150" y={y + design.height} width={design.width + 300} height={floorThickness} fill="#a3a6a3" />
+        {design.walls
+          .filter((wall) => (wall.level ?? 1) === level && wall.axis === "z" && wall.rooms.length === 2 && wall.start <= crossLine && wall.end >= crossLine)
+          .map((wall) => <rect key={wall.id} x={wall.at - 60} y={y} width="120" height={design.height} fill="#687477" />)}
+        <text x="250" y={y + 360} fontSize="220" fill="#546b77">TASO {level}</text>
+        <text x="250" y={y + 620} fontSize="165" fill="#70808a">VAPAA KORKEUS 2 600</text>
+      </g>;
+    })}
+    <Dimension x1={-650} y1={0} x2={-650} y2={2600} label="2 600" />
+    <Dimension x1={0} y1={3000} x2={design.width} y2={3000} />
+    <text x="400" y="2350" fontSize="200" fill="#546b77">±0.000</text>
+    <text x="0" y="3900" fontSize="210" fill="#546b77">Periaateleikkaus · tasot {design.levels}; rakenteet ja kantavuus eivät ole suunniteltuja.</text>
+  </g>;
 }
 export function ApartmentPlan({
   initialApartment = "A12",
@@ -324,9 +342,6 @@ export function ApartmentPlan({
     [level, setLevel] = useState(1);
   const svg = useRef<SVGSVGElement>(null);
   const visibleRooms = design.rooms.filter(
-    (item) => (item.level ?? 1) === level,
-  );
-  const visibleWalls = design.walls.filter(
     (item) => (item.level ?? 1) === level,
   );
   const room =
@@ -542,70 +557,7 @@ export function ApartmentPlan({
                   A
                 </text>
               </g>
-            ) : (
-              <g transform="translate(1700 5000)">
-                <rect
-                  x="-150"
-                  y="2600"
-                  width={design.width + 300}
-                  height="300"
-                  fill="#a3a6a3"
-                />
-                <rect
-                  x="-150"
-                  y="-300"
-                  width={design.width + 300}
-                  height="300"
-                  fill="#a3a6a3"
-                />
-                {[-150, design.width - 150].map((x) => (
-                  <rect
-                    key={x}
-                    x={x}
-                    y="0"
-                    width="300"
-                    height="2600"
-                    fill="#394950"
-                  />
-                ))}
-                {visibleWalls
-                  .filter(
-                    (w) =>
-                      w.axis === "z" &&
-                      w.rooms.length === 2 &&
-                      w.start <= design.depth * 0.48 &&
-                      w.end >= design.depth * 0.48,
-                  )
-                  .map((w) => (
-                    <rect
-                      key={w.id}
-                      x={w.at - 60}
-                      y="0"
-                      width="120"
-                      height="2600"
-                      fill="#687477"
-                    />
-                  ))}
-                <Dimension
-                  x1={-650}
-                  y1={0}
-                  x2={-650}
-                  y2={2600}
-                  label="VAPAA KORKEUS 2 600"
-                />
-                <Dimension x1={0} y1={3400} x2={design.width} y2={3400} />
-                <text x="400" y="2350" fontSize="200" fill="#546b77">
-                  ±0.000
-                </text>
-                <text x="400" y="-500" fontSize="200" fill="#546b77">
-                  +2.600 · SISÄKATTO
-                </text>
-                <text x="0" y="4300" fontSize="210" fill="#546b77">
-                  Periaateleikkaus · taso {level}; rakenteet ja kantavuus eivät
-                  ole suunniteltuja.
-                </text>
-              </g>
-            )}
+            ) : <SectionDrawing design={design} />}
             <g
               transform="translate(15700 2500)"
               fontFamily="sans-serif"
