@@ -12,8 +12,10 @@ export type RoomMedia = {
   label: { fi: string; en: string; sv: string };
   empty: string;
   furnished?: string;
-  /** Furnished variants must be edits of this exact empty master. */
-  source: "empty-master-edit";
+  /** A paired furnished image is an edit of this exact empty master. */
+  source: "empty-master-edit" | "concept-render";
+  /** Single reference frames are explicitly marked instead of being presented as an empty home. */
+  state?: "empty" | "furnished";
 };
 
 export type Apartment = {
@@ -341,10 +343,12 @@ export const apartments: Apartment[] = [
     floor: 1,
     image: "/art/kalliolinna-f20-exterior.webp",
     emptyImage: "/art/kalliolinna-f20-empty.webp",
-    gallery: ["/art/kalliolinna-f20-exterior.webp", "/art/kalliolinna-f20-empty.webp", "/art/kalliolinna-f20-living.webp"],
+    gallery: ["/art/kalliolinna-f20-exterior.webp", "/art/kalliolinna-f20-empty.webp", "/art/kalliolinna-f20-living.webp", "/art/kalliolinna-f20-master-bedroom.webp", "/art/kalliolinna-f20-family-bedroom.webp"],
     roomMedia: [
       { id: "exterior", label: { fi: "Julkisivu ja oma terassi", en: "Exterior & private terrace", sv: "Fasad och egen terrass" }, empty: "/art/kalliolinna-f20-exterior.webp", source: "empty-master-edit" },
       { id: "living", label: { fi: "Olohuone, keittiö ja portaat", en: "Living room, kitchen & stairs", sv: "Vardagsrum, kök och trappa" }, empty: "/art/kalliolinna-f20-empty.webp", furnished: "/art/kalliolinna-f20-living.webp", source: "empty-master-edit" },
+      { id: "master", label: { fi: "Päämakuuhuone · konseptisisustus", en: "Main bedroom · concept furnishing", sv: "Huvudsovrum · konceptinredning" }, empty: "/art/kalliolinna-f20-master-bedroom.webp", source: "concept-render", state: "furnished" },
+      { id: "family", label: { fi: "Perheen makuuhuone · konseptisisustus", en: "Family bedroom · concept furnishing", sv: "Familjesovrum · konceptinredning" }, empty: "/art/kalliolinna-f20-family-bedroom.webp", source: "concept-render", state: "furnished" },
     ],
     tour: { living: "/art/kalliolinna-f20-living.webp", bedroom: "/art/kalliolinna-f20-living.webp", kitchen: "/art/kalliolinna-f20-living.webp", startHeading: .18 },
     variant: "kalliolinna",

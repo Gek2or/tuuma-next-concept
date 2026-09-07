@@ -15,6 +15,7 @@ const copy = {
   room: { fi: "Valitse huone", en: "Choose a room", sv: "Välj rum" },
   slider: { fi: "Tyhjän ja kalustetun kuvan raja", en: "Empty and furnished image divider", sv: "Gräns mellan tom och möblerad bild" },
   note: { fi: "Konseptikuvia. Kalustus on lisätty saman huoneen tyhjään lähtökuvaan. Kalusteet eivät sisälly vuokraan.", en: "Concept renders. Furniture was added to the same room’s empty reference image. Furniture is not included in the rent.", sv: "Konceptbilder. Möbler har lagts till i samma rums tomma referensbild. Möbler ingår inte i hyran." },
+  renderNote: { fi: "Konseptirenderi saman F20-kodin materiaali- ja sisustuslinjasta. Kalusteet eivät sisälly vuokraan.", en: "Concept render using the same F20 home’s material and interior direction. Furniture is not included in the rent.", sv: "Konceptbild med samma F20-hems material- och inredningsriktning. Möbler ingår inte i hyran." },
   fixtures: { fi: "Kiinteät varusteet säilyvät myös tyhjässä asunnossa.", en: "Fixed fittings remain in the empty apartment.", sv: "Fast inredning finns kvar i den tomma bostaden." },
 };
 
@@ -26,8 +27,8 @@ export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
   const rooms = apartment.roomMedia;
   const room = rooms?.[index] ?? rooms?.[0];
   const legacyImages = [...new Set([apartment.emptyImage, ...(apartment.gallery ?? [apartment.image])].filter(Boolean))] as string[];
-  const effectiveMode = room?.furnished ? mode : "empty";
-  const source = room ? effectiveMode === "furnished" ? room.furnished! : room.empty : legacyImages[index] ?? legacyImages[0];
+  const effectiveMode = room?.furnished ? mode : room?.state ?? "empty";
+  const source = room ? (room.furnished && effectiveMode === "furnished" ? room.furnished : room.empty) : legacyImages[index] ?? legacyImages[0];
   const label = room ? text(room.label) : `${apartment.id} · ${index + 1}`;
 
   const controls = (large = false) => <div className="flex flex-wrap items-center justify-between gap-3">
@@ -65,7 +66,7 @@ export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
     <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3" aria-label={text(copy.room)}>
       {(rooms ?? legacyImages.map((src, i) => ({ id: String(i), empty: src, label: { fi: `Kuva ${i + 1}`, en: `Image ${i + 1}`, sv: `Bild ${i + 1}` } }))).map((item, i) => <button key={item.id} onClick={() => { setIndex(i); setSplit(50); }} aria-pressed={index === i} className={`overflow-hidden rounded-xl border-2 text-left ${index === i ? "border-[#0b58a8] bg-[#edf5fb]" : "border-transparent bg-[#f1f3f0]"}`}><img src={item.empty} alt="" className="aspect-[3/2] w-full object-cover" loading="lazy" /><span className="block min-h-11 px-3 py-3 text-sm font-semibold text-[#173655]">{text(item.label)}</span></button>)}
     </nav>
-    <p className="text-sm leading-6 text-[#617381]">{rooms ? text(copy.note) : text({ fi: "Kuvat ovat visualisointeja, eivät valokuvia todellisesta vuokrakohteesta.", en: "These are visualisations, not photographs of a real rental home.", sv: "Bilderna är visualiseringar, inte fotografier av ett verkligt hyresobjekt." })}</p>
+    <p className="text-sm leading-6 text-[#617381]">{rooms ? text(room?.source === "concept-render" ? copy.renderNote : copy.note) : text({ fi: "Kuvat ovat visualisointeja, eivät valokuvia todellisesta vuokrakohteesta.", en: "These are visualisations, not photographs of a real rental home.", sv: "Bilderna är visualiseringar, inte fotografier av ett verkligt hyresobjekt." })}</p>
   </div>
   <DialogContent className="inset-0 left-0 top-0 h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-none bg-[#fffdf8] p-3 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[96dvh] sm:max-w-[1200px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:p-6" showCloseButton={false}>
     <div className="sticky top-0 z-10 -mx-3 flex items-center justify-between gap-3 border-b border-[#e3e8e6] bg-[#fffdf8]/95 px-3 pb-3 pt-[max(0.25rem,env(safe-area-inset-top))] backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0"><DialogTitle className="text-lg font-semibold">{apartment.id} · {label}</DialogTitle><DialogClose className="flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 text-sm"><X size={18} /><span className="hidden sm:inline">{text(copy.close)}</span></DialogClose></div>

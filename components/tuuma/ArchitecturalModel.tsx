@@ -800,6 +800,78 @@ function A12FurnishedDetails({
     </group>
   );
 }
+
+/** Extra low-poly detail set for the flagship F20 home. It is deliberately separate from
+ * the architectural fittings: empty mode remains the same home, while furnished mode gets
+ * only movable staging and exterior life. */
+function F20FurnishedDetails({
+  wood,
+  linen,
+}: {
+  wood: THREE.Texture;
+  linen?: THREE.Texture;
+}) {
+  const leaves = (count: number, color: string) =>
+    Array.from({ length: count }, (_, index) => {
+      const angle = index * 1.91;
+      return (
+        <mesh
+          key={index}
+          position={[Math.cos(angle) * 0.18, 0.48 + (index % 4) * 0.11, Math.sin(angle) * 0.18]}
+          rotation={[index * 0.41, angle, 0]}
+          castShadow
+        >
+          <sphereGeometry args={[0.105, 10, 8]} />
+          <meshStandardMaterial color={color} roughness={0.92} />
+        </mesh>
+      );
+    });
+  return (
+    <group>
+      <group position={[4.56, 0, 3.45]}>
+        <mesh position={[0, 0.16, 0]} castShadow>
+          <cylinderGeometry args={[0.22, 0.27, 0.32, 20]} />
+          <meshStandardMaterial color="#bdab8c" roughness={0.82} />
+        </mesh>
+        {leaves(13, "#60765f")}
+      </group>
+      <group position={[2.2, 0, 3.75]}>
+        <mesh position={[0, 0.95, 0]} castShadow>
+          <cylinderGeometry args={[0.025, 0.035, 1.9, 12]} />
+          <meshStandardMaterial color="#27363b" metalness={0.62} roughness={0.28} />
+        </mesh>
+        <mesh position={[0, 1.98, 0]} castShadow>
+          <cylinderGeometry args={[0.25, 0.2, 0.3, 20, 1, true]} />
+          <meshStandardMaterial color="#e9dfc9" map={linen} roughness={0.86} />
+        </mesh>
+      </group>
+      <group position={[2.25, 0, -1.14]}>
+        <mesh position={[0, 0.43, 0]} castShadow>
+          <cylinderGeometry args={[0.52, 0.56, 0.08, 28]} />
+          <meshStandardMaterial color="#c9ae81" map={wood} roughness={0.55} />
+        </mesh>
+        <mesh position={[0, 0.2, 0]} castShadow>
+          <cylinderGeometry args={[0.08, 0.14, 0.42, 14]} />
+          <meshStandardMaterial color="#304145" metalness={0.5} roughness={0.35} />
+        </mesh>
+        {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((angle) => (
+          <group key={angle} position={[Math.cos(angle) * 0.92, 0, Math.sin(angle) * 0.92]} rotation={[0, -angle, 0]}>
+            <Block p={[0, 0.48, 0]} s={[0.52, 0.08, 0.5]} color="#a9b4a1" round map={linen} />
+            <Block p={[0, 0.75, 0.2]} s={[0.52, 0.52, 0.07]} color="#a9b4a1" round map={linen} />
+            {[-0.2, 0.2].map((x) => <Block key={x} p={[x, 0.24, 0]} s={[0.035, 0.48, 0.035]} color="#314247" metalness={0.5} roughness={0.38} />)}
+          </group>
+        ))}
+      </group>
+      <group position={[.62, 0, -1.35]}>
+        <mesh position={[0, 0.14, 0]} castShadow>
+          <cylinderGeometry args={[0.19, 0.24, 0.28, 18]} />
+          <meshStandardMaterial color="#d1c8b5" roughness={0.84} />
+        </mesh>
+        {leaves(10, "#788c69")}
+      </group>
+    </group>
+  );
+}
 type ModelProps = {
   design: Design;
   style?: InteriorStyle;
@@ -990,6 +1062,9 @@ function BaseModel({
       {design.id === "A12" && <A12Exterior />}
       {design.id === "A12" && furnished && (
         <A12FurnishedDetails wood={wood} linen={a12Linen} />
+      )}
+      {design.id === "F20" && furnished && (
+        <F20FurnishedDetails wood={wood} linen={a12Linen} />
       )}
     </group>
   );

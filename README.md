@@ -30,6 +30,8 @@ A12:n ja kolmen täyden Kalliolinna-esimerkin 3D-lattia käyttää 1254 × 1254 
 
 C09 (2H+KK, 56,5 m²), E15 (3H+K, 77 m²) ja F20 (4H+K, 92 m²) perustuvat julkisesti esitettyihin Kalliolinnan asuntotyyppeihin ja osoitekohtaisiin tietoihin. Jokaiselle on tuotettu **alkuperäinen** Tuuma Next -konseptipohja, oma julkisivu- ja sisäkuvapari, tyhjä/kalustettu vertailu, teksturoitu 3D-dollhouse sekä reaaliaikainen huonetason sisäkierros. E15- ja F20-kodeissa taso valitaan sekä piirustuksessa että 3D-kierroksessa.
 
+F20 on myös demossa laatutason flagship: alakerran olohuoneen tyhjä/kalustettu vertailu säilyttää saman geometrian, ja sen lisänä on kaksi korkearesoluutioista konseptirenderiä (päämakuuhuone ja perheen makuuhuone). Ne on merkitty erikseen konseptisisustuksiksi, eivätkä ne väitä olevansa virallisia kohdekuvia tai valokuvapanoraamoja. Reaaliaikainen 3D-kierros on edelleen kevyt WebGL-kierros, jossa materiaalit ja kalusteet ladataan vasta käyttäjän avatessa kohdan. Asumiskustannuslaskuri voidaan avata suoraan valitulle asunnolle parametrilla `/kustannukset?asunto=F20`.
+
 Pohjat, renderit ja hinnat eivät ole Tuuma Koditin virallisia rakennuspiirustuksia, myyntimateriaalia tai hintatietoja; ne ovat pitchiä varten tehtyjä demoja. Julkisen kohteen lähde: [Tuuma Kodit – Kalliolinna](https://tuumakodit.fi/kalliolinna/).
 
 Suunnittelun taustaviitteet: [YM asuin-, majoitus- ja työtilat 631/2024](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2024/631), [suunnitelmat ja selvitykset 216/2015](https://www.finlex.fi/fi/lainsaadanto/saadoskokoelma/2015/216), [Ympäristöministeriön rakentamismääräykset](https://ym.fi/rakentamismaaraykset). Viittaukset eivät ole vaatimustenmukaisuusvakuutus.

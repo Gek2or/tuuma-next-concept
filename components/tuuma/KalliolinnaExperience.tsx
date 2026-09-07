@@ -267,7 +267,7 @@ export function KalliolinnaExperience() {
               <button className="grid h-12 w-12 place-items-center rounded-full border border-[#d5dfe2] bg-[#fffdf8] text-[#173655]" aria-label="Jaa asunto"><Share2 size={18} /></button>
               <a href={`/hae?asunto=${selectedUnit.id}`} className="flex flex-1 items-center justify-center rounded-full bg-[#0b58a8] px-6 font-black text-white transition hover:bg-[#102f4b]">{text({ fi: "Hae asuntoa", en: "Apply", sv: "Ansök" })}</a>
             </div>
-            <a href="/kustannukset" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-[#d5dfe2] bg-[#fffdf8] px-5 text-sm font-black text-[#274969]">{text({ fi: "Laske asumisen kokonaiskustannus", en: "Calculate total monthly cost", sv: "Beräkna total månadskostnad" })}</a>
+            <a href={`/kustannukset?asunto=${selectedUnit.id}`} className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-[#d5dfe2] bg-[#fffdf8] px-5 text-sm font-black text-[#274969]">{text({ fi: "Laske asumisen kokonaiskustannus", en: "Calculate total monthly cost", sv: "Beräkna total månadskostnad" })}</a>
             <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-[#708196]"><Sparkles size={14} className="mt-0.5 shrink-0 text-[#c28d20]" /> {text({ fi: "Hakemus siirtyy turvallisesti nykyiseen Tampuuri-hakuprosessiin. Asuntotunnus esitäytetään automaattisesti.", en: "The application continues securely in the existing Tampuuri process with the home ID prefilled.", sv: "Ansökan fortsätter tryggt i den befintliga Tampuuri-processen med bostads-ID ifyllt." })}</p>
           </aside>
         </div>

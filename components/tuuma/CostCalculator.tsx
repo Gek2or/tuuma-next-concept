@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, BadgeEuro, BusFront, Car, Droplets, Home, Info, Leaf, LockKeyhole, PiggyBank, ShieldCheck, ShowerHead, Sparkles, WalletCards, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { apartments } from "@/lib/data";
@@ -11,7 +12,10 @@ type CommuteMode = "none" | "public" | "car";
 
 export function CostCalculator() {
   const { text } = useLanguage();
-  const [apartmentId, setApartmentId] = useState("A12");
+  const searchParams = useSearchParams();
+  const requestedApartment = searchParams.get("asunto");
+  const defaultApartment = apartments.some((item) => item.id === requestedApartment) ? requestedApartment! : "A12";
+  const [apartmentId, setApartmentId] = useState(defaultApartment);
   const [people, setPeople] = useState(2);
   const [waterMode, setWaterMode] = useState<"fixed" | "metered">("fixed");
   const [parking, setParking] = useState("35");
