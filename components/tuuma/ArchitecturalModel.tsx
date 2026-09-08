@@ -157,12 +157,14 @@ function Furniture({
   style,
   wood,
   linen,
+  stone,
   levelOffset = 0,
 }: {
   item: Fitting;
   style: InteriorStyle;
   wood: THREE.Texture;
   linen?: THREE.Texture;
+  stone?: THREE.Texture;
   levelOffset?: number;
 }) {
   const w = i.w / 1000,
@@ -294,8 +296,8 @@ function Furniture({
       shape = (
         <>
           {box(w / 2, 0.42, d / 2, w, 0.8, d, p.cabinet)}
-          {box(w / 2, 0.85, d / 2, w + 0.02, 0.045, d + 0.04, "#e6e0d4", false)}
-          {box(w / 2, 1.18, 0.02, w, 0.6, 0.03, "#ede8df")}
+          <Block p={[w / 2, 0.85, d / 2]} s={[w + 0.02, 0.045, d + 0.04]} color="#f3f1e9" map={stone} roughness={0.28} />
+          <Block p={[w / 2, 1.18, 0.02]} s={[w, 0.6, 0.03]} color="#f3f1e9" map={stone} roughness={0.34} />
           {Array.from({ length: Math.ceil(w / 0.6) }, (_, n) => (
             <group key={n}>
               <Block
@@ -311,6 +313,9 @@ function Furniture({
             </group>
           ))}
           {box(w / 2, 1.87, 0.18, w, 0.72, 0.36, p.cabinet)}
+          {Array.from({ length: Math.max(2, Math.floor(w / 0.8)) }, (_, n) => (
+            <Block key={`upper-handle-${n}`} p={[0.35 + n * ((w - 0.7) / Math.max(1, Math.floor(w / 0.8) - 1)), 1.9, 0.38]} s={[0.18, 0.02, 0.025]} color="#29383b" metalness={0.65} roughness={0.26} />
+          ))}
         </>
       );
       break;
@@ -489,6 +494,8 @@ function ArchitecturalWall({
   height,
   wallColor,
   cutaway,
+  interior,
+  exteriorSurface,
   surface,
   levelOffset = 0,
 }: {
@@ -496,6 +503,8 @@ function ArchitecturalWall({
   height: number;
   wallColor: string;
   cutaway: boolean;
+  interior: boolean;
+  exteriorSurface: boolean;
   surface?: THREE.Texture;
   levelOffset?: number;
 }) {
@@ -506,12 +515,15 @@ function ArchitecturalWall({
     if (!surface) return undefined;
     const map = surface.clone();
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
-    map.repeat.set((w.end - w.start) / 600, h / 0.6);
+    map.repeat.set(
+      exteriorSurface ? (w.end - w.start) / 1100 : (w.end - w.start) / 600,
+      exteriorSurface ? h / 2.6 : h / 0.6,
+    );
     map.colorSpace = THREE.SRGBColorSpace;
     map.anisotropy = 8;
     map.needsUpdate = true;
     return map;
-  }, [surface, w.end, w.start, h]);
+  }, [surface, w.end, w.start, h, exteriorSurface]);
   useEffect(() => () => wallMap?.dispose(), [wallMap]);
   const box = (
     start: number,
@@ -1106,11 +1118,15 @@ function BaseModel({
   a12Tile,
   a12Linen,
   windowView,
+  quartz,
+  timber,
 }: ModelProps & {
   oak?: THREE.Texture;
   a12Tile?: THREE.Texture;
   a12Linen?: THREE.Texture;
   windowView?: THREE.Texture;
+  quartz?: THREE.Texture;
+  timber?: THREE.Texture;
 }) {
   const palette = styles[style];
   const proceduralWood = useSurface("wood", palette.wood),
@@ -1192,7 +1208,9 @@ function BaseModel({
           height={design.height / 1000}
           wallColor={w.rooms.includes("s") ? "#c1a27b" : palette.wall}
           cutaway={cutaway}
-          surface={a12Tile && w.rooms.some((roomId) => design.rooms.find((room) => room.id === roomId)?.kind === "bathroom") ? bathroomTile : undefined}
+          interior={interior}
+          exteriorSurface={!interior && w.rooms.length === 1 && !!timber}
+          surface={!interior && w.rooms.length === 1 ? timber : a12Tile && w.rooms.some((roomId) => design.rooms.find((room) => room.id === roomId)?.kind === "bathroom") ? bathroomTile : undefined}
           levelOffset={((w.level ?? 1) - 1) * storeyOffset}
         />
       ))}
@@ -1205,6 +1223,7 @@ function BaseModel({
             style={style}
             wood={wood}
             linen={a12Linen}
+            stone={quartz}
             levelOffset={((f.level ?? 1) - 1) * storeyOffset}
           />
         ))}
@@ -1249,13 +1268,15 @@ function BaseModel({
 }
 
 function TexturedHome(props: ModelProps) {
-  const [oak, tile, linen, windowView] = useTexture([
+  const [oak, tile, linen, windowView, quartz, timber] = useTexture([
     "/art/material-oak-parquet-v3.webp",
     "/art/material-porcelain-tile-v3.webp",
-    "/art/a12-linen-albedo.webp",
+    "/art/material-linen-weave-v3.webp",
     "/art/kalliolinna-f20-window-view-v2.webp",
+    "/art/material-quartz-worktop-v3.webp",
+    "/art/material-charcoal-timber-v3.webp",
   ]);
-  return <BaseModel {...props} oak={oak} a12Tile={tile} a12Linen={linen} windowView={windowView} />;
+  return <BaseModel {...props} oak={oak} a12Tile={tile} a12Linen={linen} windowView={windowView} quartz={quartz} timber={timber} />;
 }
 
 export function ArchitecturalModel(props: ModelProps) {
