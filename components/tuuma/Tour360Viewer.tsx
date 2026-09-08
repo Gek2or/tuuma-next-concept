@@ -3,8 +3,8 @@
 /* eslint-disable react-hooks/immutability */
 import { useEffect, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
-import { Expand, Map, Moon, RotateCcw, Sun } from "lucide-react";
+import { Html, useTexture } from "@react-three/drei";
+import { Box, Camera, Expand, Map, Moon, RotateCcw, Sun } from "lucide-react";
 import * as THREE from "three";
 import { designFor, roomNames, type Design } from "@/lib/architecture";
 import { apartments, type Apartment } from "@/lib/data";
@@ -97,6 +97,87 @@ function RenderMood({ lighting }: { lighting: "day" | "evening" }) {
     }, [gl, invalidate, lighting]);
     return null;
 }
+
+/** A photographic equirectangular room.  The source image is intentionally
+ * kept separate from the spatial model: later it can be replaced with a 6K/8K
+ * capture from the property provider without changing the visitor UI. */
+function PanoramaSphere({ source }: { source: string }) {
+    const texture = useTexture(source);
+    useEffect(() => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = 8;
+        texture.needsUpdate = true;
+    }, [texture]);
+    return <mesh scale={[-1, 1, 1]}><sphereGeometry args={[30, 72, 48]}/><meshBasicMaterial map={texture} side={THREE.BackSide} toneMapped={false}/></mesh>;
+}
+
+function PanoramaControls({ heading = 0, reset }: { heading?: number; reset: number }) {
+    const { camera, gl, invalidate } = useThree();
+    useEffect(() => {
+        const perspective = camera as THREE.PerspectiveCamera;
+        camera.position.set(0, 0, .01);
+        const euler = new THREE.Euler(0, heading, 0, "YXZ");
+        camera.quaternion.setFromEuler(euler);
+        const canvas = gl.domElement;
+        canvas.style.touchAction = "none";
+        canvas.tabIndex = 0;
+        canvas.setAttribute("aria-label", "360° valokuvakierros · drag / arrow keys");
+        let dragging = false, lastX = 0, lastY = 0;
+        const update = () => { euler.x = THREE.MathUtils.clamp(euler.x, -1.25, 1.25); camera.quaternion.setFromEuler(euler); invalidate(); };
+        const down = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); canvas.focus(); };
+        const move = (e: PointerEvent) => { if (!dragging) return; euler.y -= (e.clientX - lastX) * .0036; euler.x -= (e.clientY - lastY) * .0036; lastX = e.clientX; lastY = e.clientY; update(); };
+        const up = () => { dragging = false; };
+        const key = (e: KeyboardEvent) => {
+            if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+            e.preventDefault();
+            euler.y += e.key === "ArrowLeft" ? .105 : e.key === "ArrowRight" ? -.105 : 0;
+            euler.x += e.key === "ArrowUp" ? .095 : e.key === "ArrowDown" ? -.095 : 0;
+            update();
+        };
+        const wheel = (e: WheelEvent) => { e.preventDefault(); perspective.fov = THREE.MathUtils.clamp(perspective.fov + e.deltaY * .022, 45, 86); perspective.updateProjectionMatrix(); invalidate(); };
+        canvas.addEventListener("pointerdown", down);
+        canvas.addEventListener("pointermove", move);
+        canvas.addEventListener("pointerup", up);
+        canvas.addEventListener("pointercancel", up);
+        canvas.addEventListener("keydown", key);
+        canvas.addEventListener("wheel", wheel, { passive: false });
+        invalidate();
+        return () => { canvas.removeEventListener("pointerdown", down); canvas.removeEventListener("pointermove", move); canvas.removeEventListener("pointerup", up); canvas.removeEventListener("pointercancel", up); canvas.removeEventListener("keydown", key); canvas.removeEventListener("wheel", wheel); };
+    }, [camera, gl, heading, reset, invalidate]);
+    return null;
+}
+
+function PanoramaFallback({ apartment, source }: { apartment: Apartment; source: string }) {
+    const { text } = useLanguage();
+    return <div className="grid h-full min-h-80 place-items-center overflow-hidden bg-[#e9ebe8] p-4 sm:p-6"><div className="max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_16px_35px_rgba(18,49,76,.16)]"><img src={source} alt={text({ fi: `${apartment.id}:n 360°-konseptipanoraama`, en: `${apartment.id} 360° concept panorama`, sv: `${apartment.id} 360°-konceptpanorama` })} className="aspect-[2/1] w-full object-cover"/><p className="p-4 text-center text-sm leading-6 text-[#465f72]">{text({ fi: "Panoraaman vapaa katselu tarvitsee WebGL-tuen. Kuva säilyy katsottavana tällä laitteella.", en: "Free-look panorama needs WebGL. The image remains viewable on this device.", sv: "Panoramans fria vy behöver WebGL. Bilden kan fortfarande ses på den här enheten." })}</p></div></div>;
+}
+
+function PhotoTour({ apartment, onOpenModel }: { apartment: Apartment; onOpenModel: () => void }) {
+    const { text } = useLanguage();
+    const design = designFor(apartment.id);
+    const { ref, ready, unavailable } = useSceneReady();
+    const compactScene = useSceneQuality();
+    const container = useRef<HTMLElement>(null);
+    const [room, setRoom] = useState<"living" | "kitchen" | "bedroom">("living");
+    const [reset, setReset] = useState(0);
+    const [minimap, setMinimap] = useState(false);
+    const [notice, setNotice] = useState("");
+    const rooms = {
+        living: { fi: "Olohuone", en: "Living room", sv: "Vardagsrum" },
+        kitchen: { fi: "Keittiö", en: "Kitchen", sv: "Kök" },
+        bedroom: { fi: "Makuuhuone", en: "Bedroom", sv: "Sovrum" },
+    };
+    const source = apartment.tour[room];
+    async function fullscreen() { try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (container.current?.requestFullscreen) await container.current.requestFullscreen();
+        else setNotice(text({ fi: "Koko näyttö ei ole käytettävissä tässä selaimessa.", en: "Fullscreen is unavailable in this browser.", sv: "Helskärm är inte tillgängligt i denna webbläsare." }));
+    } catch { setNotice(text({ fi: "Selain ei sallinut koko näytön tilaa.", en: "The browser did not allow fullscreen.", sv: "Webbläsaren tillät inte helskärm." })); } }
+    return <section ref={container} className="architecture-tour overflow-hidden rounded-3xl border border-white/20 bg-[#173655] text-white"><header className="flex flex-wrap justify-between gap-3 p-4 sm:gap-4 sm:p-5"><div><p className="text-xs font-bold tracking-[.17em] text-white/60">PHOTO 360 / {apartment.id} / CONCEPT</p><h3 className="mt-1 text-xl font-semibold">{text(rooms[room])}</h3></div><div className="flex gap-2"><button onClick={onOpenModel} aria-label={text({ fi: "Avaa reaaliaikainen 3D-malli", en: "Open real-time 3D model", sv: "Öppna 3D-modell i realtid" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Box size={18}/></button><button onClick={() => setMinimap(!minimap)} aria-pressed={minimap} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Map size={20}/></button><button onClick={() => setReset(reset + 1)} aria-label={text({ fi: "Palauta näkymä", en: "Reset view", sv: "Återställ vy" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><RotateCcw size={18}/></button><button onClick={() => void fullscreen()} aria-label={text({ fi: "Koko näyttö", en: "Fullscreen", sv: "Helskärm" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Expand size={20}/></button></div></header>
+      <div ref={ref} className="tour-viewport relative h-[min(58svh,430px)] min-h-[340px] bg-[#e1e7e5] sm:h-[650px]">{unavailable && <PanoramaFallback apartment={apartment} source={source}/>}<SceneBoundary fallback={<PanoramaFallback apartment={apartment} source={source}/>}>{ready && <Canvas key={`${apartment.id}-${room}`} dpr={compactScene ? [1, 1.35] : [1, 2]} camera={{ position: [0, 0, .01], fov: 70, near: .01, far: 100 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.toneMapping = THREE.NoToneMapping; }}><PanoramaSphere source={source}/><PanoramaControls heading={apartment.tour.startHeading} reset={reset}/></Canvas>}</SceneBoundary><div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_18%,rgba(255,241,208,.1),transparent_44%),linear-gradient(180deg,rgba(255,255,255,.035),transparent_25%,rgba(14,32,42,.14))]"/>{minimap && <div className="absolute right-3 top-3 w-40 max-w-[56%] rounded-2xl border bg-white/95 p-2 shadow-lg sm:w-52 sm:max-w-[60%] sm:p-3"><svg viewBox={`-400 -2100 ${design.width + 800} ${design.depth + 2800}`} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })}><PlanGeometry design={design} furnished={false}/></svg></div>}<div className="pointer-events-none absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] rounded-2xl bg-[#173655]/86 px-3 py-2 text-sm shadow-lg backdrop-blur sm:bottom-4 sm:left-4 sm:max-w-[calc(100%-2rem)] sm:px-4 sm:py-3"><b className="block text-white">{text({ fi: "Valokuvakierros · vedä katsoaksesi", en: "Photo tour · drag to look", sv: "Fototur · dra för att se" })}</b><span className="mt-1 hidden text-xs text-white/72 sm:block">{text({ fi: "Nuolinäppäimet · katso jokaiseen suuntaan · käytä huonenavigaattoria", en: "Arrow keys · look in every direction · use room navigation", sv: "Piltangenter · se åt alla håll · använd rumsnavigering" })}</span></div></div>
+      <div className="space-y-4 p-4 sm:p-5"><nav className="hide-scrollbar flex snap-x gap-2 overflow-x-auto pb-2" aria-label={text({ fi: "Valokuvakierroksen huoneet", en: "Photo tour rooms", sv: "Fototurens rum" })}>{(Object.keys(rooms) as Array<keyof typeof rooms>).map(item => <button key={item} onClick={() => setRoom(item)} aria-current={room === item ? "step" : undefined} className={`min-h-11 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold ${room === item ? "border-[#f0bd58] bg-[#f0bd58] text-[#173655]" : "border-white/30"}`}>{text(rooms[item])}</button>)}</nav><div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-3 text-sm leading-6 text-white/78"><Camera className="shrink-0 text-[#f0bd58]" size={18}/><span>{text({ fi: "Valokuvapohjainen 360°-näyte. Julkaisussa se korvataan kohteen omalla 6K–8K-panoraamalla PanoramaProviderin kautta.", en: "Photo-based 360° sample. At publishing it is replaced by the home’s own 6K–8K panorama through PanoramaProvider.", sv: "Fotobaserat 360°-prov. Vid publicering ersätts det med hemmets egna 6K–8K-panorama via PanoramaProvider." })}</span></div>{notice && <p role="status" className="text-sm">{notice}</p>}</div>
+    </section>;
+}
 function Portals({ design, room, select }: {
     design: Design;
     room: string;
@@ -110,7 +191,8 @@ export default function Tour360Viewer({ apartment = apartments[0] }: {
 }) {
     const { text } = useLanguage();
     const design = designFor(apartment.id);
-    const [room, setRoom] = useState("oh"), [tourLevel, setTourLevel] = useState(1), [style, setStyle] = useState<InteriorStyle>("nordic"), [furnished, setFurnished] = useState(true), [minimap, setMinimap] = useState(false), [lighting, setLighting] = useState<"day" | "evening">("day"), [reset, setReset] = useState(0), [notice, setNotice] = useState("");
+    const photoPanorama = /-360\.webp$/i.test(apartment.tour.living);
+    const [room, setRoom] = useState("oh"), [tourLevel, setTourLevel] = useState(1), [style, setStyle] = useState<InteriorStyle>("nordic"), [furnished, setFurnished] = useState(true), [minimap, setMinimap] = useState(false), [lighting, setLighting] = useState<"day" | "evening">("day"), [reset, setReset] = useState(0), [notice, setNotice] = useState(""), [tourMode, setTourMode] = useState<"panorama" | "model">(photoPanorama ? "panorama" : "model");
     const { ref, ready, unavailable } = useSceneReady();
     const compactScene = useSceneQuality();
     const container = useRef<HTMLElement>(null);
@@ -134,7 +216,9 @@ export default function Tour360Viewer({ apartment = apartments[0] }: {
     catch {
         setNotice(text({ fi: "Selain ei sallinut koko näytön tilaa.", en: "The browser did not allow fullscreen.", sv: "Webbläsaren tillät inte helskärm." }));
     } }
-    return <section ref={container} className="architecture-tour overflow-hidden rounded-3xl border border-white/20 bg-[#173655] text-white"><header className="flex flex-wrap justify-between gap-3 p-4 sm:gap-4 sm:p-5"><div><p className="text-xs font-bold tracking-[.17em] text-white/60">LIVE 3D / {apartment.id} / CONCEPT</p><h3 className="mt-1 text-xl font-semibold">{active.code} · {text(roomNames[active.kind])}</h3></div><div className="flex gap-2"><button onClick={() => setLighting(lighting === "day" ? "evening" : "day")} aria-pressed={lighting === "evening"} aria-label={text({ fi: "Vaihda päivänvalo ja iltavalo", en: "Switch daylight and evening light", sv: "Växla dagsljus och kvällsljus" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15">{lighting === "day" ? <Moon size={18}/> : <Sun size={19}/>}</button><button onClick={() => setMinimap(!minimap)} aria-pressed={minimap} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Map size={20}/></button><button onClick={() => setReset(reset + 1)} aria-label={text({ fi: "Palauta näkymä", en: "Reset view", sv: "Återställ vy" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><RotateCcw size={18}/></button><button onClick={() => void fullscreen()} aria-label={text({ fi: "Koko näyttö", en: "Fullscreen", sv: "Helskärm" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Expand size={20}/></button></div></header>
+    if (photoPanorama && tourMode === "panorama")
+        return <PhotoTour apartment={apartment} onOpenModel={() => setTourMode("model")}/>;
+    return <section ref={container} className="architecture-tour overflow-hidden rounded-3xl border border-white/20 bg-[#173655] text-white"><header className="flex flex-wrap justify-between gap-3 p-4 sm:gap-4 sm:p-5"><div><p className="text-xs font-bold tracking-[.17em] text-white/60">LIVE 3D / {apartment.id} / CONCEPT</p><h3 className="mt-1 text-xl font-semibold">{active.code} · {text(roomNames[active.kind])}</h3></div><div className="flex gap-2">{photoPanorama && <button onClick={() => setTourMode("panorama")} aria-label={text({ fi: "Avaa valokuvapohjainen 360-kierros", en: "Open photo-based 360 tour", sv: "Öppna fotobaserad 360-tur" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Camera size={19}/></button>}<button onClick={() => setLighting(lighting === "day" ? "evening" : "day")} aria-pressed={lighting === "evening"} aria-label={text({ fi: "Vaihda päivänvalo ja iltavalo", en: "Switch daylight and evening light", sv: "Växla dagsljus och kvällsljus" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15">{lighting === "day" ? <Moon size={18}/> : <Sun size={19}/>}</button><button onClick={() => setMinimap(!minimap)} aria-pressed={minimap} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Map size={20}/></button><button onClick={() => setReset(reset + 1)} aria-label={text({ fi: "Palauta näkymä", en: "Reset view", sv: "Återställ vy" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><RotateCcw size={18}/></button><button onClick={() => void fullscreen()} aria-label={text({ fi: "Koko näyttö", en: "Fullscreen", sv: "Helskärm" })} className="grid h-11 w-11 place-items-center rounded-full bg-white/15"><Expand size={20}/></button></div></header>
     <div ref={ref} className="tour-viewport relative h-[min(58svh,430px)] min-h-[340px] bg-[#e1e7e5] sm:h-[650px]">{unavailable && <ModelFallback apartment={apartment}/>}<SceneBoundary fallback={<ModelFallback apartment={apartment}/>}>
       {ready && <Canvas shadows dpr={compactScene ? [1, 1.35] : [1, 2]} camera={{ position: cameraSpot(design, "oh"), fov: 72, near: .03, far: 120 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.toneMapping = THREE.ACESFilmicToneMapping; }}><RenderMood lighting={lighting}/><color attach="background" args={[lighting === "day" ? "#c6dce4" : "#182a35"]}/><hemisphereLight args={[lighting === "day" ? "#f3f6ff" : "#657a96", lighting === "day" ? "#b9aa8f" : "#3b2d27", lighting === "day" ? 2.5 : 1.15]}/><ambientLight intensity={lighting === "day" ? .25 : .55} color={lighting === "day" ? "#ffffff" : "#d7b48e"}/><directionalLight position={[-8, 14, -10]} color={lighting === "day" ? "#fff2d3" : "#d59262"} intensity={lighting === "day" ? 3.7 : .52} castShadow shadow-mapSize={compactScene ? [1024, 1024] : [2048, 2048]} shadow-camera-left={-18} shadow-camera-right={18} shadow-camera-top={18} shadow-camera-bottom={-18} shadow-bias={-.0003}/><spotLight position={[2.8, 5.5, 2.4]} angle={.56} penumbra={.78} intensity={lighting === "day" ? 1.4 : 4.1} color="#ffdfb0" castShadow={false}/><ArchitecturalModel design={design} style={style} furnished={furnished} interior lighting={lighting}/><mesh position={[design.width / 2000, -.3, design.depth / 2000]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[160, 160]}/><meshStandardMaterial color={lighting === "day" ? "#96a788" : "#354138"} roughness={1}/></mesh><LookControls design={design} room={room} reset={reset}/><Portals design={design} room={room} select={setRoom}/></Canvas>}
     </SceneBoundary><div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_18%,rgba(255,241,208,.16),transparent_46%),linear-gradient(180deg,rgba(255,255,255,.04),transparent_24%,rgba(14,32,42,.12))]"/><div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#153147]/20 to-transparent"/>{minimap && <div className="absolute right-3 top-3 w-40 max-w-[56%] rounded-2xl border bg-white/95 p-2 shadow-lg sm:w-52 sm:max-w-[60%] sm:p-3"><svg viewBox={`-400 -2100 ${design.width + 800} ${design.depth + 2800}`} aria-label={text({ fi: "Pohjakartta", en: "Floor map", sv: "Plankarta" })}><PlanGeometry design={design} active={room} select={setRoom} furnished={false} level={active.level ?? 1}/></svg></div>}<div className="pointer-events-none absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] rounded-2xl bg-[#173655]/86 px-3 py-2 text-sm shadow-lg backdrop-blur sm:bottom-4 sm:left-4 sm:max-w-[calc(100%-2rem)] sm:px-4 sm:py-3"><b className="block text-white">{clearSize} · {text(finish)}</b><span className="mt-1 hidden text-xs text-white/72 sm:block">{text({ fi: "Vedä katsoaksesi · W A S D liikkuu huoneessa", en: "Drag to look · W A S D moves inside the room", sv: "Dra för att se · W A S D rör sig i rummet" })}</span><span className="mt-1 block text-xs text-white/72 sm:hidden">{text({ fi: "Vedä katsoaksesi", en: "Drag to look", sv: "Dra för att se" })}</span></div></div>
