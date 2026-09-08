@@ -26,6 +26,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { apartments } from "@/lib/data";
 import { useLanguage } from "./LanguageProvider";
+import { LivingIllustrations } from "./LivingIllustrations";
 const quick = [
   { icon: Search, label: { fi: "Etsi asunto", en: "Find a home", sv: "Sök bostad" }, href: "/kohteet" },
   { icon: Wrench, label: { fi: "Tee huoltopyyntö", en: "Maintenance request", sv: "Serviceanmälan" }, href: "/huolto" },
@@ -465,6 +466,7 @@ export function HomeExperience() {
           </div>
         </div>
       </section>
+      <LivingIllustrations />
       <section className="shell pb-4">
         <div className="mb-8 flex items-end justify-between">
           <div>

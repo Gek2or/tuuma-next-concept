@@ -63,6 +63,15 @@ export function ResidentHub() {
         </Link>
       </div>
 
+      <div className="mt-9 grid overflow-hidden rounded-[30px] border border-[#dfe6e9] bg-[#f6f3ec] md:grid-cols-[.92fr_1.08fr]">
+        <img src="/art/editorial-resident-care-v1.webp" alt={text({ fi: "Asukas ja huoltotyöntekijä kodin ovella", en: "Resident and maintenance worker at a home entrance", sv: "Boende och servicetekniker vid hemmets dörr" })} className="h-64 w-full object-cover md:h-full" loading="lazy" decoding="async" />
+        <div className="p-7 sm:p-9">
+          <p className="eyebrow">{text({ fi: "Yksi tilanne kerrallaan", en: "One situation at a time", sv: "En situation i taget" })}</p>
+          <h2 className="display mt-3 max-w-lg text-4xl text-[#173655]">{text({ fi: "Hyvä palvelu tuntuu siltä, että joku tietää mitä tehdä seuraavaksi.", en: "Good service feels like someone knows what to do next.", sv: "Bra service känns som att någon vet vad som ska hända härnäst." })}</h2>
+          <p className="mt-4 max-w-lg leading-7 text-[#5e748b]">{text({ fi: "Tässä konseptissa ohje, yhteydenottokanava ja seuraava toimenpide ovat aina samassa paikassa.", en: "In this concept, guidance, contact channel and the next action are always in the same place.", sv: "I det här konceptet finns anvisning, kontaktkanal och nästa åtgärd alltid på samma plats." })}</p>
+        </div>
+      </div>
+
       {notice && <div className="mt-6 rounded-2xl bg-[#e6f6ef] p-4 text-sm font-black text-[#08705b]" role="status">{notice}</div>}
 
       {!selected ? (
