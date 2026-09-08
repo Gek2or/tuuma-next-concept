@@ -4,6 +4,7 @@ import { RoundedBox, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import type { Design, Fitting, Wall } from "@/lib/architecture";
 export type InteriorStyle = "nordic" | "clay" | "forest";
+export type TourLighting = "day" | "evening";
 const styles = {
   nordic: {
     wall: "#f2f0e9",
@@ -222,6 +223,8 @@ function Furniture({
               map={linen}
             />
           ))}
+          {[0.1, w - 0.1].flatMap((x) => [0.14, d - 0.14].map((z) => <Block key={`${x}-${z}`} p={[x, 0.11, z]} s={[0.055, 0.22, 0.055]} color="#493d33" metalness={0.18} roughness={0.38} />))}
+          {box(w * 0.5, 0.68, d * 0.82, w * 0.94, 0.055, d * 0.28, "#778671", true, linen)}
         </>
       );
       break;
@@ -251,6 +254,7 @@ function Furniture({
             />
           ))}
           {box(0.4, 0.72, 0.4, 0.42, 0.4, 0.16, "#e8dcc8", true, linen)}
+          {[0.12, w - 0.12].flatMap((x) => [0.12, d - 0.12].map((z) => <Block key={`${x}-${z}`} p={[x, 0.1, z]} s={[0.05, 0.22, 0.05]} color="#453f38" metalness={0.3} roughness={0.42} />))}
         </>
       );
       break;
@@ -260,7 +264,7 @@ function Furniture({
     case "table":
       shape = (
         <>
-          {box(w / 2, 0.74, d / 2, w, 0.06, d, "white", true, wood)}
+          {box(w / 2, 0.74, d / 2, w, 0.06, d, "#d6b889", true, wood)}
           {[0.1, w - 0.1].flatMap((x) =>
             [0.1, d - 0.1].map((z) => (
               <Block
@@ -316,6 +320,9 @@ function Furniture({
           {Array.from({ length: Math.max(2, Math.floor(w / 0.8)) }, (_, n) => (
             <Block key={`upper-handle-${n}`} p={[0.35 + n * ((w - 0.7) / Math.max(1, Math.floor(w / 0.8) - 1)), 1.9, 0.38]} s={[0.18, 0.02, 0.025]} color="#29383b" metalness={0.65} roughness={0.26} />
           ))}
+          <Block p={[w * 0.53, 0.43, d + 0.035]} s={[Math.min(0.58, w * 0.28), 0.55, 0.03]} color="#202a2e" roughness={0.22} metalness={0.12} />
+          <Block p={[w * 0.53, 0.46, d + 0.055]} s={[Math.min(0.46, w * 0.21), 0.4, 0.012]} color="#111a1e" roughness={0.12} metalness={0.35} />
+          <Block p={[w * 0.54, 2.22, d * 0.52]} s={[0.62, 0.16, 0.34]} color="#3a4547" metalness={0.68} roughness={0.25} round />
         </>
       );
       break;
@@ -346,6 +353,7 @@ function Furniture({
           )}
           {box(w / 2, 1.05, 0.06, 0.035, 0.3, 0.035, "#788c90")}
           {box(w / 2, 1.2, 0.13, 0.035, 0.035, 0.16, "#788c90")}
+          {i.kind === "basin" && <><mesh position={[w / 2, 1.55, d * 0.96]}><boxGeometry args={[w * 0.78, 0.72, 0.035]} /><meshPhysicalMaterial color="#aebfc1" metalness={0.15} roughness={0.08} transmission={0.12} /></mesh><Block p={[w * 0.5, 1.16, d * 0.93]} s={[w * 0.82, 0.035, 0.035]} color="#2c3b3e" metalness={0.5} roughness={0.25} /></>}
         </>
       );
       break;
@@ -393,6 +401,12 @@ function Furniture({
           </mesh>
           {box(0.1, 1.25, 0.05, 0.025, 0.9, 0.03, "#829295")}
           {box(0.1, 1.9, 0.16, 0.22, 0.035, 0.3, "#aeb7b5")}
+          {box(0.1, 2.17, 0.17, 0.03, 0.48, 0.03, "#829295")}
+          <mesh position={[0.29, 2.4, 0.17]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.11, 0.11, 0.025, 24]} />
+            <meshStandardMaterial color="#aeb7b5" metalness={0.76} roughness={0.2} />
+          </mesh>
+          <Block p={[w * 0.98, 1.12, d * 0.5]} s={[0.035, 0.4, 0.035]} color="#48585b" metalness={0.58} roughness={0.24} />
         </>
       );
       break;
@@ -888,9 +902,11 @@ function A12FurnishedDetails({
 function F20FurnishedDetails({
   wood,
   linen,
+  stone,
 }: {
   wood: THREE.Texture;
   linen?: THREE.Texture;
+  stone?: THREE.Texture;
 }) {
   const leaves = (count: number, color: string) =>
     Array.from({ length: count }, (_, index) => {
@@ -949,6 +965,21 @@ function F20FurnishedDetails({
           <meshStandardMaterial color="#d1c8b5" roughness={0.84} />
         </mesh>
         {leaves(10, "#788c69")}
+      </group>
+      <group position={[6.95, 0, 1.52]}>
+        <Block p={[0, 0.45, 0]} s={[1.42, 0.86, 0.82]} color="#c8b394" round />
+        <Block p={[0, 0.91, 0]} s={[1.5, 0.055, 0.9]} color="#eee9df" map={stone} roughness={0.26} />
+        <Block p={[0, 0.84, -0.34]} s={[0.46, 0.12, 0.11]} color="#1d282b" roughness={0.16} metalness={0.42} round />
+        {[-0.46, 0.46].map((x) => <group key={x} position={[x, 0, 0.78]}><Block p={[0, 0.32, 0]} s={[0.12, 0.58, 0.12]} color="#28363a" metalness={0.58} roughness={0.28} /><Block p={[0, 0.63, 0]} s={[0.34, 0.07, 0.34]} color="#b7c1b3" round map={linen} /></group>)}
+      </group>
+      <group position={[2.75, 0, 2.5]}>
+        <mesh position={[0, 2.05, 0]}><cylinderGeometry args={[0.018, 0.024, 1.08, 10]} /><meshStandardMaterial color="#27363b" metalness={0.66} roughness={0.24} /></mesh>
+        <mesh position={[0, 1.47, 0]}><cylinderGeometry args={[0.3, 0.22, 0.18, 20, 1, true]} /><meshStandardMaterial color="#e9e1d2" map={linen} roughness={0.82} /></mesh>
+        <pointLight position={[0, 1.42, 0]} color="#ffddad" intensity={5.4} distance={3.5} decay={2} />
+      </group>
+      <group position={[4.95, 1.42, 3.84]} rotation={[0, Math.PI / 2, 0]}>
+        <Block p={[0, 0, 0]} s={[1.05, 0.74, 0.045]} color="#31484d" roughness={0.52} />
+        <Block p={[0, 0, 0.028]} s={[0.87, 0.56, 0.02]} color="#d9cbb2" roughness={0.8} />
       </group>
     </group>
   );
@@ -1066,6 +1097,7 @@ type ModelProps = {
   furnished?: boolean;
   cutaway?: boolean;
   interior?: boolean;
+  lighting?: TourLighting;
 };
 
 function RoomFloor({
@@ -1114,6 +1146,7 @@ function BaseModel({
   furnished = true,
   cutaway = false,
   interior = false,
+  lighting = "day",
   oak,
   a12Tile,
   a12Linen,
@@ -1176,7 +1209,7 @@ function BaseModel({
                   (r.z + r.d / 2) / 1000,
                 ]}
                 color={r.kind === "sauna" ? "#ffcd83" : "#fff0d8"}
-                intensity={r.kind === "sauna" ? 5 : 9}
+                intensity={r.kind === "sauna" ? (lighting === "evening" ? 8 : 5) : lighting === "evening" ? 17 : 7}
                 distance={6}
                 decay={2}
               />
@@ -1194,7 +1227,7 @@ function BaseModel({
                 <meshStandardMaterial
                   color="#fff5d7"
                   emissive="#fff3d3"
-                  emissiveIntensity={2}
+                  emissiveIntensity={lighting === "evening" ? 4.5 : 1.6}
                 />
               </mesh>
             )}
@@ -1261,7 +1294,7 @@ function BaseModel({
         <A12FurnishedDetails wood={wood} linen={a12Linen} />
       )}
       {design.id === "F20" && furnished && (
-        <F20FurnishedDetails wood={wood} linen={a12Linen} />
+        <F20FurnishedDetails wood={wood} linen={a12Linen} stone={quartz} />
       )}
     </group>
   );
