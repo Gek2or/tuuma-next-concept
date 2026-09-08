@@ -502,6 +502,17 @@ function ArchitecturalWall({
   const h = cutaway ? Math.min(height, 1.15) : height,
     o = w.opening,
     t = w.thickness / 1000;
+  const wallMap = useMemo(() => {
+    if (!surface) return undefined;
+    const map = surface.clone();
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.repeat.set((w.end - w.start) / 600, h / 0.6);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = 8;
+    map.needsUpdate = true;
+    return map;
+  }, [surface, w.end, w.start, h]);
+  useEffect(() => () => wallMap?.dispose(), [wallMap]);
   const box = (
     start: number,
     end: number,
@@ -514,7 +525,7 @@ function ArchitecturalWall({
         p={[(start + end) / 2000, (bottom + top) / 2, 0]}
         s={[(end - start) / 1000, top - bottom, t]}
         color={color}
-        map={surface}
+        map={wallMap}
         roughness={surface ? 0.82 : 0.9}
       />
     ) : null;
@@ -930,6 +941,113 @@ function F20FurnishedDetails({
     </group>
   );
 }
+function Handrail({
+  from,
+  to,
+  z,
+}: {
+  from: [number, number];
+  to: [number, number];
+  z: number;
+}) {
+  const dx = to[0] - from[0];
+  const dy = to[1] - from[1];
+  const length = Math.hypot(dx, dy);
+  const angle = Math.atan2(dy, dx);
+  return (
+    <>
+      <mesh
+        position={[(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, z]}
+        rotation={[0, 0, angle]}
+        castShadow
+      >
+        <boxGeometry args={[length, 0.045, 0.045]} />
+        <meshStandardMaterial color="#27363b" metalness={0.62} roughness={0.3} />
+      </mesh>
+      {[0, 0.25, 0.5, 0.75, 1].map((t) => {
+        const x = from[0] + dx * t;
+        const y = from[1] + dy * t - 0.45;
+        return (
+          <mesh key={t} position={[x, y, z]} castShadow>
+            <cylinderGeometry args={[0.018, 0.018, 0.9, 8]} />
+            <meshStandardMaterial color="#27363b" metalness={0.62} roughness={0.3} />
+          </mesh>
+        );
+      })}
+    </>
+  );
+}
+
+/** Two connected flights with a landing replace the former decorative blocks.
+ * The geometry is shared by the room plan and the real-time duplex model. */
+function DuplexStaircase({
+  design,
+  wood,
+}: {
+  design: Design;
+  wood: THREE.Texture;
+}) {
+  const room = design.rooms.find(
+    (item) => item.code === "PORRAS" && (item.level ?? 1) === 1,
+  );
+  if (!room) return null;
+  const roomWidth = room.w / 1000;
+  const roomDepth = room.d / 1000;
+  const flightSteps = roomWidth >= 3.2 ? 9 : 8;
+  const rise = (design.height / 1000 + 0.22) / (flightSteps * 2);
+  const run = Math.min(flightSteps * 0.25, roomWidth - 0.92);
+  const tread = run / flightSteps;
+  const start = 0.15;
+  const landingWidth = roomWidth - start - run;
+  const flightWidth = Math.min(0.7, (roomDepth - 0.16) / 2);
+  const farLane = roomDepth - flightWidth / 2 - 0.08;
+  const nearLane = flightWidth / 2 + 0.08;
+  const landingHeight = flightSteps * rise;
+  const topHeight = flightSteps * 2 * rise;
+  const stairMaterial = "#c6a57d";
+  return (
+    <group position={[room.x / 1000, 0, room.z / 1000]}>
+      {Array.from({ length: flightSteps }, (_, index) => (
+        <Block
+          key={`up-${index}`}
+          p={[
+            start + tread * (index + 0.5),
+            ((index + 1) * rise) / 2,
+            nearLane,
+          ]}
+          s={[tread + 0.012, (index + 1) * rise, flightWidth]}
+          color={stairMaterial}
+          map={wood}
+          roughness={0.5}
+        />
+      ))}
+      <Block
+        p={[start + run + landingWidth / 2, landingHeight - 0.035, roomDepth / 2]}
+        s={[landingWidth, 0.07, roomDepth - 0.1]}
+        color={stairMaterial}
+        map={wood}
+        roughness={0.5}
+      />
+      {Array.from({ length: flightSteps }, (_, index) => (
+        <Block
+          key={`return-${index}`}
+          p={[
+            start + run - tread * (index + 0.5),
+            ((flightSteps + index + 1) * rise) / 2,
+            farLane,
+          ]}
+          s={[tread + 0.012, (flightSteps + index + 1) * rise, flightWidth]}
+          color={stairMaterial}
+          map={wood}
+          roughness={0.5}
+        />
+      ))}
+      <Handrail from={[start, 0.9]} to={[start + run, landingHeight + 0.9]} z={0.07} />
+      <Handrail from={[start + run, landingHeight + 0.9]} to={[start, topHeight + 0.9]} z={roomDepth - 0.07} />
+    </group>
+  );
+}
+
 type ModelProps = {
   design: Design;
   style?: InteriorStyle;
@@ -1020,7 +1138,7 @@ function BaseModel({
               tiled={r.kind === "bathroom"}
               y={levelOffset}
             />
-            {interior && (
+            {interior && !(design.levels > 1 && r.code === "PORRAS" && (r.level ?? 1) === 1) && (
               <mesh
                 position={[
                   (r.x + r.w / 2) / 1000,
@@ -1074,14 +1192,12 @@ function BaseModel({
           height={design.height / 1000}
           wallColor={w.rooms.includes("s") ? "#c1a27b" : palette.wall}
           cutaway={cutaway}
-          surface={
-            a12Tile && w.rooms.includes("kph") ? bathroomTile : undefined
-          }
+          surface={a12Tile && w.rooms.some((roomId) => design.rooms.find((room) => room.id === roomId)?.kind === "bathroom") ? bathroomTile : undefined}
           levelOffset={((w.level ?? 1) - 1) * storeyOffset}
         />
       ))}
       {design.fittings
-        .filter((f) => furnished || f.fixed)
+        .filter((f) => (furnished || f.fixed) && !(design.levels > 1 && f.kind === "stairs"))
         .map((f) => (
           <Furniture
             key={f.id}
@@ -1121,6 +1237,7 @@ function BaseModel({
       </group>
       {design.id === "A12" && <A12Exterior />}
       {design.id === "F20" && <F20Exterior windowView={windowView} />}
+      {design.levels > 1 && <DuplexStaircase design={design} wood={wood} />}
       {design.id === "A12" && furnished && (
         <A12FurnishedDetails wood={wood} linen={a12Linen} />
       )}
@@ -1131,10 +1248,10 @@ function BaseModel({
   );
 }
 
-function TexturedKalliolinna(props: ModelProps) {
+function TexturedHome(props: ModelProps) {
   const [oak, tile, linen, windowView] = useTexture([
-    "/art/a12-oak-albedo.webp",
-    "/art/a12-bathroom-tile-albedo.webp",
+    "/art/material-oak-parquet-v3.webp",
+    "/art/material-porcelain-tile-v3.webp",
     "/art/a12-linen-albedo.webp",
     "/art/kalliolinna-f20-window-view-v2.webp",
   ]);
@@ -1142,11 +1259,5 @@ function TexturedKalliolinna(props: ModelProps) {
 }
 
 export function ArchitecturalModel(props: ModelProps) {
-  return ["A12", "C09", "E15", "F20"].includes(props.design.id) ? (
-    <Suspense fallback={<BaseModel {...props} />}>
-      <TexturedKalliolinna {...props} />
-    </Suspense>
-  ) : (
-    <BaseModel {...props} />
-  );
+  return <Suspense fallback={<BaseModel {...props} />}><TexturedHome {...props} /></Suspense>;
 }
