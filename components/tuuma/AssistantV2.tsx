@@ -186,6 +186,8 @@ export function AssistantV2() {
     setSourceOpen(false);
   }
 
+  if (!["/asukkaille", "/oma-koti", "/huolto", "/muutto"].some(route => pathname.startsWith(route))) return null;
+
   return (
     <>
       <button

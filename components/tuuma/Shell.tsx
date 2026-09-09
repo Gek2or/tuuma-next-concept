@@ -1,22 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Heart, Languages, Menu, X } from "lucide-react";
 import { useLanguage, type Locale } from "./LanguageProvider";
 
 const nav = [
   { href: "/kohteet", label: { fi: "Asunnot", en: "Homes", sv: "Bostäder" } },
-  { href: "/kohteet/kalliolinna", label: { fi: "Kalliolinna", en: "Kalliolinna", sv: "Kalliolinna" } },
   { href: "/alueet", label: { fi: "Alueet", en: "Areas", sv: "Områden" } },
   { href: "/asukkaille", label: { fi: "Asukkaille", en: "For residents", sv: "För boende" } },
-  { href: "/oma-koti", label: { fi: "Oma koti", en: "My home", sv: "Mitt hem" } },
-  { href: "/concept", label: { fi: "Konsepti", en: "Concept", sv: "Koncept" } },
 ] as const;
 
 export function SiteHeader() {
   const { locale, setLocale, text } = useLanguage();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => { const close = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); }; window.addEventListener("keydown", close); return () => window.removeEventListener("keydown", close); }, []);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -38,9 +38,9 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-4 xl:flex" aria-label={text({ fi: "Päänavigaatio", en: "Main navigation", sv: "Huvudnavigation" })}>
+        <nav className="hidden items-center gap-4 lg:flex" aria-label={text({ fi: "Päänavigaatio", en: "Main navigation", sv: "Huvudnavigation" })}>
           {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm font-bold text-[#3c536c] transition hover:text-[#0a55df]">
+            <Link key={item.href} href={item.href} aria-current={pathname.startsWith(item.href) ? "page" : undefined} className="text-sm font-bold text-[#3c536c] transition hover:text-[#3d4785]">
               {text(item.label)}
             </Link>
           ))}
@@ -63,12 +63,12 @@ export function SiteHeader() {
           </label>
           <Link href="/kohteet?favorites=1" className="relative grid h-11 w-11 place-items-center rounded-full bg-white text-[#173451] shadow-sm" aria-label={`${text({ fi: "Suosikit", en: "Favourites", sv: "Favoriter" })} ${count}`}>
             <Heart size={19} />
-            {count > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#0a55df] px-1 text-[10px] font-bold text-white">{count}</span>}
+            {count > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#3d4785] px-1 text-[10px] font-bold text-white">{count}</span>}
           </Link>
-          <Link href="/kohteet" className="hidden rounded-full bg-[#102d4d] px-5 py-3 text-sm font-black text-white transition hover:bg-[#0a55df] lg:block">
-            {text({ fi: "Etsi koti", en: "Find a home", sv: "Hitta en bostad" })}
+          <Link href="/oma-koti" className="hidden rounded-full bg-[#102d4d] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3d4785] lg:block">
+            {text({ fi: "Oma koti", en: "My home", sv: "Mitt hem" })}
           </Link>
-          <button onClick={() => setOpen((value) => !value)} className="grid h-11 w-11 place-items-center rounded-full bg-white xl:hidden" aria-label={text({ fi: "Avaa valikko", en: "Open menu", sv: "Öppna menyn" })} aria-expanded={open}>
+          <button onClick={() => setOpen((value) => !value)} className="grid h-11 w-11 place-items-center rounded-full bg-white lg:hidden" aria-label={text({ fi: "Avaa valikko", en: "Open menu", sv: "Öppna menyn" })} aria-expanded={open}>
             {open ? <X /> : <Menu />}
           </button>
         </div>
@@ -76,10 +76,10 @@ export function SiteHeader() {
 
       <div aria-hidden className="h-[3px] bg-[linear-gradient(90deg,#3d4785_0%,#3d4785_33%,#e97770_33%,#e97770_66%,#ffbb18_66%)]"/>
       {open && (
-        <nav className="shell grid gap-2 pb-5 xl:hidden">
+        <nav className="shell grid gap-2 pb-5 lg:hidden">
           <div className="mb-1 flex rounded-2xl bg-[#e7f0f8] p-1 sm:hidden" role="group" aria-label={text({ fi: "Kieli", en: "Language", sv: "Språk" })}>
             {(["fi", "en", "sv"] as Locale[]).map((item) => (
-              <button key={item} onClick={() => setLocale(item)} className={`min-h-10 flex-1 rounded-xl text-xs font-black uppercase ${locale === item ? "bg-white text-[#0a55df] shadow-sm" : "text-[#536b83]"}`}>
+              <button key={item} onClick={() => setLocale(item)} className={`min-h-10 flex-1 rounded-xl text-xs font-black uppercase ${locale === item ? "bg-white text-[#3d4785] shadow-sm" : "text-[#536b83]"}`}>
                 {item}
               </button>
             ))}
@@ -89,14 +89,7 @@ export function SiteHeader() {
               {text(item.label)} <ArrowUpRight size={17} />
             </Link>
           ))}
-          <div className="grid grid-cols-2 gap-2">
-            <Link href="/hakemukseni" onClick={() => setOpen(false)} className="rounded-2xl bg-[#e6f1ff] px-4 py-4 text-sm font-black text-[#174b83]">
-              {text({ fi: "Hakemukseni", en: "My application", sv: "Min ansökan" })}
-            </Link>
-            <Link href="/demo-admin" onClick={() => setOpen(false)} className="rounded-2xl bg-[#102e4e] px-4 py-4 text-sm font-black text-white">
-              Admin demo
-            </Link>
-          </div>
+          <Link href="/oma-koti" onClick={() => setOpen(false)} className="showcase-primary px-5">{text({fi:"Oma koti",en:"My home",sv:"Mitt hem"})}</Link>
         </nav>
       )}
     </header>
@@ -106,7 +99,7 @@ export function SiteHeader() {
 export function SiteFooter() {
   const { text } = useLanguage();
   return (
-    <footer className="mt-24 bg-[#0c2948] py-12 text-white">
+    <footer className="mt-12 bg-[#22264b] py-12 text-white">
       <div className="shell grid gap-10 md:grid-cols-[1.3fr_1fr_1fr]">
         <div>
           <p className="eyebrow !text-[#8fb9e8]">Tuuma Digital Living Concept</p>
@@ -123,11 +116,11 @@ export function SiteFooter() {
           </div>
         </div>
         <div>
-          <h2 className="font-black">Demo</h2>
+          <h2 className="font-black">{text({fi:"Tietoa konseptista",en:"About the concept",sv:"Om konceptet"})}</h2>
           <div className="mt-4 grid gap-3 text-sm text-[#b8cee5]">
             <Link href="/demo-admin">{text({ fi: "Henkilöstönäkymä", en: "Staff view", sv: "Personalvy" })}</Link>
-            <Link href="/kustannukset">{text({ fi: "Kokonaiskustannus", en: "Total monthly cost", sv: "Total månadskostnad" })}</Link>
-            <Link href="/energia">{text({ fi: "Energia ja sisäilma", en: "Energy and indoor climate", sv: "Energi och inomhusklimat" })}</Link>
+            <Link href="/concept">{text({fi:"Konseptin esittely",en:"Concept presentation",sv:"Konceptpresentation"})}</Link>
+            <Link href="/kohteet/kalliolinna">{text({fi:"Kolme esimerkkikotia",en:"Three example homes",sv:"Tre exempelhem"})}</Link>
             <span>Suomi · English · Svenska</span>
           </div>
         </div>

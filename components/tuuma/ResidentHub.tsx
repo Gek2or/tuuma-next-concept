@@ -49,7 +49,7 @@ export function ResidentHub() {
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="max-w-3xl">
           <p className="eyebrow">{text({ fi: "Asukkaan palvelukeskus", en: "Resident service centre", sv: "Servicecenter för boende" })}</p>
-          <h1 className="display mt-4 text-5xl sm:text-7xl">{text({ fi: "Miten voimme auttaa?", en: "How can we help?", sv: "Hur kan vi hjälpa?" })}</h1>
+          <h1 className="display mt-4 text-4xl sm:text-6xl">{text({ fi: "Miten voimme auttaa?", en: "How can we help?", sv: "Hur kan vi hjälpa?" })}</h1>
           <p className="mt-5 text-lg leading-8 text-[#5e748b]">
             {text({
               fi: "Valitse tilanteesi. Palvelu näyttää olennaisen ohjeen ja oikean seuraavan askeleen.",
@@ -58,42 +58,25 @@ export function ResidentHub() {
             })}
           </p>
         </div>
-        <Link href="/oma-koti" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#0a55df] px-5 text-sm font-black text-white">
+        <Link href="/oma-koti" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#3d4785] px-5 text-sm font-black text-white">
           {text({ fi: "Avaa Oma koti", en: "Open My home", sv: "Öppna Mitt hem" })}<ArrowRight size={17} />
         </Link>
-      </div>
-
-      <div className="mt-9 grid overflow-hidden rounded-[30px] border border-[#dfe6e9] bg-[#f6f3ec] md:grid-cols-[.92fr_1.08fr]">
-        <img src="/art/editorial-resident-care-v1.webp" alt={text({ fi: "Asukas ja huoltotyöntekijä kodin ovella", en: "Resident and maintenance worker at a home entrance", sv: "Boende och servicetekniker vid hemmets dörr" })} className="h-64 w-full object-cover md:h-full" loading="lazy" decoding="async" />
-        <div className="p-7 sm:p-9">
-          <p className="eyebrow">{text({ fi: "Yksi tilanne kerrallaan", en: "One situation at a time", sv: "En situation i taget" })}</p>
-          <h2 className="display mt-3 max-w-lg text-4xl text-[#173655]">{text({ fi: "Hyvä palvelu tuntuu siltä, että joku tietää mitä tehdä seuraavaksi.", en: "Good service feels like someone knows what to do next.", sv: "Bra service känns som att någon vet vad som ska hända härnäst." })}</h2>
-          <p className="mt-4 max-w-lg leading-7 text-[#5e748b]">{text({ fi: "Tässä konseptissa ohje, yhteydenottokanava ja seuraava toimenpide ovat aina samassa paikassa.", en: "In this concept, guidance, contact channel and the next action are always in the same place.", sv: "I det här konceptet finns anvisning, kontaktkanal och nästa åtgärd alltid på samma plats." })}</p>
-        </div>
       </div>
 
       {notice && <div className="mt-6 rounded-2xl bg-[#e6f6ef] p-4 text-sm font-black text-[#08705b]" role="status">{notice}</div>}
 
       {!selected ? (
-        <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-          {help.map((item) => {
-            const Icon = item.icon;
-            const card = (
-              <>
-                <Icon className="text-[#0a55df]" />
-                <span className="flex items-end justify-between gap-3 font-black leading-5">
-                  {text(item.label)}
-                  <ChevronRight className="shrink-0" size={18} />
-                </span>
-              </>
-            );
-            const className = "group flex min-h-40 flex-col justify-between rounded-[24px] border border-[#dce5ed] bg-white p-5 text-left transition hover:-translate-y-1 hover:border-[#8eb4db] hover:shadow-xl";
-            return "href" in item && item.href ? (
-              <Link key={item.id} href={item.href} className={className}>{card}</Link>
-            ) : (
-              <button key={item.id} onClick={() => { setSelected(item); setStep(0); }} className={className}>{card}</button>
-            );
-          })}
+        <div className="mt-9 grid items-start gap-6 lg:grid-cols-3">
+          {[
+            {title:{fi:"Koti ja huolto",en:"Home and maintenance",sv:"Hem och underhåll"},desc:{fi:"Viat, avaimet ja yhteiset pelisäännöt.",en:"Repairs, keys and shared house rules.",sv:"Fel, nycklar och gemensamma regler."},ids:["fault","keys","recycling","rules"]},
+            {title:{fi:"Maksut ja varaukset",en:"Payments and bookings",sv:"Betalningar och bokningar"},desc:{fi:"Vuokra, autopaikka ja saunavuorot.",en:"Rent, parking and sauna slots.",sv:"Hyra, bilplats och bastutider."},ids:["rent","parking","sauna"]},
+            {title:{fi:"Muutto ja asiakirjat",en:"Moving and documents",sv:"Flytt och dokument"},desc:{fi:"Ohjeet kodinvaihtoon ja lomakkeet.",en:"Moving guidance and forms.",sv:"Flyttanvisningar och blanketter."},ids:["movein","moveout","forms"]},
+          ].map(group=><section key={group.title.fi} className="rounded-2xl border border-[#d8dae5] bg-white p-5 sm:p-6"><h2 className="text-xl font-extrabold">{text(group.title)}</h2><p className="mt-2 min-h-12 text-sm leading-6 text-[#62677f]">{text(group.desc)}</p><div className="mt-5 divide-y divide-[#e5e6ed]">{help.filter(item=>group.ids.includes(item.id)).map(item=>{
+            const Icon=item.icon;
+            const content=<><Icon size={19} className="shrink-0 text-[#3d4785]"/><span className="flex-1">{text(item.label)}</span><ChevronRight size={17}/></>;
+            const style="flex min-h-16 w-full items-center gap-3 py-4 text-left text-base font-semibold hover:text-[#3d4785]";
+            return "href" in item ? <Link key={item.id} href={item.href} className={style}>{content}</Link> : <button key={item.id} className={style} onClick={()=>{setSelected(item);setStep(0);}}>{content}</button>;
+          })}</div></section>)}
         </div>
       ) : (
         <div className="mt-10 grid gap-6 lg:grid-cols-[.7fr_1.3fr]">
@@ -105,15 +88,15 @@ export function ResidentHub() {
             <h2 className="display mt-3 text-4xl">{text(selected.label)}</h2>
             <div className="mt-8 grid gap-3">
               {steps.map((label, index) => (
-                <button key={label} onClick={() => setStep(index)} className={["flex items-center gap-3 rounded-2xl p-4 text-left text-sm font-bold", index === step ? "bg-white text-[#0a55df]" : "text-[#536c84]"].join(" ")}>
-                  <span className={["grid h-7 w-7 shrink-0 place-items-center rounded-full", index <= step ? "bg-[#0a55df] text-white" : "bg-white"].join(" ")}>{index + 1}</span>
+                <button key={label} onClick={() => setStep(index)} className={["flex items-center gap-3 rounded-2xl p-4 text-left text-sm font-bold", index === step ? "bg-white text-[#3d4785]" : "text-[#536c84]"].join(" ")}>
+                  <span className={["grid h-7 w-7 shrink-0 place-items-center rounded-full", index <= step ? "bg-[#3d4785] text-white" : "bg-white"].join(" ")}>{index + 1}</span>
                   {label}
                 </button>
               ))}
             </div>
           </aside>
           <div className="rounded-[28px] bg-white p-7 sm:p-10">
-            <div className="flex items-center gap-2 text-[#0a55df]"><Sparkles size={18} /><span className="eyebrow !text-[#0a55df]">{text({ fi: "Ohjattu asiointi", en: "Guided service", sv: "Guidad service" })}</span></div>
+            <div className="flex items-center gap-2 text-[#3d4785]"><Sparkles size={18} /><span className="eyebrow !text-[#3d4785]">{text({ fi: "Ohjattu asiointi", en: "Guided service", sv: "Guidad service" })}</span></div>
             <h3 className="display mt-5 text-4xl">{steps[step]}</h3>
             <p className="mt-5 max-w-xl leading-7 text-[#60758a]">
               {step === 0
@@ -135,7 +118,7 @@ export function ResidentHub() {
             )}
             <div className="mt-7 flex flex-wrap justify-end gap-3">
               {step > 0 && <button onClick={() => setStep(step - 1)} className="rounded-full px-5 py-3 text-sm font-black text-[#526b82]">{text({ fi: "Takaisin", en: "Back", sv: "Tillbaka" })}</button>}
-              <button onClick={() => step < 2 ? setStep(step + 1) : setNotice(text({ fi: "Pyyntö valmisteltiin demo-näkymässä", en: "Request prepared in the demo", sv: "Ärendet förbereddes i demon" }))} className="flex items-center gap-2 rounded-full bg-[#0a55df] px-6 py-3 font-black text-white">
+              <button onClick={() => step < 2 ? setStep(step + 1) : setNotice(text({ fi: "Pyyntö valmisteltiin demo-näkymässä", en: "Request prepared in the demo", sv: "Ärendet förbereddes i demon" }))} className="flex items-center gap-2 rounded-full bg-[#3d4785] px-6 py-3 font-black text-white">
                 {step < 2 ? text({ fi: "Jatka", en: "Continue", sv: "Fortsätt" }) : text({ fi: "Valmistele pyyntö", en: "Prepare request", sv: "Förbered ärende" })}<ArrowRight size={17} />
               </button>
             </div>
