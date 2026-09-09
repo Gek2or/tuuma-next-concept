@@ -132,7 +132,7 @@ function Dimension({
 }
 export function PlanGeometry({
   design,
-  furnished = true,
+  furnished = false,
   active,
   select,
   labels = true,
@@ -347,7 +347,7 @@ export function ApartmentPlan({
   const { text } = useLanguage();
   const design = designFor(initialApartment);
   const [active, setActive] = useState("oh"),
-    [furnished, setFurnished] = useState(true),
+    [furnished, setFurnished] = useState(false),
     [view, setView] = useState<"plan" | "section">("plan"),
     [zoom, setZoom] = useState(1),
     [level, setLevel] = useState(1);

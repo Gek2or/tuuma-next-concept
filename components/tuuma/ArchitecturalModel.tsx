@@ -1167,7 +1167,7 @@ function RoomFloor({
 function BaseModel({
   design,
   style = "nordic",
-  furnished = true,
+  furnished = false,
   cutaway = false,
   interior = false,
   lighting = "day",

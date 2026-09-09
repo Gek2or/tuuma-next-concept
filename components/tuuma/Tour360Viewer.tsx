@@ -197,7 +197,7 @@ function LiveModelTour({ apartment = apartments[0] }: {
 }) {
     const { text } = useLanguage();
     const design = designFor(apartment.id);
-    const [room, setRoom] = useState("oh"), [tourLevel, setTourLevel] = useState(1), [style, setStyle] = useState<InteriorStyle>(apartment.id === "F20" ? "forest" : apartment.id === "E15" ? "clay" : "nordic"), [furnished, setFurnished] = useState(true), [minimap, setMinimap] = useState(false), [lighting, setLighting] = useState<"day" | "evening">("day"), [reset, setReset] = useState(0), [notice, setNotice] = useState("");
+    const [room, setRoom] = useState("oh"), [tourLevel, setTourLevel] = useState(1), [style, setStyle] = useState<InteriorStyle>(apartment.id === "F20" ? "forest" : apartment.id === "E15" ? "clay" : "nordic"), [furnished, setFurnished] = useState(false), [minimap, setMinimap] = useState(false), [lighting, setLighting] = useState<"day" | "evening">("day"), [reset, setReset] = useState(0), [notice, setNotice] = useState("");
     const { ref, ready, unavailable } = useSceneReady();
     const compactScene = useSceneQuality();
     const container = useRef<HTMLElement>(null);

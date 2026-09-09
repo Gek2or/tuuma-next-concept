@@ -68,7 +68,7 @@ export default function ApartmentDollhouse({ apartment = apartments[0] }: {
 }) {
     const { text } = useLanguage();
     const design = designFor(apartment.id);
-    const [style, setStyle] = useState<InteriorStyle>(apartment.id === "F20" || apartment.variant === "ruukinranta" ? "forest" : apartment.id === "E15" || apartment.variant === "asemanvalo" ? "clay" : "nordic"), [furnished, setFurnished] = useState(true), [cutaway, setCutaway] = useState(true), [level, setLevel] = useState(1);
+    const [style, setStyle] = useState<InteriorStyle>(apartment.id === "F20" || apartment.variant === "ruukinranta" ? "forest" : apartment.id === "E15" || apartment.variant === "asemanvalo" ? "clay" : "nordic"), [furnished, setFurnished] = useState(false), [cutaway, setCutaway] = useState(true), [level, setLevel] = useState(1);
     const { ref, ready, unavailable } = useSceneReady();
     const compactScene = useSceneQuality();
     const w = design.width / 1000, d = design.depth / 1000, extent = Math.max(w, d);
