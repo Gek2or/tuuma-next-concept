@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { designs, roomArea } from '../lib/architecture.ts';
+import { designs, roomArea, stairProfile } from '../lib/architecture.ts';
 
 test('all concept apartments have unique, fully partitioned layouts on every level', () => {
   assert.equal(Object.keys(designs).length, 10);
@@ -45,5 +45,22 @@ test('saunas exist only in sauna apartments and open into bathrooms',()=>{
   for(const d of Object.values(designs)){
     assert.equal(d.rooms.some(r=>r.kind==='sauna'),['A31','B24','E05'].includes(d.id));
     for(const w of d.walls.filter(w=>w.rooms.includes('s')&&w.opening?.kind==='door'))assert.ok(w.rooms.includes('kph'));
+  }
+});
+
+test('showcase bedrooms connect directly to circulation and duplex stairs align', () => {
+  for (const id of ['C09', 'E15', 'F20']) {
+    const d = designs[id];
+    for (const room of d.rooms.filter(r => r.kind === 'bedroom')) {
+      const doors = d.walls.filter(w => w.rooms.includes(room.id) && w.opening?.kind === 'door');
+      assert.ok(doors.some(w => w.rooms.some(id => d.rooms.find(r => r.id === id)?.kind === 'hall')), `${id}/${room.id} must open to a hall`);
+    }
+    if (d.levels < 2) continue;
+    const stairs = d.rooms.filter(r => r.code === 'PORRAS');
+    assert.equal(stairs.length, 2);
+    for (const key of ['x', 'z', 'w', 'd']) assert.equal(stairs[0][key], stairs[1][key], `${id}: stair ${key}`);
+    const p = stairProfile(d);
+    assert.ok(p.tread >= .24 && p.rise <= .18, `${id}: usable demo stair proportions`);
+    assert.equal(p.steps * 2 * p.rise, d.height / 1000 + .22);
   }
 });

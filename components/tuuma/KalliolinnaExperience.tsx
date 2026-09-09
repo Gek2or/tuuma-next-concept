@@ -23,6 +23,7 @@ import { apartments } from "@/lib/data";
 import { useLanguage, type LocalizedText } from "./LanguageProvider";
 import { ApartmentGallery } from "./ApartmentGallery";
 import { SpatialPlanSwitcher } from "./SpatialPlanSwitcher";
+import { ShowcaseHomes } from "./ShowcaseHomes";
 
 const BuildingScene = dynamic(() => import("./BuildingScene"), { ssr: false });
 const Tour360Viewer = dynamic(() => import("./Tour360Viewer"), {
@@ -145,6 +146,14 @@ const apartmentFeatureCopy = {
 };
 
 export function KalliolinnaExperience() {
+  const params = useSearchParams();
+  const id = params.get("asunto") || "C09";
+  const apartment = apartments.find(item => item.id === id);
+  if (apartment?.showcaseReady) return <ShowcaseHomes key={id} apartment={apartment}/>;
+  return <LegacyKalliolinnaExperience/>;
+}
+
+function LegacyKalliolinnaExperience() {
   const { text } = useLanguage();
   const searchParams = useSearchParams();
   const requestedApartment = searchParams.get("asunto") || "A12";

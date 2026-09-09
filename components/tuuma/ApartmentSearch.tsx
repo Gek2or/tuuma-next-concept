@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -170,16 +171,18 @@ function CompareTable({ ids }: { ids: string[] }) {
 }
 export function ApartmentSearch() {
   const { text } = useLanguage();
+  const searchParams = useSearchParams();
+  const favoritesOnly = searchParams.get('favorites') === '1';
   const [area, setArea] = useState("all");
   const [rooms, setRooms] = useState("all");
-  const [maxRent, setMaxRent] = useState("1200");
+  const [maxRent, setMaxRent] = useState("1800");
   const [minSize, setMinSize] = useState("all");
   const [type, setType] = useState("all");
   const [sort, setSort] = useState("recommended");
   const [checked, setChecked] = useState<string[]>([]);
   const [view, setView] = useState<"grid" | "list" | "map">("grid");
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [compare, setCompare] = useState<string[]>([]);
+  const [compare, setCompare] = useState<string[]>(() => [...new Set((searchParams.get('compare') || '').split(',').filter(id => apartments.some(a => a.id === id)))].slice(0,3));
   const [mobileFilters, setMobileFilters] = useState(false);
   const [alertSaved, setAlertSaved] = useState(false);
   useEffect(
@@ -193,7 +196,7 @@ export function ApartmentSearch() {
     () => {
       const list = apartments.filter(
         (a) =>
-          (area === "all" || a.area === area) &&
+          (!favoritesOnly || favorites.includes(a.id)) && (area === "all" || a.area === area) &&
           (rooms === "all" || a.rooms === Number(rooms)) &&
           (minSize === "all" || a.size >= Number(minSize)) &&
           (type === "all" || a.type === type) &&
@@ -207,7 +210,7 @@ export function ApartmentSearch() {
         return apartments.indexOf(a) - apartments.indexOf(b);
       });
     },
-    [area, rooms, maxRent, minSize, type, sort, checked],
+    [area, rooms, maxRent, minSize, type, sort, checked, favoritesOnly, favorites],
   );
   function fav(id: string) {
     const next = favorites.includes(id)
@@ -268,7 +271,7 @@ export function ApartmentSearch() {
           onChange={(e) => setMaxRent(e.target.value)}
           className="h-12 w-full rounded-xl bg-white"
         >
-          {[700, 850, 1000, 1200].map((n) => (
+          {[700, 850, 1000, 1200, 1500, 1800].map((n) => (
             <NativeSelectOption key={n} value={n}>
               {n} €/kk
             </NativeSelectOption>

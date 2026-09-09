@@ -5,6 +5,7 @@ import {
   designFor,
   roomArea,
   roomNames,
+  stairProfile,
   type Design,
   type Fitting,
 } from "@/lib/architecture";
@@ -73,9 +74,7 @@ function Symbol({ item: i }: { item: Fitting }) {
           <path key={n} d={`M0 ${100 + n * 100}H${w}`} />
         ))}
       {kind === "stairs" &&
-        Array.from({ length: 8 }, (_, n) => (
-          <path key={n} d={`M0 ${((n + 1) * d) / 9}H${w}`} />
-        ))}
+        <><path d={`M${w * .16} ${d / 2}H${w * .78} M${w * .78} 0V${d}`}/>{Array.from({ length: 9 }, (_, n) => <path key={n} d={`M${w * .16 + n * w * .62 / 9} 0V${d}`}/>)}<path d={`M${w * .18} ${d * .25}H${w * .9}V${d * .75}H${w * .18}l120 -90m-120 90l120 90`} stroke="#394768" strokeWidth="25"/></>}
       {["washer", "fridge", "wardrobe", "heater"].includes(kind) && (
         <text
           x={w / 2}
@@ -211,10 +210,22 @@ export function PlanGeometry({
             }
           />
           {design.fittings
-            .filter((i) => i.room === room.id && (furnished || i.fixed))
+            .filter((i) => i.room === room.id && i.kind !== 'stairs' && (furnished || i.fixed))
             .map((i) => (
               <Symbol key={i.id} item={i} />
             ))}
+          {room.code === 'PORRAS' && (() => {
+            const stair = stairProfile(design);
+            if (!stair) return null;
+            const start = stair.start * 1000, end = (stair.start + stair.run) * 1000;
+            const near = stair.nearLane * 1000, far = stair.farLane * 1000;
+            const half = stair.flightWidth * 500;
+            return <g transform={`translate(${room.x} ${room.z})`} fill="none" stroke="#596578" strokeWidth="18">
+              <path d={`M${start} ${near-half}H${room.w-50}V${far+half}H${start} M${start} ${near+half}H${end}V${far-half}H${start}`}/>
+              {Array.from({length: stair.steps + 1}, (_, n) => <path key={n} d={`M${start+n*stair.tread*1000} ${near-half}V${near+half} M${start+n*stair.tread*1000} ${far-half}V${far+half}`}/>)}
+              <path d={`M${start} ${near}H${end+375}V${far}H${start}l130 -90m-130 90l130 90`} stroke="#22264b" strokeWidth="26"/>
+            </g>;
+          })()}
           {labels && (
             <g pointerEvents="none">
               <rect

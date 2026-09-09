@@ -76,9 +76,9 @@ const layouts: Record<string, {
     E05: { name: "3H + KT + S", width: 7800, depth: 9900, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 7800, 3300), r("mh1", "bedroom", "MH1", 0, 3300, 3200, 3500), r("et", "hall", "ET", 3200, 3300, 1400, 6600), r("kt", "kitchen", "KT", 4600, 3300, 3200, 3500), r("mh2", "bedroom", "MH2", 0, 6800, 3200, 3100), r("kph", "bathroom", "KPH", 4600, 6800, 3200, 1900), r("s", "sauna", "S", 4600, 8700, 2000, 1200), r("vh", "storage", "VH", 6600, 8700, 1200, 1200)] },
     // Original digital-twin concept layouts. Public unit type and size informed these models;
     // they are not copies of permit or construction drawings.
-    C09: { name: "2H + KK · konseptipohja", width: 8000, depth: 7200, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 4700, 4000), r("mh1", "bedroom", "MH", 4700, 0, 3300, 4000), r("kt", "kitchen", "KK", 0, 4000, 3000, 3200), r("vh", "storage", "VH", 3000, 4000, 3000, 1600), r("et", "hall", "ET", 3000, 5600, 3000, 1600), r("kph", "bathroom", "KPH", 6000, 4000, 2000, 3200)] },
-    E15: { name: "3H + K · 2 tasoa · konseptipohja", width: 9000, depth: 4300, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4300, 1), r("kt", "kitchen", "K", 5200, 0, 3800, 2600, 1), r("et", "hall", "ET", 5200, 2600, 1200, 1700, 1), r("porras1", "hall", "PORRAS", 6400, 2600, 2600, 1700, 1), r("mh1", "bedroom", "MH1", 0, 0, 3600, 2600, 2), r("mh2", "bedroom", "MH2", 3600, 0, 3100, 2600, 2), r("kph", "bathroom", "KPH", 6700, 0, 2300, 2600, 2), r("hall2", "hall", "AULA", 0, 2600, 4500, 1700, 2), r("vh", "storage", "VH", 4500, 2600, 1900, 1700, 2), r("porras2", "hall", "PORRAS", 6400, 2600, 2600, 1700, 2)] },
-    F20: { name: "4H + K · 2 tasoa · konseptipohja", width: 11000, depth: 4350, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4350, 1), r("kt", "kitchen", "K", 5200, 0, 3500, 2600, 1), r("et", "hall", "ET", 8700, 0, 2300, 2600, 1), r("kph", "bathroom", "KPH", 5200, 2600, 2100, 1750, 1), r("porras1", "hall", "PORRAS", 7300, 2600, 3700, 1750, 1), r("mh1", "bedroom", "MH1", 0, 0, 3600, 3000, 2), r("mh2", "bedroom", "MH2", 3600, 0, 3400, 3000, 2), r("mh3", "bedroom", "MH3", 7000, 0, 4000, 3000, 2), r("hall2", "hall", "AULA", 0, 3000, 5000, 1350, 2), r("kph2", "bathroom", "KPH", 5000, 3000, 2500, 1350, 2), r("porras2", "hall", "PORRAS", 7500, 3000, 3500, 1350, 2)] },
+    C09: { name: "2H + KK · konseptipohja", width: 8000, depth: 7200, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 4700, 4000), r("mh1", "bedroom", "MH", 4700, 0, 3300, 4000), r("kt", "kitchen", "KK", 0, 4000, 3000, 3200), r("et", "hall", "ET", 3000, 4000, 5000, 1300), r("vh", "storage", "VH", 3000, 5300, 2000, 1900), r("kph", "bathroom", "KPH", 5000, 5300, 3000, 1900)] },
+    E15: { name: "3H + K · 2 tasoa · konseptipohja", width: 10000, depth: 4300, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4300, 1), r("kt", "kitchen", "K", 5200, 0, 4800, 2600, 1), r("et", "hall", "ET", 5200, 2600, 1200, 1700, 1), r("porras1", "hall", "PORRAS", 6400, 2600, 3600, 1700, 1), r("mh1", "bedroom", "MH1", 0, 0, 4400, 2600, 2), r("mh2", "bedroom", "MH2", 4400, 0, 5600, 2600, 2), r("kph", "bathroom", "KPH", 0, 2600, 2600, 1700, 2), r("hall2", "hall", "AULA", 2600, 2600, 3800, 1700, 2), r("porras2", "hall", "PORRAS", 6400, 2600, 3600, 1700, 2)] },
+    F20: { name: "4H + K · 2 tasoa · konseptipohja", width: 11000, depth: 4350, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 5200, 4350, 1), r("kt", "kitchen", "K", 5200, 0, 3500, 2600, 1), r("et", "hall", "ET", 8700, 0, 2300, 2600, 1), r("kph", "bathroom", "KPH", 5200, 2600, 2100, 1750, 1), r("porras1", "hall", "PORRAS", 7300, 2600, 3700, 1750, 1), r("mh1", "bedroom", "MH1", 0, 0, 3050, 2600, 2), r("mh2", "bedroom", "MH2", 3050, 0, 3050, 2600, 2), r("mh3", "bedroom", "MH3", 6100, 0, 4900, 2600, 2), r("hall2", "hall", "AULA", 0, 2600, 7300, 1750, 2), r("porras2", "hall", "PORRAS", 7300, 2600, 3700, 1750, 2)] },
 };
 function createWallsForFloor(rooms: DesignRoom[]): Wall[] {
     const lines = new Map<string, {
@@ -111,7 +111,15 @@ function createWallsForFloor(rooms: DesignRoom[]): Wall[] {
     const parent = new Map(rooms.map(room => [room.id, room.id]));
     const root = (id: string): string => parent.get(id) === id ? id : root(parent.get(id)!);
     const candidates = walls.filter(w => w.rooms.length === 2 && w.end - w.start >= 1120).sort((a, b) => {
-        const score = (w: Wall) => w.rooms.includes("s") ? (w.rooms.includes("kph") ? 100 : -100) : w.rooms.includes("et") ? 80 : w.rooms.includes("oh") ? 60 : 20;
+        const score = (w: Wall) => {
+            const pair = w.rooms.map(id => rooms.find(room => room.id === id)!);
+            if (pair.some(room => room.kind === "sauna")) return pair.some(room => room.kind === "bathroom") ? 150 : -150;
+            if (pair.every(room => room.kind === "hall")) return 140;
+            if (pair.some(room => room.kind === "hall")) return 120;
+            if (pair.some(room => room.kind === "living") && pair.some(room => room.kind === "kitchen")) return 110;
+            if (pair.some(room => room.kind === "bedroom")) return -10;
+            return 20;
+        };
         return score(b) - score(a) || (b.end - b.start) - (a.end - a.start);
     });
     for (const wall of candidates) {
@@ -198,6 +206,17 @@ export const designs: Record<string, Design> = Object.fromEntries(Object.entries
     return [id, { id, ...layout, height: 2600, levels: layout.levels ?? 1, walls, fittings: createFittings(layout.rooms), outdoor }];
 }));
 export const designFor = (id: string) => designs[id] ?? designs.A12;
+/** One shared U-stair definition for plan, model, camera and floor void. Metres. */
+export function stairProfile(design: Design) {
+    const room = design.rooms.find(r => r.code === "PORRAS" && r.level === 1);
+    if (!room) return null;
+    const width = room.w / 1000, depth = room.d / 1000;
+    const steps = 9, start = .65, landing = .75;
+    const run = width - start - landing;
+    return { room, width, depth, steps, start, landing, run, tread: run / steps,
+        rise: (design.height / 1000 + .22) / (steps * 2),
+        flightWidth: (depth - .18) / 2, nearLane: depth / 4, farLane: depth * .75 };
+}
 export const roomArea = (room: DesignRoom) => ((room.w - 150) * (room.d - 150) / 1e6);
 export const roomNames: Record<RoomKind, {
     fi: string;

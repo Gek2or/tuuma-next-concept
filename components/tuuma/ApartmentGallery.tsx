@@ -15,7 +15,7 @@ const copy = {
   room: { fi: "Valitse huone", en: "Choose a room", sv: "Välj rum" },
   slider: { fi: "Tyhjän ja kalustetun kuvan raja", en: "Empty and furnished image divider", sv: "Gräns mellan tom och möblerad bild" },
   note: { fi: "Konseptikuvia. Kalustus on lisätty saman huoneen tyhjään lähtökuvaan. Kalusteet eivät sisälly vuokraan.", en: "Concept renders. Furniture was added to the same room’s empty reference image. Furniture is not included in the rent.", sv: "Konceptbilder. Möbler har lagts till i samma rums tomma referensbild. Möbler ingår inte i hyran." },
-  renderNote: { fi: "Konseptirenderi saman F20-kodin materiaali- ja sisustuslinjasta. Kalusteet eivät sisälly vuokraan.", en: "Concept render using the same F20 home’s material and interior direction. Furniture is not included in the rent.", sv: "Konceptbild med samma F20-hems material- och inredningsriktning. Möbler ingår inte i hyran." },
+  renderNote: { fi: "Sisustuksen konseptikuva. Tarkista tilajako pohjapiirustuksesta ja 3D-mallista. Kalusteet eivät sisälly vuokraan.", en: "Interior concept image. Refer to the plan and 3D model for the room layout. Furniture is not included in the rent.", sv: "Konceptbild av inredningen. Se plan och 3D-modell för rumsindelningen. Möbler ingår inte i hyran." },
   fixtures: { fi: "Kiinteät varusteet säilyvät myös tyhjässä asunnossa.", en: "Fixed fittings remain in the empty apartment.", sv: "Fast inredning finns kvar i den tomma bostaden." },
 };
 
@@ -34,7 +34,7 @@ export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
   const controls = (large = false) => <div className="flex flex-wrap items-center justify-between gap-3">
     {room?.furnished ? <div className="grid w-full grid-cols-3 gap-1 rounded-2xl bg-[#edf1ef] p-1 sm:w-auto sm:flex" role="group" aria-label={text({ fi: "Kalustus", en: "Furnishing", sv: "Möblering" })}>
       {(["empty", "furnished", "compare"] as const).map(value => <button key={value} type="button" aria-pressed={effectiveMode === value} onClick={() => setMode(value)} className={`min-h-11 rounded-xl px-2 text-sm font-bold sm:px-4 ${effectiveMode === value ? "bg-[#173655] text-white" : "text-[#36516a]"}`}>{text(copy[value])}</button>)}
-    </div> : <p className="text-sm text-[#526878]">{room ? text(copy.fixtures) : text({ fi: "Erillisiä konseptikuvia", en: "Individual concept images", sv: "Separata konceptbilder" })}</p>}
+    </div> : <p className="text-sm text-[#526878]">{room?.state === "furnished" ? text({fi:"Sisustusidea · konseptikuva",en:"Interior idea · concept image",sv:"Inredningsidé · konceptbild"}) : room?.id === "exterior" ? text({fi:"Julkisivun konseptikuva",en:"Exterior concept image",sv:"Konceptbild av fasaden"}) : room ? text(copy.fixtures) : text({ fi: "Erillisiä konseptikuvia", en: "Individual concept images", sv: "Separata konceptbilder" })}</p>}
     {!large && <DialogTrigger asChild><button className="flex min-h-11 items-center gap-2 rounded-xl border border-[#ccd6d9] px-4 text-sm font-bold text-[#173655]"><Expand size={17} />{text(copy.enlarge)}</button></DialogTrigger>}
   </div>;
 

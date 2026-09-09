@@ -190,7 +190,7 @@ export function AssistantV2() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`fixed right-3 z-40 flex min-h-12 items-center gap-2 rounded-full bg-[#0a55df] px-4 py-3 text-sm font-black text-white shadow-[0_18px_40px_rgba(10,85,223,.34)] sm:right-6 sm:px-5 ${pathname.startsWith("/kohteet") ? "bottom-20 sm:bottom-20" : "bottom-4 sm:bottom-6"}`}
+        className={`fixed right-3 z-40 flex min-h-12 items-center gap-2 rounded-full bg-[#3d4785] px-4 py-3 text-sm font-black text-white shadow-[0_8px_24px_rgba(34,38,75,.2)] sm:right-6 sm:px-5 ${pathname.startsWith("/kohteet") ? "bottom-20 sm:bottom-20" : "bottom-4 sm:bottom-6"}`}
         aria-label={labels.button}
       >
         <Sparkles size={18} />
@@ -199,7 +199,7 @@ export function AssistantV2() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[92vh] overflow-auto rounded-[28px] p-5 sm:max-w-xl sm:p-8">
           <DialogHeader>
-            <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e7f1ff] text-[#0a55df]">
+            <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e7f1ff] text-[#3d4785]">
               <ShieldCheck size={21} />
             </div>
             <p className="eyebrow text-left">{labels.eyebrow}</p>
@@ -247,10 +247,10 @@ export function AssistantV2() {
               {selected === "unknown" ? (
                 <>
                   <div className="flex items-start gap-3">
-                    <MessageCircle className="mt-0.5 shrink-0 text-[#0a55df]" size={20} />
+                    <MessageCircle className="mt-0.5 shrink-0 text-[#3d4785]" size={20} />
                     <p className="leading-7">{labels.unknown}</p>
                   </div>
-                  <Link href="/asukkaille" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0a55df] px-5 py-3 text-sm font-black text-white">
+                  <Link href="/asukkaille" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#3d4785] px-5 py-3 text-sm font-black text-white">
                     {text({ fi: "Ota yhteyttä", en: "Contact support", sv: "Kontakta kundtjänsten" })} <ArrowRight size={16} />
                   </Link>
                 </>
@@ -264,7 +264,7 @@ export function AssistantV2() {
                   )}
                   <p className="leading-7">{selected.body[locale]}</p>
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <Link href={selected.href} className="inline-flex items-center gap-2 rounded-full bg-[#0a55df] px-5 py-3 text-sm font-black text-white">
+                    <Link href={selected.href} className="inline-flex items-center gap-2 rounded-full bg-[#3d4785] px-5 py-3 text-sm font-black text-white">
                       {selected.cta[locale]} <ArrowRight size={16} />
                     </Link>
                     <button onClick={() => setSourceOpen((value) => !value)} className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-[#284b6c]">

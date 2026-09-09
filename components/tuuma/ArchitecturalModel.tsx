@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useMemo } from "react";
 import { RoundedBox, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import type { Design, Fitting, Wall } from "@/lib/architecture";
+import { stairProfile, type Design, type Fitting, type Wall } from "@/lib/architecture";
 export type InteriorStyle = "nordic" | "clay" | "forest";
 export type TourLighting = "day" | "evening";
 const styles = {
@@ -353,7 +353,7 @@ function Furniture({
           )}
           {box(w / 2, 1.05, 0.06, 0.035, 0.3, 0.035, "#788c90")}
           {box(w / 2, 1.2, 0.13, 0.035, 0.035, 0.16, "#788c90")}
-          {i.kind === "basin" && <><mesh position={[w / 2, 1.55, d * 0.96]}><boxGeometry args={[w * 0.78, 0.72, 0.035]} /><meshPhysicalMaterial color="#aebfc1" metalness={0.15} roughness={0.08} transmission={0.12} /></mesh><Block p={[w * 0.5, 1.16, d * 0.93]} s={[w * 0.82, 0.035, 0.035]} color="#2c3b3e" metalness={0.5} roughness={0.25} /></>}
+          {i.kind === "basin" && <><mesh position={[w / 2, 1.55, 0.035]}><boxGeometry args={[w * 0.78, 0.72, 0.035]} /><meshPhysicalMaterial color="#aebfc1" metalness={0.15} roughness={0.08} transmission={0.12} /></mesh><Block p={[w * 0.5, 1.16, d * 0.93]} s={[w * 0.82, 0.035, 0.035]} color="#2c3b3e" metalness={0.5} roughness={0.25} /></>}
         </>
       );
       break;
@@ -402,7 +402,7 @@ function Furniture({
           {box(0.1, 1.25, 0.05, 0.025, 0.9, 0.03, "#829295")}
           {box(0.1, 1.9, 0.16, 0.22, 0.035, 0.3, "#aeb7b5")}
           {box(0.1, 2.17, 0.17, 0.03, 0.48, 0.03, "#829295")}
-          <mesh position={[0.29, 2.4, 0.17]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh position={[0.1, 2.34, 0.27]}>
             <cylinderGeometry args={[0.11, 0.11, 0.025, 24]} />
             <meshStandardMaterial color="#aeb7b5" metalness={0.76} roughness={0.2} />
           </mesh>
@@ -984,6 +984,30 @@ function F20FurnishedDetails({
     </group>
   );
 }
+/** Staging is positioned relative to each room; fixed architecture never moves. */
+function RoomStaging({ design, level, wood, linen }: { design: Design; level?: number; wood: THREE.Texture; linen?: THREE.Texture }) {
+  return <>{design.rooms.filter(r => (level === undefined || r.level === level) && ["living", "bedroom"].includes(r.kind)).map(r => {
+    const y = ((r.level ?? 1) - 1) * (design.height / 1000 + .22);
+    return <group key={r.id} position={[r.x / 1000, y, r.z / 1000]}>
+      <group position={[.35, 0, r.d / 1000 - .4]}>
+        <mesh position={[0, .18, 0]} castShadow><cylinderGeometry args={[.18, .14, .36, 32]}/><meshStandardMaterial color="#c4b196" roughness={.8}/></mesh>
+        <mesh position={[0, .62, 0]}><cylinderGeometry args={[.012, .015, .6, 8]}/><meshStandardMaterial color="#506340"/></mesh>
+        {Array.from({ length: 9 }, (_, i) => <mesh key={i} position={[Math.sin(i * 2.4) * .15, .48 + i * .05, Math.cos(i * 2.4) * .15]} rotation={[.4, i * 2.4, .7]} scale={[1, .12, 2]} castShadow><sphereGeometry args={[.13, 12, 8]}/><meshStandardMaterial color={i % 2 ? "#4d6949" : "#73875b"} roughness={.9}/></mesh>)}
+      </group>
+      {r.kind === "bedroom" && <group position={[2, 0, .55]}>
+        <Block p={[0, .3, 0]} s={[.38, .6, .42]} map={wood} color="white" round/>
+        <mesh position={[0, .83, 0]} castShadow><cylinderGeometry args={[.13, .16, .24, 32]}/><meshStandardMaterial color="#ede4d1" map={linen}/></mesh>
+        <Block p={[0, .68, 0]} s={[.035, .2, .035]} color="#343e39" metalness={.65}/>
+      </group>}
+      {r.kind === "living" && <group position={[r.w / 1000 - .35, 0, .55]}>
+        <mesh position={[0, .92, 0]}><cylinderGeometry args={[.015, .022, 1.84, 16]}/><meshStandardMaterial color="#303732" metalness={.6} roughness={.3}/></mesh>
+        <mesh position={[0, 1.85, 0]}><coneGeometry args={[.25, .24, 32, 1, true]}/><meshStandardMaterial color="#e0d5be" side={THREE.DoubleSide} map={linen}/></mesh>
+        <mesh position={[0, .025, 0]}><cylinderGeometry args={[.17, .17, .05, 32]}/><meshStandardMaterial color="#303732"/></mesh>
+      </group>}
+    </group>;
+  })}</>;
+}
+
 function Handrail({
   from,
   to,
@@ -1030,21 +1054,20 @@ function DuplexStaircase({
   design: Design;
   wood: THREE.Texture;
 }) {
-  const room = design.rooms.find(
-    (item) => item.code === "PORRAS" && (item.level ?? 1) === 1,
-  );
-  if (!room) return null;
+  const profile = stairProfile(design);
+  if (!profile) return null;
+  const { room } = profile;
   const roomWidth = room.w / 1000;
   const roomDepth = room.d / 1000;
-  const flightSteps = roomWidth >= 3.2 ? 9 : 8;
+  const flightSteps = profile.steps;
   const rise = (design.height / 1000 + 0.22) / (flightSteps * 2);
-  const run = Math.min(flightSteps * 0.25, roomWidth - 0.92);
+  const run = profile.run;
   const tread = run / flightSteps;
-  const start = 0.15;
+  const start = profile.start;
   const landingWidth = roomWidth - start - run;
-  const flightWidth = Math.min(0.7, (roomDepth - 0.16) / 2);
-  const farLane = roomDepth - flightWidth / 2 - 0.08;
-  const nearLane = flightWidth / 2 + 0.08;
+  const flightWidth = profile.flightWidth;
+  const farLane = profile.farLane;
+  const nearLane = profile.nearLane;
   const landingHeight = flightSteps * rise;
   const topHeight = flightSteps * 2 * rise;
   const stairMaterial = "#c6a57d";
@@ -1098,6 +1121,7 @@ type ModelProps = {
   cutaway?: boolean;
   interior?: boolean;
   lighting?: TourLighting;
+  level?: number;
 };
 
 function RoomFloor({
@@ -1147,6 +1171,7 @@ function BaseModel({
   cutaway = false,
   interior = false,
   lighting = "day",
+  level,
   oak,
   a12Tile,
   a12Linen,
@@ -1169,19 +1194,19 @@ function BaseModel({
   const storeyOffset = design.height / 1000 + 0.22;
   return (
     <group>
-      <Block
+      {(level === undefined || level === 1) && <Block
         p={[design.width / 2000, -0.12, design.depth / 2000]}
         s={[design.width / 1000 + 0.3, 0.22, design.depth / 1000 + 0.3]}
         color="#cecfc7"
-      />
-      {design.rooms.map((r) => {
+      />}
+      {design.rooms.filter(r => level === undefined || (r.level ?? 1) === level).map((r) => {
         const levelOffset = ((r.level ?? 1) - 1) * storeyOffset;
         return (
           <group key={r.id}>
             <RoomFloor
-              x={(r.x + r.w / 2) / 1000}
+              x={r.code === "PORRAS" && r.level === 2 ? r.x / 1000 + .325 : (r.x + r.w / 2) / 1000}
               z={(r.z + r.d / 2) / 1000}
-              width={r.w / 1000}
+              width={r.code === "PORRAS" && r.level === 2 ? .65 : r.w / 1000}
               depth={r.d / 1000}
               texture={r.kind === "bathroom" ? bathroomTile : wood}
               tiled={r.kind === "bathroom"}
@@ -1234,7 +1259,7 @@ function BaseModel({
           </group>
         );
       })}
-      {design.walls.map((w) => (
+      {design.walls.filter(w => level === undefined || (w.level ?? 1) === level).map((w) => (
         <ArchitecturalWall
           key={w.id}
           wall={w}
@@ -1248,7 +1273,7 @@ function BaseModel({
         />
       ))}
       {design.fittings
-        .filter((f) => (furnished || f.fixed) && !(design.levels > 1 && f.kind === "stairs"))
+        .filter((f) => (level === undefined || (f.level ?? 1) === level) && (furnished || f.fixed) && !(design.levels > 1 && f.kind === "stairs"))
         .map((f) => (
           <Furniture
             key={f.id}
@@ -1288,14 +1313,12 @@ function BaseModel({
         )}
       </group>
       {design.id === "A12" && <A12Exterior />}
-      {design.id === "F20" && <F20Exterior windowView={windowView} />}
+      {["C09", "E15", "F20"].includes(design.id) && <F20Exterior windowView={windowView} />}
       {design.levels > 1 && <DuplexStaircase design={design} wood={wood} />}
       {design.id === "A12" && furnished && (
         <A12FurnishedDetails wood={wood} linen={a12Linen} />
       )}
-      {design.id === "F20" && furnished && (
-        <F20FurnishedDetails wood={wood} linen={a12Linen} stone={quartz} />
-      )}
+      {furnished && <RoomStaging design={design} level={level} wood={wood} linen={a12Linen} />}
     </group>
   );
 }

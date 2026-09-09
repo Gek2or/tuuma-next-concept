@@ -6,9 +6,10 @@ import { ArrowUpRight, Heart, Languages, Menu, X } from "lucide-react";
 import { useLanguage, type Locale } from "./LanguageProvider";
 
 const nav = [
-  { href: "/kohteet", label: { fi: "Kodit", en: "Homes", sv: "Bostäder" } },
+  { href: "/kohteet", label: { fi: "Asunnot", en: "Homes", sv: "Bostäder" } },
+  { href: "/kohteet/kalliolinna", label: { fi: "Kalliolinna", en: "Kalliolinna", sv: "Kalliolinna" } },
   { href: "/alueet", label: { fi: "Alueet", en: "Areas", sv: "Områden" } },
-  { href: "/asukkaille", label: { fi: "Palvelut", en: "Services", sv: "Tjänster" } },
+  { href: "/asukkaille", label: { fi: "Asukkaille", en: "For residents", sv: "För boende" } },
   { href: "/oma-koti", label: { fi: "Oma koti", en: "My home", sv: "Mitt hem" } },
   { href: "/concept", label: { fi: "Konsepti", en: "Concept", sv: "Koncept" } },
 ] as const;
@@ -27,13 +28,13 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#dce6ef]/80 bg-[#f8fbfd]/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[#dce6ef]/80 bg-white/95 backdrop-blur-xl">
       <div className="shell flex h-[72px] items-center justify-between gap-3">
         <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Tuuma Next">
-          <span className="grid h-9 w-9 place-items-center rounded-[11px] bg-[#0a55df] text-[15px] font-black text-white">T°</span>
+          <span className="grid h-10 w-10 -rotate-6 place-items-center rounded-[11px] bg-[#ffbb18] text-lg font-black text-[#22264b]">T°</span>
           <span>
             <b className="block text-[17px] leading-none tracking-[-.03em]">Tuuma Next</b>
-            <small className="mt-1 block text-[9px] font-bold uppercase tracking-[.18em] text-[#6b7f95]">Concept / Demo</small>
+            <small className="mt-1 block text-xs font-bold uppercase tracking-[.1em] text-[#6b7f95]">Concept / Demo</small>
           </span>
         </Link>
 
@@ -73,6 +74,7 @@ export function SiteHeader() {
         </div>
       </div>
 
+      <div aria-hidden className="h-[3px] bg-[linear-gradient(90deg,#3d4785_0%,#3d4785_33%,#e97770_33%,#e97770_66%,#ffbb18_66%)]"/>
       {open && (
         <nav className="shell grid gap-2 pb-5 xl:hidden">
           <div className="mb-1 flex rounded-2xl bg-[#e7f0f8] p-1 sm:hidden" role="group" aria-label={text({ fi: "Kieli", en: "Language", sv: "Språk" })}>

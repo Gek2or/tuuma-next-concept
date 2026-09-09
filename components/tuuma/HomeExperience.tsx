@@ -25,8 +25,10 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { apartments } from "@/lib/data";
+import { matchHome } from "@/lib/matcher";
 import { useLanguage } from "./LanguageProvider";
 import { LivingIllustrations } from "./LivingIllustrations";
+import { ThreeHomeCards } from "./ShowcaseHomes";
 const quick = [
   { icon: Search, label: { fi: "Etsi asunto", en: "Find a home", sv: "Sök bostad" }, href: "/kohteet" },
   { icon: Wrench, label: { fi: "Tee huoltopyyntö", en: "Maintenance request", sv: "Serviceanmälan" }, href: "/huolto" },
@@ -63,7 +65,7 @@ const questions = [
       { value: "700", label: { fi: "alle 700 €", en: "under €700", sv: "under 700 €" } },
       { value: "850", label: { fi: "700–850 €", en: "€700–850", sv: "700–850 €" } },
       { value: "1000", label: { fi: "850–1 000 €", en: "€850–1,000", sv: "850–1 000 €" } },
-      { value: "1200", label: { fi: "yli 1 000 €", en: "over €1,000", sv: "över 1 000 €" } },
+      { value: "1200", label: { fi: "enintään 1 200 €", en: "up to €1,200", sv: "högst 1 200 €" } },
     ],
   },
   {
@@ -95,16 +97,7 @@ function Matcher() {
   const results = useMemo(
     () =>
       apartments
-        .map((a, i) => {
-          let score = 96 - i * 3;
-          const area = { hyryla: "Hyrylä", jokela: "Jokela", kellokoski: "Kellokoski" }[answers.area];
-          if (area && area !== a.area)
-            score -= 12;
-          if (answers.pets === "yes" && !a.pets) score -= 20;
-          if (answers.accessible === "yes" && !a.accessible) score -= 15;
-          if (answers.ev === "yes" && !a.ev) score -= 10;
-          return { ...a, score: Math.max(score, 68) };
-        })
+        .map(a => matchHome(a, answers))
         .sort((a, b) => b.score - a.score)
         .slice(0, 3),
     [answers],
@@ -153,13 +146,13 @@ function Matcher() {
         </>
       ) : (
         <>
-          <div className="flex items-center gap-3 text-[#0a55df]">
+          <div className="flex items-center gap-3 text-[#3d4785]">
             <Sparkles />
-            <span className="eyebrow !text-[#0a55df]">{text({ fi: "Älykäs suositus", en: "Smart recommendation", sv: "Smart rekommendation" })}</span>
+            <span className="eyebrow !text-[#3d4785]">{text({ fi: "Älykäs suositus", en: "Smart recommendation", sv: "Smart rekommendation" })}</span>
           </div>
           <h3 className="display mt-4 text-3xl">{text({ fi: "Sinulle sopivimmat kodit", en: "Homes that fit you best", sv: "Bostäder som passar dig bäst" })}</h3>
           <div className="mt-6 grid gap-3">
-            {results.map((a, i) => (
+            {results.map((a) => (
               <Link
                 key={a.id}
                 href={`/kohteet/kalliolinna?asunto=${a.id}`}
@@ -180,10 +173,9 @@ function Matcher() {
                   <p className="mt-1 text-sm text-[#62758a]">
                     {a.rooms}h · {a.size} m² · {a.rent} €/kk
                   </p>
-                  <p className="mt-1 truncate text-xs font-semibold text-[#315b88]">
-                    {i === 0
-                      ? text({ fi: "Budjettisi sisällä · hyvät yhteydet", en: "Within your budget · good connections", sv: "Inom din budget · goda förbindelser" })
-                      : a.tags.slice(0, 2).join(" · ")}
+                  <p className="mt-1 text-xs font-semibold text-[#315b88]">
+                    {a.reasons.slice(0, 2).map(reason => text(reason)).join(" · ")}
+                    {a.tradeoffs.length > 0 && <span className="mt-1 block text-amber-800">{text(a.tradeoffs[0])}</span>}
                   </p>
                 </div>
               </Link>
@@ -194,7 +186,7 @@ function Matcher() {
               setStep(0);
               setAnswers({});
             }}
-            className="mt-5 text-sm font-bold text-[#0a55df]"
+            className="mt-5 text-sm font-bold text-[#3d4785]"
           >
             {text({ fi: "Aloita uudelleen", en: "Start again", sv: "Börja om" })}
           </button>
@@ -237,7 +229,7 @@ function Assistant() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-4 z-40 flex items-center gap-2 rounded-full bg-[#0a55df] px-5 py-4 font-bold text-white shadow-[0_18px_40px_rgba(10,85,223,.32)]"
+        className="fixed bottom-5 right-4 z-40 flex items-center gap-2 rounded-full bg-[#3d4785] px-5 py-4 font-bold text-white shadow-[0_18px_40px_rgba(10,85,223,.32)]"
         aria-label="Avaa Kysy Tuumalta"
       >
         <Sparkles size={18} />
@@ -277,7 +269,7 @@ function Assistant() {
             {answer ? (
               <div className="mt-6 rounded-3xl bg-[#edf5ff] p-6">
                 <p className="leading-7">{answer.text}</p>
-                <button className="mt-5 rounded-full bg-[#0a55df] px-5 py-3 text-sm font-bold text-white">
+                <button className="mt-5 rounded-full bg-[#3d4785] px-5 py-3 text-sm font-bold text-white">
                   {answer.cta}
                 </button>
                 <button
@@ -311,14 +303,14 @@ export function HomeExperience() {
   return (
     <main id="main">
       <section className="relative overflow-hidden pb-10 pt-9 sm:pt-16">
-        <div className="absolute inset-x-0 top-0 -z-10 h-[660px] bg-[radial-gradient(circle_at_82%_18%,#d5eaff_0,transparent_34%),linear-gradient(180deg,#f9fcff,#f5f8fb)]" />
+        <div className="absolute inset-0 -z-10 bg-white" />
         <div className="shell">
           <div className="mb-7 flex items-center gap-2">
-            <span className="rounded-full bg-[#e3efff] px-3 py-2 text-[11px] font-black uppercase tracking-[.13em] text-[#0a55df]">
+            <span className="rounded-full bg-[#e3efff] px-3 py-2 text-[11px] font-black uppercase tracking-[.13em] text-[#3d4785]">
               Concept / Demo
             </span>
             <span className="text-xs font-semibold text-[#667d94]">
-              Digital living layer 2026
+              Tuusula · Hyrylä · Jokela · Kellokoski
             </span>
           </div>
           <div className="grid items-center gap-6 lg:grid-cols-[1.03fr_.97fr]">
@@ -328,7 +320,7 @@ export function HomeExperience() {
               transition={{ duration: 0.55 }}
             >
               <p className="eyebrow">{text({ fi: "Koti löytyy elämästä käsin", en: "Start with the life you want", sv: "Börja med livet du vill leva" })}</p>
-              <h1 className="display mt-5 max-w-2xl text-[3.15rem] leading-[.98] text-[#0d2d4e] sm:text-[4.8rem] lg:text-[5.5rem]">
+              <h1 className="display mt-5 max-w-2xl text-[3.15rem] leading-[1.03] text-[#22264b] sm:text-[4.5rem] lg:text-[5rem]">
                 {text({ fi: "Löydä koti, joka sopii sinun elämääsi.", en: "Find a home that fits your life.", sv: "Hitta ett hem som passar ditt liv." })}
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-[#536a81]">
@@ -337,7 +329,7 @@ export function HomeExperience() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button className="flex min-h-14 items-center gap-3 rounded-full bg-[#0a55df] px-6 font-bold text-white shadow-[0_14px_30px_rgba(10,85,223,.25)]">
+                    <button className="flex min-h-14 items-center gap-3 rounded-full bg-[#3d4785] px-6 font-bold text-white shadow-[0_14px_30px_rgba(10,85,223,.25)]">
                       {text({ fi: "Löydä koti", en: "Find a home", sv: "Hitta en bostad" })} <ArrowRight size={18} />
                     </button>
                   </DialogTrigger>
@@ -366,20 +358,19 @@ export function HomeExperience() {
               initial={false}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="relative h-[390px] overflow-hidden rounded-[30px] border border-[#ded7c8] bg-[#f2ead8] shadow-[0_24px_70px_rgba(42,58,65,.14)] sm:h-[500px]"
+              className="relative h-[390px] overflow-hidden bg-white sm:h-[500px]"
             >
               <img
-                src="/art/tuuma-editorial-courtyard.webp"
+                src="/art/tuuma-neighborhood-ink-v2.webp"
                 alt="Nordic courtyard illustration with apartment building and residents"
-                className="h-full w-full object-cover object-[68%_center]"
+                className="h-full w-full object-contain"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,47,75,.04),transparent_45%,rgba(16,47,75,.64))]" />
               <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between">
                 <span className="rounded-full border border-white/70 bg-[#fffdf8]/92 px-3 py-2 text-xs font-black text-[#31516f] shadow-sm">
                   Tuusula · yhteinen arki
                 </span>
                 <Link
-                  href={`/kohteet/kalliolinna?asunto=${apartments[0].id}`}
+                  href="/kohteet/kalliolinna?asunto=C09"
                   className="grid h-10 w-10 place-items-center rounded-full bg-[#102d4d] text-white shadow-lg"
                   aria-label="Avaa Kalliolinna"
                 >
@@ -389,13 +380,13 @@ export function HomeExperience() {
               <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/60 bg-[#fffdf8]/92 p-4 shadow-lg backdrop-blur">
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <b>Kalliolinna A12</b>
+                    <b>{text({ fi: "Tutustu Kalliolinnan koteihin", en: "Explore Kalliolinna homes", sv: "Utforska hemmen i Kalliolinna" })}</b>
                     <p className="mt-1 text-sm text-[#60758a]">
-                      2h + kt · 56,5 m² · vapaa 1.10.
+                      C09 · E15 · F20
                     </p>
                   </div>
                   <b className="text-lg">
-                    790 €<small className="text-xs text-[#6d7d8e]"> / kk</small>
+                    <Link href="/kohteet/kalliolinna?asunto=C09" aria-label={text({ fi: "Avaa esimerkkikoti", en: "Open example home", sv: "Öppna exempelhem" })}><ArrowRight/></Link>
                   </b>
                 </div>
               </div>
@@ -408,7 +399,7 @@ export function HomeExperience() {
                 href={href}
                 className="group rounded-2xl border border-[#dde6ed] bg-white p-4 transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <Icon size={20} className="text-[#0a55df]" />
+                <Icon size={20} className="text-[#3d4785]" />
                 <span className="mt-4 block text-sm font-bold leading-5">
                   {text(label)}
                 </span>
@@ -417,7 +408,8 @@ export function HomeExperience() {
           </div>
         </div>
       </section>
-      <section className="shell py-20">
+      <ThreeHomeCards/>
+      <section className="shell py-12">
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-[34px] bg-[#0d2e50] p-7 text-white sm:p-10">
             <p className="eyebrow !text-[#91bae5]">{text({ fi: "Etsitkö kotia?", en: "Looking for a home?", sv: "Söker du bostad?" })}</p>
@@ -459,7 +451,7 @@ export function HomeExperience() {
             </p>
             <Link
               href="/asukkaille"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#0a55df] px-5 py-3 font-bold text-white"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#3d4785] px-5 py-3 font-bold text-white"
             >
               {text({ fi: "Miten voimme auttaa?", en: "How can we help?", sv: "Hur kan vi hjälpa?" })} <ArrowRight size={17} />
             </Link>
@@ -477,7 +469,7 @@ export function HomeExperience() {
           </div>
           <Link
             href="/kohteet"
-            className="hidden text-sm font-bold text-[#0a55df] sm:block"
+            className="hidden text-sm font-bold text-[#3d4785] sm:block"
           >
             {text({ fi: "Näytä kaikki →", en: "View all →", sv: "Visa alla →" })}
           </Link>
