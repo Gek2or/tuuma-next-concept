@@ -28,6 +28,7 @@ const menuGroups = [
     { href: "/energia", label: { fi: "Energia ja sisäilma", en: "Energy and indoor climate", sv: "Energi och inomhusklimat" } },
   ] },
   { title: { fi: "Konsepti", en: "Concept", sv: "Koncept" }, links: [
+    { href: "/esittely", label: { fi: "Esittelyluonnos (FI)", en: "Presentation draft (FI)", sv: "Presentationsutkast (FI)" } },
     { href: "/concept", label: { fi: "Konseptin esittely", en: "Concept presentation", sv: "Konceptpresentation" } },
     { href: "/demo-admin", label: { fi: "Henkilöstön demo", en: "Staff demo", sv: "Personaldemo" } },
   ] },

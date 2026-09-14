@@ -5,11 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, Check, ExternalLink, LockKeyhole } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { apartments } from "@/lib/data";
 import { useLanguage } from "./LanguageProvider";
 
 export function ApplicationFlow() {
   const id = useSearchParams().get("asunto") || "A12";
-  const { text } = useLanguage();
+  const { text, locale } = useLanguage();
+  const home = apartments.find(apartment => apartment.id === id);
   const [step, setStep] = useState(0);
 
   return (
@@ -44,7 +46,7 @@ export function ApplicationFlow() {
                 {[
                   [text({ fi: "Kohde", en: "Property", sv: "Objekt" }), "Kalliolinna"],
                   [text({ fi: "Asunto", en: "Home", sv: "Bostad" }), id],
-                  [text({ fi: "Vuokra", en: "Rent", sv: "Hyra" }), "790 €/kk"],
+                  [text({ fi: "Esimerkkivuokra", en: "Example rent", sv: "Exempelhyra" }), home ? new Intl.NumberFormat(locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-FI" : "en-GB", { style: "currency", currency: "EUR" }).format(home.rent) + text({fi:" / kk",en:" / month",sv:" / mån"}) : "—"],
                 ].map((item) => <div key={item[0]} className="rounded-2xl bg-[#eef4f9] p-4"><small className="text-[#6b7f93]">{item[0]}</small><b className="mt-1 block">{item[1]}</b></div>)}
               </div>
               <button onClick={() => setStep(1)} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-[#0a55df] py-4 font-black text-white">

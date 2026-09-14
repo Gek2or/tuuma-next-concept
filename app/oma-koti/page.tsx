@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ResidentDashboard } from "@/components/tuuma/ResidentDashboard";
+import { DemoAccess } from "@/components/tuuma/DemoAccess";
 
 export const metadata: Metadata = {
   title: "Oma koti — Demo",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ResidentDashboard />;
+  return <DemoAccess role="user"><ResidentDashboard /></DemoAccess>;
 }

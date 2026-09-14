@@ -26,6 +26,9 @@ import { apartments } from "@/lib/data";
 import { useLanguage } from "./LanguageProvider";
 
 const initial = [
+  { id: "C09", name: "Kalliolinna C09", status: "Draft" },
+  { id: "E15", name: "Kalliolinna E15", status: "Draft" },
+  { id: "F20", name: "Kalliolinna F20", status: "Draft" },
   { id: "A12", name: "Kalliolinna A12", status: "Published" },
   { id: "A14", name: "Kalliolinna A14", status: "Ready" },
   { id: "B24", name: "Asemanvalo B24", status: "Reserved" },
@@ -214,15 +217,15 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item, index) => (
+                  {items.map((item, index) => { const home = apartments.find(home => home.id === item.id)!; return (
                     <tr key={item.id} className="border-t border-[#e7edf2]">
                       <td className="p-5">
                         <div className="flex items-center gap-3">
-                          <img src={apartments[index].image} alt="" className="h-12 w-16 rounded-lg object-cover" />
+                          <img src={home.image} alt="" className="h-12 w-16 rounded-lg object-cover" />
                           <div>
                             <b>{item.name}</b>
                             <small className="block text-[#687d91]">
-                              {apartments[index].area} · {apartments[index].size} m²
+                              {home.area} · {home.size} m²
                             </small>
                           </div>
                         </div>
@@ -230,12 +233,12 @@ export function AdminDashboard() {
                       <td className="p-5">
                         <span className="flex items-center gap-2 text-sm font-bold">
                           <Camera size={17} className="text-[#0a55df]" />
-                          {index === 3
+                          {["C09", "E15", "F20"].includes(item.id) ? text({fi:"360° työn alla",en:"360° in progress",sv:"360° under arbete"}) : item.id === "C07"
                             ? text({ fi: "Kuvat puuttuvat", en: "Photos missing", sv: "Bilder saknas" })
                             : "360° ready"}
                         </span>
                       </td>
-                      <td className="p-5 font-bold">{apartments[index].rent} €</td>
+                      <td className="p-5 font-bold">{home.rent} €</td>
                       <td className="p-5"><Status value={item.status} /></td>
                       <td className="p-5">
                         <button onClick={() => advance(item.id)} className="rounded-xl border px-3 py-2 text-sm font-bold">
@@ -243,7 +246,7 @@ export function AdminDashboard() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  ); })}
                 </tbody>
               </table>
             </div>
