@@ -652,6 +652,22 @@ function ArchitecturalWall({
                 s={[o.width / 1000 - 0.06, Math.min(h, 2.05), 0.035]}
                 color="#dcd4c7"
               />
+              {[0.03, o.width / 1000 - 0.03].map((x) => (
+                <Block
+                  key={x}
+                  p={[x, Math.min(h, 2.1) / 2, 0.025]}
+                  s={[0.05, Math.min(h, 2.1), 0.08]}
+                  color="#e7e4da"
+                />
+              ))}
+              <Block
+                p={[o.width / 1000 - 0.13, 1.02, 0.045]}
+                s={[0.12, 0.035, 0.035]}
+                color="#3d4c4d"
+                metalness={0.62}
+                roughness={0.22}
+                round
+              />
             </group>
           )}
         </>
