@@ -1,4 +1,3 @@
-import panoramas from "../public/panoramas/manifest.json" with { type: "json" };
 
 export type ApartmentVariant = "kalliolinna" | "asemanvalo" | "ruukinranta" | "peltokaarre" | "keravanjoen";
 
@@ -374,24 +373,6 @@ const apartmentListings: Apartment[] = [
     publicSource: "https://tuumakodit.fi/kalliolinna/",
   },
 ];
-export const apartments: Apartment[] = apartmentListings.map(apartment => {
-  const home = panoramas.apartments.find(item => item.id === apartment.id);
-  if (!home) return apartment;
-  const living = home.points.find(point => point.id === "oh")!;
-  return {
-    ...apartment,
-    image: living.images.empty.gallery,
-    emptyImage: living.images.empty.gallery,
-    gallery: home.points.map(point => point.images.empty.gallery),
-    roomMedia: home.points.map(point => ({
-      id: point.id,
-      label: point.labels,
-      empty: point.images.empty.gallery,
-      furnished: point.images.furnished.gallery,
-      thumbnail: point.images.empty.thumbnail,
-      source: "scene-render" as const,
-    })),
-  };
-});
+export const apartments: Apartment[] = apartmentListings;
 
 export const residentHelp = ["Asunnossa on vika","Vuokra ja maksut","Avaimet","Autopaikka","Muutto sisään","Muutto pois","Sauna","Kierrätys","Järjestyssäännöt","Lomakkeet"];
