@@ -570,7 +570,7 @@ function ArchitecturalWall({
           {box(o.start + o.width, w.end, 0, h)}
           {box(o.start, o.start + o.width, 0, Math.min(h, o.sill / 1000))}
           {box(o.start, o.start + o.width, (o.sill + o.height) / 1000, h)}
-          {o.kind === "window" && (
+          {(o.kind === "window" || o.kind === "glazedDoor") && (
             <group position={[(o.start + o.width / 2) / 1000, 0, 0]}>
               <mesh
                 position={[
@@ -607,7 +607,7 @@ function ArchitecturalWall({
                   />
                 ),
               )}
-              {[-o.width / 2000, 0, o.width / 2000].map((x) => (
+              {(o.kind === "glazedDoor" ? [0] : [-o.width / 2000, 0, o.width / 2000]).map((x) => (
                 <Block
                   key={x}
                   p={[
@@ -632,6 +632,15 @@ function ArchitecturalWall({
                   p={[0, 0.38, t / 2 + 0.08]}
                   s={[o.width / 1000 - 0.2, 0.45, 0.09]}
                   color="#e9e9e1"
+                />
+              )}
+              {o.kind === "glazedDoor" && (
+                <Block
+                  p={[0.08, 1.02, t / 2 + 0.026]}
+                  s={[0.035, 0.18, 0.035]}
+                  color="#3d4c4d"
+                  metalness={0.62}
+                  roughness={0.22}
                 />
               )}
             </group>

@@ -289,7 +289,7 @@ export function PlanGeometry({
                 fill={w.rooms.length === 1 ? "#29383f" : "#4a565a"}
               />
             ))}
-            {o && o.kind === "window" && (
+            {o && (o.kind === "window" || o.kind === "glazedDoor") && (
               <g stroke="#617d8a" strokeWidth="18" fill="none">
                 <rect
                   x={o.start}
@@ -297,9 +297,7 @@ export function PlanGeometry({
                   width={o.width}
                   height={w.thickness}
                 />
-                <path
-                  d={`M${o.start} -45H${o.start + o.width} M${o.start} 45H${o.start + o.width} M${o.start + o.width / 2} ${-w.thickness / 2}V${w.thickness / 2}`}
-                />
+                {o.kind === "window" ? <path d={`M${o.start} -45H${o.start + o.width} M${o.start} 45H${o.start + o.width} M${o.start + o.width / 2} ${-w.thickness / 2}V${w.thickness / 2}`} /> : <><path d={`M${o.start + o.width / 2} ${-w.thickness / 2}V${w.thickness / 2}`} /><path d={`M${o.start + o.width / 2 - 95} 0h190`} stroke="#9eabb0" /></>}
               </g>
             )}
             {o && o.kind === "door" && (

@@ -23,7 +23,7 @@ export type Wall = {
     opening?: {
         start: number;
         width: number;
-        kind: "door" | "window" | "open";
+        kind: "door" | "window" | "glazedDoor" | "open";
         sill: number;
         height: number;
     };
@@ -212,7 +212,10 @@ export const designs: Record<string, Design> = Object.fromEntries(Object.entries
     const facade = walls.find(w => w.level === (living.level ?? 1) && w.axis === "x" && w.at === (bottom ? layout.depth : 0) && w.rooms.includes(living.id));
     if (facade) {
         const width = Math.min(2800, outdoor.w - 400);
-        facade.opening = { start: (facade.start + facade.end - width) / 2, width, kind: "window", sill: 650, height: 1550 };
+        // The terrace-side opening is a full-height glazed door, rather than a
+        // generic window: it is the physical connection between the living room
+        // and the outdoor deck in both the plan and the dollhouse.
+        facade.opening = { start: (facade.start + facade.end - width) / 2, width, kind: "glazedDoor", sill: 0, height: 2200 };
     }
     return [id, { id, ...layout, height: 2600, levels: layout.levels ?? 1, walls, fittings: createFittings(layout.rooms), outdoor }];
 }));
