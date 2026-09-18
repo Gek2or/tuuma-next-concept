@@ -1,0 +1,1908 @@
+{
+  "schemaVersion": 1,
+  "status": "complete",
+  "projection": "equirectangular",
+  "coverageDegrees": [
+    360,
+    180
+  ],
+  "nativeDimensions": [
+    8192,
+    4096
+  ],
+  "defaultFurnished": false,
+  "defaultPoint": "oh",
+  "concept": true,
+  "sourceCommit": "2abd784425e2592c5bb5d7670efc0b61816ea18b",
+  "coordinateSystem": "Three.js metres: X right, Y up, Z plan depth. Image centre faces world -Z. Image u increases toward world +X. Image top is +Y.",
+  "materialReference": "https://tuumakodit.fi/wp-content/uploads/2026/04/Kalliolinna-tiedot.pdf",
+  "notes": [
+    "Approved concept plans; not measured apartments or real property photography.",
+    "Peanut tone vinyl is a visual approximation, not an exact manufacturer swatch.",
+    "No terrace portals were invented: the exported full-height facade openings are windows. Tour exit is a navigation action at the entrance door.",
+    "Web images preserve native 8192x4096 dimensions; smaller variants are explicitly downsampled. Gallery views are perspective projections from the same panorama, without invented detail."
+  ],
+  "apartments": [
+    {
+      "id": "C09",
+      "title": "Kalliolinna C09",
+      "points": [
+        {
+          "id": "oh",
+          "labels": {
+            "fi": "Olohuone",
+            "en": "Living room",
+            "sv": "Vardagsrum"
+          },
+          "level": 1,
+          "kind": "living",
+          "positionM": [
+            2.35,
+            1.6,
+            2
+          ],
+          "lookAtM": [
+            2.585,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.14147278649215755,
+          "initialPitchRad": -0.11943004985123634,
+          "galleryYawRad": -1.45,
+          "galleryPitchRad": -0.2,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                3.85,
+                1.2,
+                4
+              ],
+              "yawRad": 2.498091544796509,
+              "pitchRad": -0.15865526218640147
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/oh-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/oh-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/oh-empty-2048.webp",
+              "gallery": "/panoramas/C09/oh-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/oh-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 970918,
+              "masterSha256": "55a87f8192ceda960939a61647787d4a20fa01ebb29ed0bc34def85776aefd94"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/oh-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/oh-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/oh-furnished-2048.webp",
+              "gallery": "/panoramas/C09/oh-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/oh-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 2791038,
+              "masterSha256": "26ee43de61a4a54c85fa7414b40b336d2dc46668bb4ce55a7a5d7f96422c44af"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh1",
+          "labels": {
+            "fi": "Makuuhuone",
+            "en": "Bedroom",
+            "sv": "Sovrum"
+          },
+          "level": 1,
+          "kind": "bedroom",
+          "positionM": [
+            6.35,
+            1.6,
+            2.8
+          ],
+          "lookAtM": [
+            6.515,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.06724539515000723,
+          "initialPitchRad": -0.08126876334319234,
+          "galleryYawRad": 0.06724539515000723,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                6.35,
+                1.2,
+                4
+              ],
+              "yawRad": 3.141592653589793,
+              "pitchRad": -0.32175055439664224
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/mh1-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/mh1-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/mh1-empty-2048.webp",
+              "gallery": "/panoramas/C09/mh1-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/mh1-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 770102,
+              "masterSha256": "3c8d03b8354d1989f2bf33da073f45374b9cb4307a78d9ef36061536e03ebb29"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/mh1-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/mh1-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/mh1-furnished-2048.webp",
+              "gallery": "/panoramas/C09/mh1-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/mh1-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1248416,
+              "masterSha256": "d60457d3e70af0b3ebcc83331ebb2ad3302d002d9941e27526a4b54f359c7ff7"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kt",
+          "labels": {
+            "fi": "Keittiö",
+            "en": "Kitchen",
+            "sv": "Kök"
+          },
+          "level": 1,
+          "kind": "kitchen",
+          "positionM": [
+            1.5,
+            1.6,
+            6.72
+          ],
+          "lookAtM": [
+            1.6500000000000001,
+            1.4,
+            4.35
+          ],
+          "initialYawRad": 0.06320683189746028,
+          "initialPitchRad": -0.08402139308123857,
+          "galleryYawRad": 0.06320683189746028,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                3,
+                1.2,
+                4.65
+              ],
+              "yawRad": 0.6270706625890184,
+              "pitchRad": -0.15521480995247333
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/kt-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/kt-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/kt-empty-2048.webp",
+              "gallery": "/panoramas/C09/kt-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/kt-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 650056,
+              "masterSha256": "45cdaa11748674016d61d328dca307416dc3a72844e43ca888b6b88902b0bd25"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/kt-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/kt-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/kt-furnished-2048.webp",
+              "gallery": "/panoramas/C09/kt-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/kt-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 875468,
+              "masterSha256": "4381380485af9b49f68701b4f9ff1ea1a5c81b9aafce67e5bfe00aeb41c377a3"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "et",
+          "labels": {
+            "fi": "Eteinen",
+            "en": "Hallway",
+            "sv": "Hall"
+          },
+          "level": 1,
+          "kind": "hall",
+          "positionM": [
+            5.5,
+            1.6,
+            4.65
+          ],
+          "lookAtM": [
+            5.75,
+            1.4,
+            4.35
+          ],
+          "initialYawRad": 0.694738276196702,
+          "initialPitchRad": -0.47331833171392607,
+          "galleryYawRad": 0.694738276196702,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "oh",
+              "kind": "door-or-open",
+              "positionM": [
+                3.85,
+                1.2,
+                4
+              ],
+              "yawRad": -1.1955255039389392,
+              "pitchRad": -0.2218412564904348
+            },
+            {
+              "targetId": "mh1",
+              "kind": "door-or-open",
+              "positionM": [
+                6.35,
+                1.2,
+                4
+              ],
+              "yawRad": 0.9179496956941219,
+              "pitchRad": -0.35773175717257855
+            },
+            {
+              "targetId": "kt",
+              "kind": "door-or-open",
+              "positionM": [
+                3,
+                1.2,
+                4.65
+              ],
+              "yawRad": -1.5707963267948966,
+              "pitchRad": -0.15865526218640147
+            },
+            {
+              "targetId": "vh",
+              "kind": "door-or-open",
+              "positionM": [
+                4,
+                1.2,
+                5.3
+              ],
+              "yawRad": -1.9797041557458217,
+              "pitchRad": -0.23996678613629763
+            },
+            {
+              "targetId": "kph",
+              "kind": "door-or-open",
+              "positionM": [
+                6.5,
+                1.2,
+                5.3
+              ],
+              "yawRad": 2.1471715473860797,
+              "pitchRad": -0.3235891267169495
+            },
+            {
+              "targetId": null,
+              "kind": "exit",
+              "positionM": [
+                8.0,
+                1.2,
+                4.65
+              ]
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/et-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/et-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/et-empty-2048.webp",
+              "gallery": "/panoramas/C09/et-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/et-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 584558,
+              "masterSha256": "a4fc0b835853d94bd4628ab647ea6acd11a3fd0e01ebbaa1b860413d2db79151"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/et-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/et-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/et-furnished-2048.webp",
+              "gallery": "/panoramas/C09/et-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/et-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 578290,
+              "masterSha256": "085cdcf89751b566f327d95fe6d547b413438872428487850635d17c4a86202a"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "vh",
+          "labels": {
+            "fi": "Vaatehuone",
+            "en": "Storage",
+            "sv": "Klädkammare"
+          },
+          "level": 1,
+          "kind": "storage",
+          "positionM": [
+            4,
+            1.6,
+            6.25
+          ],
+          "lookAtM": [
+            4.1,
+            1.4,
+            5.65
+          ],
+          "initialYawRad": 0.16514867741462635,
+          "initialPitchRad": -0.31766319298226103,
+          "galleryYawRad": 0.16514867741462635,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                4,
+                1.2,
+                5.3
+              ],
+              "yawRad": 0.0,
+              "pitchRad": -0.3985224456664203
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/vh-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/vh-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/vh-empty-2048.webp",
+              "gallery": "/panoramas/C09/vh-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/vh-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 513500,
+              "masterSha256": "59eacf2836a3e680a6d793b35019455f6a4af0035dc0f3e11b8639144239634b"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/vh-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/vh-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/vh-furnished-2048.webp",
+              "gallery": "/panoramas/C09/vh-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/vh-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 498600,
+              "masterSha256": "81831215883a47bba9e76741c54461898d3d41116a6a1535b8c89d5ab90d5330"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kph",
+          "labels": {
+            "fi": "Kylpyhuone",
+            "en": "Bathroom",
+            "sv": "Badrum"
+          },
+          "level": 1,
+          "kind": "bathroom",
+          "positionM": [
+            6.5,
+            1.6,
+            6.63
+          ],
+          "lookAtM": [
+            6.65,
+            1.4,
+            5.65
+          ],
+          "initialYawRad": 0.15188245737995146,
+          "initialPitchRad": -0.19906062672455682,
+          "galleryYawRad": 0.15188245737995146,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                6.5,
+                1.2,
+                5.3
+              ],
+              "yawRad": 0.0,
+              "pitchRad": -0.2921464495409421
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/C09/kph-empty-8192.webp",
+              "panorama4k": "/panoramas/C09/kph-empty-4096.webp",
+              "panorama2k": "/panoramas/C09/kph-empty-2048.webp",
+              "gallery": "/panoramas/C09/kph-empty-gallery.webp",
+              "thumbnail": "/panoramas/C09/kph-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 996660,
+              "masterSha256": "7a5d1824b0a29738fe6393b84ca10721e929daa494a1dad2fe3cbec4760eaae5"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/C09/kph-furnished-8192.webp",
+              "panorama4k": "/panoramas/C09/kph-furnished-4096.webp",
+              "panorama2k": "/panoramas/C09/kph-furnished-2048.webp",
+              "gallery": "/panoramas/C09/kph-furnished-gallery.webp",
+              "thumbnail": "/panoramas/C09/kph-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1003936,
+              "masterSha256": "1920ce0218f5bbc6f4174638570b293bf87788689f5926f2ee9f507858e6cdd8"
+            }
+          },
+          "status": "ready"
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "Kalliolinna E15",
+      "points": [
+        {
+          "id": "oh",
+          "labels": {
+            "fi": "Olohuone",
+            "en": "Living room",
+            "sv": "Vardagsrum"
+          },
+          "level": 1,
+          "kind": "living",
+          "positionM": [
+            2.6,
+            1.6,
+            2.15
+          ],
+          "lookAtM": [
+            2.8600000000000003,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.14345226330365887,
+          "initialPitchRad": -0.10952970494616457,
+          "galleryYawRad": -0.25,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                5.2,
+                1.2,
+                3.45
+              ],
+              "yawRad": 2.0344439357957027,
+              "pitchRad": -0.13674541111863434
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/oh-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/oh-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/oh-empty-2048.webp",
+              "gallery": "/panoramas/E15/oh-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/oh-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 994018,
+              "masterSha256": "20e1d4c7b3c30b0ab356ddd26d04ce57f980646bc897d172fb9d599524f3d49d"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/oh-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/oh-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/oh-furnished-2048.webp",
+              "gallery": "/panoramas/E15/oh-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/oh-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 2740512,
+              "masterSha256": "ba57f2902c0ff57ef3d65497b217b0d390fa5bbd1e84a407639519eaa41c7bda"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kt",
+          "labels": {
+            "fi": "Keittiö",
+            "en": "Kitchen",
+            "sv": "Kök"
+          },
+          "level": 1,
+          "kind": "kitchen",
+          "positionM": [
+            7.6,
+            1.6,
+            1.3
+          ],
+          "lookAtM": [
+            7.84,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.2474539055964784,
+          "initialPitchRad": -0.2013477153591008,
+          "galleryYawRad": 0.2474539055964784,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "porras1",
+              "kind": "door-or-open",
+              "positionM": [
+                8.2,
+                1.2,
+                2.6
+              ],
+              "yawRad": 2.7091848780192556,
+              "pitchRad": -0.27242637371105916
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/kt-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/kt-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/kt-empty-2048.webp",
+              "gallery": "/panoramas/E15/kt-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/kt-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1003760,
+              "masterSha256": "667d004c9047d6367d3220faf0ceff38e8fada2ee9ce582aaaa76ad96eda8ed1"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/kt-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/kt-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/kt-furnished-2048.webp",
+              "gallery": "/panoramas/E15/kt-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/kt-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1189056,
+              "masterSha256": "c41d056bb56deced84cab9a363c8ae772bf69ec3426e358689e15902f8d927e4"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "et",
+          "labels": {
+            "fi": "Eteinen",
+            "en": "Hallway",
+            "sv": "Hall"
+          },
+          "level": 1,
+          "kind": "hall",
+          "positionM": [
+            5.8,
+            1.6,
+            3.45
+          ],
+          "lookAtM": [
+            5.86,
+            1.4,
+            2.95
+          ],
+          "initialYawRad": 0.11942892601833943,
+          "initialPitchRad": -0.3780477038121806,
+          "galleryYawRad": 0.11942892601833943,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "oh",
+              "kind": "door-or-open",
+              "positionM": [
+                5.2,
+                1.2,
+                3.45
+              ],
+              "yawRad": -1.5707963267948966,
+              "pitchRad": -0.588002603547568
+            },
+            {
+              "targetId": "porras1",
+              "kind": "door-or-open",
+              "positionM": [
+                6.4,
+                1.2,
+                3.45
+              ],
+              "yawRad": 1.5707963267948966,
+              "pitchRad": -0.5880026035475673
+            },
+            {
+              "targetId": null,
+              "kind": "exit",
+              "positionM": [
+                5.8,
+                1.2,
+                4.3
+              ]
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/et-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/et-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/et-empty-2048.webp",
+              "gallery": "/panoramas/E15/et-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/et-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 714066,
+              "masterSha256": "7f1155c8e35c1f4315a91ee2dd52cc22348a0c17a3e21cd5e78581f7b8299368"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/et-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/et-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/et-furnished-2048.webp",
+              "gallery": "/panoramas/E15/et-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/et-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 774678,
+              "masterSha256": "6c5b61af2dc22fe9a7d13eccacbd8e693bd90acb077f397d31d99ddf9662160f"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "porras1",
+          "labels": {
+            "fi": "Portaat · alakerta",
+            "en": "Stairs · lower floor",
+            "sv": "Trappa · nedre våning"
+          },
+          "level": 1,
+          "kind": "hall",
+          "positionM": [
+            6.7250000000000005,
+            1.6,
+            3.025
+          ],
+          "lookAtM": [
+            8.38,
+            1.4,
+            2.95
+          ],
+          "initialYawRad": 1.5255100899927168,
+          "initialPitchRad": -0.12014064015383458,
+          "galleryYawRad": 1.5255100899927168,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "kt",
+              "kind": "door-or-open",
+              "positionM": [
+                8.2,
+                1.2,
+                2.6
+              ],
+              "yawRad": 1.2902595350565744,
+              "pitchRad": -0.2549158792920599
+            },
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                6.4,
+                1.2,
+                3.45
+              ],
+              "yawRad": -2.488746022489019,
+              "pitchRad": -0.6419831608375528
+            },
+            {
+              "targetId": "porras2",
+              "kind": "stairs",
+              "positionM": [
+                9.625,
+                1.4,
+                3.45
+              ],
+              "yawRad": 1.7163121834548631,
+              "pitchRad": -0.06813102323583356
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/porras1-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/porras1-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/porras1-empty-2048.webp",
+              "gallery": "/panoramas/E15/porras1-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/porras1-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 802674,
+              "masterSha256": "31858990b6bbfd8b1954c283d0753663c709a30495cc6af45eb9186851d157b6"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/porras1-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/porras1-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/porras1-furnished-2048.webp",
+              "gallery": "/panoramas/E15/porras1-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/porras1-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 817632,
+              "masterSha256": "9ebf4de407fabdf46bc06410331ce3830644c1caea94a868e1914bc2fb434d69"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh1",
+          "labels": {
+            "fi": "Makuuhuone 1",
+            "en": "Bedroom 1",
+            "sv": "Sovrum 1"
+          },
+          "level": 2,
+          "kind": "bedroom",
+          "positionM": [
+            2.2,
+            4.42,
+            1.3
+          ],
+          "lookAtM": [
+            2.42,
+            4.22,
+            0.35
+          ],
+          "initialYawRad": 0.2275674874105839,
+          "initialPitchRad": -0.20229316233426517,
+          "galleryYawRad": 0.2275674874105839,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                3.5,
+                4.02,
+                2.6
+              ],
+              "yawRad": 2.356194490192345,
+              "pitchRad": -0.21423256675202668
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/mh1-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/mh1-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/mh1-empty-2048.webp",
+              "gallery": "/panoramas/E15/mh1-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/mh1-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 791866,
+              "masterSha256": "49b3c16a867a13a57498bb5553f6482ed13069ddce9c334a17179e240f65961e"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/mh1-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/mh1-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/mh1-furnished-2048.webp",
+              "gallery": "/panoramas/E15/mh1-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/mh1-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1707978,
+              "masterSha256": "b18224d1dec794e849e63c476837fd8a3059cf9c8cee460d21c21e18367307c9"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh2",
+          "labels": {
+            "fi": "Makuuhuone 2",
+            "en": "Bedroom 2",
+            "sv": "Sovrum 2"
+          },
+          "level": 2,
+          "kind": "bedroom",
+          "positionM": [
+            7.2,
+            4.42,
+            1.3
+          ],
+          "lookAtM": [
+            7.48,
+            4.22,
+            0.35
+          ],
+          "initialYawRad": 0.2866212422254528,
+          "initialPitchRad": -0.19925813633552095,
+          "galleryYawRad": 0.2866212422254528,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "porras2",
+              "kind": "door-or-open",
+              "positionM": [
+                8.2,
+                4.02,
+                2.6
+              ],
+              "yawRad": 2.4858970273482575,
+              "pitchRad": -0.23921448343815327
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/mh2-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/mh2-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/mh2-empty-2048.webp",
+              "gallery": "/panoramas/E15/mh2-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/mh2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 871672,
+              "masterSha256": "092428aa3b5cb07ab51cff97e1ce4c77b6706c98682cf8d2284c00f982a7cb13"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/mh2-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/mh2-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/mh2-furnished-2048.webp",
+              "gallery": "/panoramas/E15/mh2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/mh2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1355878,
+              "masterSha256": "2e65df57350f6ad3e22045c8671be2f1c455a65c4a4077306140dea6c18fd4c4"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kph",
+          "labels": {
+            "fi": "Kylpyhuone",
+            "en": "Bathroom",
+            "sv": "Badrum"
+          },
+          "level": 2,
+          "kind": "bathroom",
+          "positionM": [
+            1.3,
+            4.42,
+            3.79
+          ],
+          "lookAtM": [
+            1.4300000000000002,
+            4.22,
+            2.95
+          ],
+          "initialYawRad": 0.15354378253955625,
+          "initialPitchRad": -0.23109066719589733,
+          "galleryYawRad": 0.15354378253955625,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                2.6,
+                4.02,
+                3.45
+              ],
+              "yawRad": 1.3149877621795247,
+              "pitchRad": -0.2893267211499185
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/kph-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/kph-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/kph-empty-2048.webp",
+              "gallery": "/panoramas/E15/kph-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/kph-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 921496,
+              "masterSha256": "76bebcd41c45f9b9ac66e144692a642442e1a6c6c6f304985d092574dfbc5932"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/kph-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/kph-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/kph-furnished-2048.webp",
+              "gallery": "/panoramas/E15/kph-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/kph-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 922002,
+              "masterSha256": "31a2a3a5ba603ceed58676a4b29d75880f6a224d70bdf9435d1fe5176ea605d6"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "hall2",
+          "labels": {
+            "fi": "Yläkerran aula",
+            "en": "Upstairs landing",
+            "sv": "Övre hall"
+          },
+          "level": 2,
+          "kind": "hall",
+          "positionM": [
+            4.5,
+            4.42,
+            3.45
+          ],
+          "lookAtM": [
+            4.69,
+            4.22,
+            2.95
+          ],
+          "initialYawRad": 0.363147009946177,
+          "initialPitchRad": -0.35781772278431656,
+          "galleryYawRad": 0.363147009946177,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "mh1",
+              "kind": "door-or-open",
+              "positionM": [
+                3.5,
+                4.02,
+                2.6
+              ],
+              "yawRad": -0.8663022625526788,
+              "pitchRad": -0.2958324161223502
+            },
+            {
+              "targetId": "kph",
+              "kind": "door-or-open",
+              "positionM": [
+                2.6,
+                4.02,
+                3.45
+              ],
+              "yawRad": -1.5707963267948966,
+              "pitchRad": -0.20749622643520285
+            },
+            {
+              "targetId": "porras2",
+              "kind": "door-or-open",
+              "positionM": [
+                6.4,
+                4.02,
+                3.45
+              ],
+              "yawRad": 1.5707963267948966,
+              "pitchRad": -0.2074962264352028
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/hall2-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/hall2-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/hall2-empty-2048.webp",
+              "gallery": "/panoramas/E15/hall2-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/hall2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 665394,
+              "masterSha256": "b6efa7d238fc756618c0fe68da45bc3fdeb4297314708dad611f7ad747afdb70"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/hall2-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/hall2-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/hall2-furnished-2048.webp",
+              "gallery": "/panoramas/E15/hall2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/hall2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 695662,
+              "masterSha256": "b5f64a9b38b75224816278aee5894eab3c91276631c7646dc281580ecf7d5d30"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "porras2",
+          "labels": {
+            "fi": "Portaat · yläkerta",
+            "en": "Stairs · upper floor",
+            "sv": "Trappa · övre våning"
+          },
+          "level": 2,
+          "kind": "hall",
+          "positionM": [
+            6.7250000000000005,
+            4.42,
+            3.875
+          ],
+          "lookAtM": [
+            8.38,
+            4.22,
+            2.95
+          ],
+          "initialYawRad": 1.061136352594782,
+          "initialPitchRad": -0.10509898294031816,
+          "galleryYawRad": 1.061136352594782,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "mh2",
+              "kind": "door-or-open",
+              "positionM": [
+                8.2,
+                4.02,
+                2.6
+              ],
+              "yawRad": 0.8579976171279425,
+              "pitchRad": -0.20235399074910274
+            },
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                6.4,
+                4.02,
+                3.45
+              ],
+              "yawRad": -0.6528466311007748,
+              "pitchRad": -0.6419831608375534
+            },
+            {
+              "targetId": "porras1",
+              "kind": "stairs",
+              "positionM": [
+                9.625,
+                4.22,
+                3.45
+              ],
+              "yawRad": 1.4252804701349302,
+              "pitchRad": -0.06813102323583356
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/E15/porras2-empty-8192.webp",
+              "panorama4k": "/panoramas/E15/porras2-empty-4096.webp",
+              "panorama2k": "/panoramas/E15/porras2-empty-2048.webp",
+              "gallery": "/panoramas/E15/porras2-empty-gallery.webp",
+              "thumbnail": "/panoramas/E15/porras2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 578386,
+              "masterSha256": "c1288d539e7955df1722231263ca42e5112bcb57e1234e86622edbc4ca719363"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/E15/porras2-furnished-8192.webp",
+              "panorama4k": "/panoramas/E15/porras2-furnished-4096.webp",
+              "panorama2k": "/panoramas/E15/porras2-furnished-2048.webp",
+              "gallery": "/panoramas/E15/porras2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/E15/porras2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 579942,
+              "masterSha256": "2f7bdee1b287db9a4ee31cc4bda242ed572f8ac3fc38ba0c36acd7876bafc3dc"
+            }
+          },
+          "status": "ready"
+        }
+      ]
+    },
+    {
+      "id": "F20",
+      "title": "Kalliolinna F20",
+      "points": [
+        {
+          "id": "oh",
+          "labels": {
+            "fi": "Olohuone",
+            "en": "Living room",
+            "sv": "Vardagsrum"
+          },
+          "level": 1,
+          "kind": "living",
+          "positionM": [
+            2.6,
+            1.6,
+            2.175
+          ],
+          "lookAtM": [
+            2.8600000000000003,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.1415134719609133,
+          "initialPitchRad": -0.10807084684069454,
+          "galleryYawRad": -0.25,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "kt",
+              "kind": "door-or-open",
+              "positionM": [
+                5.2,
+                1.2,
+                1.3
+              ],
+              "yawRad": 1.246163935995743,
+              "pitchRad": -0.14479010917625762
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/oh-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/oh-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/oh-empty-2048.webp",
+              "gallery": "/panoramas/F20/oh-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/oh-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1027992,
+              "masterSha256": "9379e3c5c42c013644b309750804850173795d7d5a5d2232cac8c91fe6c763b0"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/oh-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/oh-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/oh-furnished-2048.webp",
+              "gallery": "/panoramas/F20/oh-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/oh-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 2785860,
+              "masterSha256": "27905bca70dd90a5ceeef278e065cb38e8c6fd7adea83cc42b2f088e1e243dfc"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kt",
+          "labels": {
+            "fi": "Keittiö",
+            "en": "Kitchen",
+            "sv": "Kök"
+          },
+          "level": 1,
+          "kind": "kitchen",
+          "positionM": [
+            7.475,
+            1.6,
+            1.3
+          ],
+          "lookAtM": [
+            7.125,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": -0.3529903878269101,
+          "initialPitchRad": -0.19503475712780102,
+          "galleryYawRad": -0.3529903878269101,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "oh",
+              "kind": "door-or-open",
+              "positionM": [
+                5.2,
+                1.2,
+                1.3
+              ],
+              "yawRad": -1.5707963267948966,
+              "pitchRad": -0.1740452398427388
+            },
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                8.7,
+                1.2,
+                1.3
+              ],
+              "yawRad": 1.5707963267948966,
+              "pitchRad": -0.31561566203876645
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/kt-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/kt-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/kt-empty-2048.webp",
+              "gallery": "/panoramas/F20/kt-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/kt-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 922238,
+              "masterSha256": "80c6f674708164272219455269efe41ff6a4ea0fd9db9f916590a073d66c0de9"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/kt-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/kt-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/kt-furnished-2048.webp",
+              "gallery": "/panoramas/F20/kt-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/kt-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1108504,
+              "masterSha256": "11fedee846d4b176692c9917d5c94c091846f2829a4762166b950cf04b86aea3"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "et",
+          "labels": {
+            "fi": "Eteinen",
+            "en": "Hallway",
+            "sv": "Hall"
+          },
+          "level": 1,
+          "kind": "hall",
+          "positionM": [
+            9.85,
+            1.6,
+            1.3
+          ],
+          "lookAtM": [
+            9.965,
+            1.4,
+            0.35
+          ],
+          "initialYawRad": 0.12046648530569795,
+          "initialPitchRad": -0.2060347805456835,
+          "galleryYawRad": 0.12046648530569795,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "porras1",
+              "kind": "door-or-open",
+              "positionM": [
+                9.85,
+                1.2,
+                2.6
+              ],
+              "yawRad": 3.141592653589793,
+              "pitchRad": -0.29849893158617935
+            },
+            {
+              "targetId": "kt",
+              "kind": "door-or-open",
+              "positionM": [
+                8.7,
+                1.2,
+                1.3
+              ],
+              "yawRad": -1.5707963267948966,
+              "pitchRad": -0.3347368373168147
+            },
+            {
+              "targetId": null,
+              "kind": "exit",
+              "positionM": [
+                11.0,
+                1.2,
+                1.3
+              ]
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/et-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/et-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/et-empty-2048.webp",
+              "gallery": "/panoramas/F20/et-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/et-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 765926,
+              "masterSha256": "1267220dba1e96275dc514aaedbb8e301885ff00613fd36a18270f1794452b47"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/et-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/et-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/et-furnished-2048.webp",
+              "gallery": "/panoramas/F20/et-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/et-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 805228,
+              "masterSha256": "6a3d3ff916e7929d44ff9f76b3f20ded4c9fbef98ba6db19f013b16020f587fc"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "kph",
+          "labels": {
+            "fi": "Kylpyhuone",
+            "en": "Bathroom",
+            "sv": "Badrum"
+          },
+          "level": 1,
+          "kind": "bathroom",
+          "positionM": [
+            6.25,
+            1.6,
+            4.0875
+          ],
+          "lookAtM": [
+            6.355,
+            1.4,
+            2.95
+          ],
+          "initialYawRad": 0.0920468488634071,
+          "initialPitchRad": -0.17332314814412017,
+          "galleryYawRad": 0.0920468488634071,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "porras1",
+              "kind": "door-or-open",
+              "positionM": [
+                7.3,
+                1.2,
+                3.475
+              ],
+              "yawRad": 1.0427218783685366,
+              "pitchRad": -0.3178983994016139
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/kph-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/kph-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/kph-empty-2048.webp",
+              "gallery": "/panoramas/F20/kph-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/kph-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 799770,
+              "masterSha256": "77927014f4e5fdf4460ad639020c83cb3fc923599469337544d9b69a37a31a98"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/kph-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/kph-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/kph-furnished-2048.webp",
+              "gallery": "/panoramas/F20/kph-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/kph-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 800274,
+              "masterSha256": "6e40bb424e0a8d5fcd50acaa47803b7f1ae9b92dcaf93f8d4e00fba58eadc4b0"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "porras1",
+          "labels": {
+            "fi": "Portaat · alakerta",
+            "en": "Stairs · lower floor",
+            "sv": "Trappa · nedre våning"
+          },
+          "level": 1,
+          "kind": "hall",
+          "positionM": [
+            7.625,
+            1.6,
+            3.0375
+          ],
+          "lookAtM": [
+            9.335,
+            1.4,
+            2.95
+          ],
+          "initialYawRad": 1.5196713256962493,
+          "initialPitchRad": -0.11627932950464738,
+          "galleryYawRad": 1.5196713256962493,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "et",
+              "kind": "door-or-open",
+              "positionM": [
+                9.85,
+                1.2,
+                2.6
+              ],
+              "yawRad": 1.3766439988168424,
+              "pitchRad": -0.17460139985385745
+            },
+            {
+              "targetId": "kph",
+              "kind": "door-or-open",
+              "positionM": [
+                7.3,
+                1.2,
+                3.475
+              ],
+              "yawRad": -2.5026786685859057,
+              "pitchRad": -0.6331414308603928
+            },
+            {
+              "targetId": "porras2",
+              "kind": "stairs",
+              "positionM": [
+                10.625,
+                1.4,
+                3.475
+              ],
+              "yawRad": 1.7156088250338357,
+              "pitchRad": -0.0658734180647326
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/porras1-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/porras1-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/porras1-empty-2048.webp",
+              "gallery": "/panoramas/F20/porras1-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/porras1-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 792282,
+              "masterSha256": "4c21f56d7e8d8217186ce8d91cea72675f9716a5e29b3aea075c145c68e603f2"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/porras1-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/porras1-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/porras1-furnished-2048.webp",
+              "gallery": "/panoramas/F20/porras1-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/porras1-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 798034,
+              "masterSha256": "7abbc2db4433539975c7e1129e7d8c0c6210ad697611ab543d1c5a2cde778722"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh1",
+          "labels": {
+            "fi": "Makuuhuone 1",
+            "en": "Bedroom 1",
+            "sv": "Sovrum 1"
+          },
+          "level": 2,
+          "kind": "bedroom",
+          "positionM": [
+            2.44,
+            4.42,
+            1.8199999999999998
+          ],
+          "lookAtM": [
+            1.6775000000000002,
+            4.22,
+            0.35
+          ],
+          "initialYawRad": -0.4785013443131271,
+          "initialPitchRad": -0.1201914763176143,
+          "galleryYawRad": -1.2128142998939464,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                1.525,
+                4.02,
+                2.6
+              ],
+              "yawRad": -2.2767162455841383,
+              "pitchRad": -0.32116621421233954
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/mh1-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/mh1-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/mh1-empty-2048.webp",
+              "gallery": "/panoramas/F20/mh1-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh1-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 605388,
+              "masterSha256": "706073d0bc843c439206a9ba45f71b2de42cfeebdc18d88fb94b1951d73f94ce"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/mh1-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/mh1-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/mh1-furnished-2048.webp",
+              "gallery": "/panoramas/F20/mh1-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh1-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 996168,
+              "masterSha256": "26f963757b1018b3add2020ee1375aa48edc1bcbf65defbb6669252d6f8dc0d7"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh2",
+          "labels": {
+            "fi": "Makuuhuone 2",
+            "en": "Bedroom 2",
+            "sv": "Sovrum 2"
+          },
+          "level": 2,
+          "kind": "bedroom",
+          "positionM": [
+            5.49,
+            4.42,
+            1.8199999999999998
+          ],
+          "lookAtM": [
+            4.7275,
+            4.22,
+            0.35
+          ],
+          "initialYawRad": -0.47850134431312735,
+          "initialPitchRad": -0.1201914763176143,
+          "galleryYawRad": -1.2128142998939466,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                4.575,
+                4.02,
+                2.6
+              ],
+              "yawRad": -2.2767162455841383,
+              "pitchRad": -0.32116621421233954
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/mh2-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/mh2-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/mh2-empty-2048.webp",
+              "gallery": "/panoramas/F20/mh2-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 565280,
+              "masterSha256": "776a068887a365b7e3b3a56defd1b2e5e34ca7666b5000da5265fa4853ce5933"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/mh2-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/mh2-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/mh2-furnished-2048.webp",
+              "gallery": "/panoramas/F20/mh2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 957452,
+              "masterSha256": "b078b7e2cb0025d13c0b8bffd5387b94c412ed0f97d3c8fcce1e7cb64890df6d"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "mh3",
+          "labels": {
+            "fi": "Makuuhuone 3",
+            "en": "Bedroom 3",
+            "sv": "Sovrum 3"
+          },
+          "level": 2,
+          "kind": "bedroom",
+          "positionM": [
+            8.55,
+            4.42,
+            1.3
+          ],
+          "lookAtM": [
+            8.795,
+            4.22,
+            0.35
+          ],
+          "initialYawRad": 0.25239509080646483,
+          "initialPitchRad": -0.2011007078139037,
+          "galleryYawRad": 0.25239509080646483,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "porras2",
+              "kind": "door-or-open",
+              "positionM": [
+                9.15,
+                4.02,
+                2.6
+              ],
+              "yawRad": 2.7091848780192556,
+              "pitchRad": -0.27242637371105927
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/mh3-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/mh3-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/mh3-empty-2048.webp",
+              "gallery": "/panoramas/F20/mh3-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh3-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 829796,
+              "masterSha256": "eeaa5cbd5b35f2f212af98c9fbf4c94500cddda2ab66327c5343dab8abe2b7f9"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/mh3-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/mh3-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/mh3-furnished-2048.webp",
+              "gallery": "/panoramas/F20/mh3-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/mh3-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 1491730,
+              "masterSha256": "b17a655bad55518f106eeb7da3e7ba4c65d0e31dc624ad32fefc02623192b46c"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "hall2",
+          "labels": {
+            "fi": "Yläkerran aula",
+            "en": "Upstairs landing",
+            "sv": "Övre hall"
+          },
+          "level": 2,
+          "kind": "hall",
+          "positionM": [
+            3.65,
+            4.42,
+            3.475
+          ],
+          "lookAtM": [
+            4.015000000000001,
+            4.22,
+            2.95
+          ],
+          "initialYawRad": 0.6075229003913727,
+          "initialPitchRad": -0.3031458539290471,
+          "galleryYawRad": 0.6075229003913727,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "mh1",
+              "kind": "door-or-open",
+              "positionM": [
+                1.525,
+                4.02,
+                2.6
+              ],
+              "yawRad": -1.1801892830972098,
+              "pitchRad": -0.1723305936494158
+            },
+            {
+              "targetId": "mh2",
+              "kind": "door-or-open",
+              "positionM": [
+                4.575,
+                4.02,
+                2.6
+              ],
+              "yawRad": 0.8131687999908694,
+              "pitchRad": -0.3043860032426821
+            },
+            {
+              "targetId": "porras2",
+              "kind": "door-or-open",
+              "positionM": [
+                7.3,
+                4.02,
+                3.475
+              ],
+              "yawRad": 1.5707963267948966,
+              "pitchRad": -0.10915346290887783
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/hall2-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/hall2-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/hall2-empty-2048.webp",
+              "gallery": "/panoramas/F20/hall2-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/hall2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 739892,
+              "masterSha256": "dd207f2ab340be7f001e053de17216f1021f23747a826cce1f932ae09571653d"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/hall2-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/hall2-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/hall2-furnished-2048.webp",
+              "gallery": "/panoramas/F20/hall2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/hall2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 774456,
+              "masterSha256": "50ad4921e20dc7556b7e5e9c1ce842b64faf613a6e9b1db17d4f0c42822381f7"
+            }
+          },
+          "status": "ready"
+        },
+        {
+          "id": "porras2",
+          "labels": {
+            "fi": "Portaat · yläkerta",
+            "en": "Stairs · upper floor",
+            "sv": "Trappa · övre våning"
+          },
+          "level": 2,
+          "kind": "hall",
+          "positionM": [
+            7.625,
+            4.42,
+            3.9125
+          ],
+          "lookAtM": [
+            9.335,
+            4.22,
+            2.95
+          ],
+          "initialYawRad": 1.0581292622161844,
+          "initialPitchRad": -0.10157198826879857,
+          "galleryYawRad": 1.0581292622161844,
+          "galleryPitchRad": -0.1,
+          "galleryFovDegrees": 100,
+          "hotspots": [
+            {
+              "targetId": "mh3",
+              "kind": "door-or-open",
+              "positionM": [
+                9.15,
+                4.02,
+                2.6
+              ],
+              "yawRad": 0.8601484940787549,
+              "pitchRad": -0.1962450908196761
+            },
+            {
+              "targetId": "hall2",
+              "kind": "door-or-open",
+              "positionM": [
+                7.3,
+                4.02,
+                3.475
+              ],
+              "yawRad": -0.6389139850038874,
+              "pitchRad": -0.6331414308603931
+            },
+            {
+              "targetId": "porras1",
+              "kind": "stairs",
+              "positionM": [
+                10.625,
+                4.22,
+                3.475
+              ],
+              "yawRad": 1.4259838285559576,
+              "pitchRad": -0.0658734180647326
+            }
+          ],
+          "images": {
+            "empty": {
+              "panorama8k": "/panoramas/F20/porras2-empty-8192.webp",
+              "panorama4k": "/panoramas/F20/porras2-empty-4096.webp",
+              "panorama2k": "/panoramas/F20/porras2-empty-2048.webp",
+              "gallery": "/panoramas/F20/porras2-empty-gallery.webp",
+              "thumbnail": "/panoramas/F20/porras2-empty-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 599092,
+              "masterSha256": "6bd79428af0beced8d93a35cb15b65db283e659961df6c27065fa361087ae2f1"
+            },
+            "furnished": {
+              "panorama8k": "/panoramas/F20/porras2-furnished-8192.webp",
+              "panorama4k": "/panoramas/F20/porras2-furnished-4096.webp",
+              "panorama2k": "/panoramas/F20/porras2-furnished-2048.webp",
+              "gallery": "/panoramas/F20/porras2-furnished-gallery.webp",
+              "thumbnail": "/panoramas/F20/porras2-furnished-thumb.webp",
+              "width": 8192,
+              "height": 4096,
+              "status": "ready",
+              "webBytes": 605142,
+              "masterSha256": "a3e942dd09577af7516e5a69be8252c17c42c3c8605337cb3f31f6c714c3ccaf"
+            }
+          },
+          "status": "ready"
+        }
+      ]
+    }
+  ],
+  "completedPoints": 25,
+  "totalPoints": 25
+}

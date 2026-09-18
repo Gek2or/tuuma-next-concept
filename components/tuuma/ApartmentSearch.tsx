@@ -61,11 +61,11 @@ function Card({
       >
         <img
           src={a.image}
-          alt={`${a.title}, ${text({ fi: "asunnon sisäkuva", en: "interior", sv: "interiör" })}`}
+          alt={`${a.title}, ${text(a.showcaseReady ? { fi: "renderöity konseptikuva", en: "rendered concept image", sv: "renderad konceptbild" } : { fi: "asunnon sisäkuva", en: "interior", sv: "interiör" })}`}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
         <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-2 text-xs font-bold">
-          {a.available}
+          {a.showcaseReady ? text({ fi: "Konseptiesimerkki", en: "Concept example", sv: "Konceptbostad" }) : a.available}
         </span>
         <button
           onClick={onFavorite}

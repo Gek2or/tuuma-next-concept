@@ -1,0 +1,15 @@
+{
+  "masterSha256": "a3e942dd09577af7516e5a69be8252c17c42c3c8605337cb3f31f6c714c3ccaf",
+  "nativeDimensions": [
+    8192,
+    4096
+  ],
+  "webBytes": 605142,
+  "sampledPsnrDb": 47.68,
+  "quality": 92,
+  "rendererHash": "71697e70152da6f5648579a7faa044a911f51a44e278cb4c171106e1af3df5b0",
+  "galleryAngles": [
+    1.0581292622161844,
+    -0.1
+  ]
+}

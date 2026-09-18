@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apartments } from "@/lib/data";
+import { panoramaFor } from "@/lib/panoramas";
 import { useLanguage } from "./LanguageProvider";
 
 const initial = [
@@ -217,7 +218,7 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item, index) => { const home = apartments.find(home => home.id === item.id)!; return (
+                  {items.map((item, index) => { const home = apartments.find(home => home.id === item.id)!; const panorama = panoramaFor(item.id); return (
                     <tr key={item.id} className="border-t border-[#e7edf2]">
                       <td className="p-5">
                         <div className="flex items-center gap-3">
@@ -233,7 +234,7 @@ export function AdminDashboard() {
                       <td className="p-5">
                         <span className="flex items-center gap-2 text-sm font-bold">
                           <Camera size={17} className="text-[#0a55df]" />
-                          {["C09", "E15", "F20"].includes(item.id) ? text({fi:"360° työn alla",en:"360° in progress",sv:"360° under arbete"}) : item.id === "C07"
+                          {panorama ? text(panorama.points.every(point => point.status === "ready") ? {fi:"360° valmis",en:"360° ready",sv:"360° klar"} : {fi:"360° työn alla",en:"360° in progress",sv:"360° under arbete"}) : item.id === "C07"
                             ? text({ fi: "Kuvat puuttuvat", en: "Photos missing", sv: "Bilder saknas" })
                             : "360° ready"}
                         </span>

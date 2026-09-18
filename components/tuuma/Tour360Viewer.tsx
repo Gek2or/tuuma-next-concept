@@ -12,6 +12,8 @@ import { ArchitecturalModel, type InteriorStyle } from "./ArchitecturalModel";
 import { InteriorOptions, ModelFallback, SceneBoundary, StudioEnvironment, useSceneQuality, useSceneReady } from "./ApartmentDollhouse";
 import { PlanGeometry } from "./ApartmentPlan";
 import { useLanguage } from "./LanguageProvider";
+import { panoramaFor } from "@/lib/panoramas";
+import RenderedPhotoTour from "./RenderedPhotoTour";
 export function cameraSpot(design: Design, id: string): [
     number,
     number,
@@ -234,5 +236,7 @@ export default function Tour360Viewer({ apartment = apartments[0] }: { apartment
   const { text } = useLanguage();
   const [mode, setMode] = useState<"model" | "panorama">("model");
   const hasPanorama = /-360\.webp$/i.test(apartment.tour.living);
+  const renderedHome = panoramaFor(apartment.id);
+  if (renderedHome) return <RenderedPhotoTour key={apartment.id} home={renderedHome} />;
   return <div>{hasPanorama && <div className="mb-3 flex flex-wrap gap-2"><button className="min-h-11 rounded-full border px-4 text-sm font-bold" aria-pressed={mode === "model"} onClick={() => setMode("model")}>3D</button><button className="min-h-11 rounded-full border px-4 text-sm font-bold" aria-pressed={mode === "panorama"} onClick={() => setMode("panorama")}>{text({fi: "Kuvitettu 360°", en: "Illustrated 360°", sv: "Illustrerad 360°"})}</button></div>}{mode === "model" ? <LiveModelTour key={apartment.id} apartment={apartment}/> : <PhotoTour key={apartment.id} apartment={apartment} onOpenModel={() => setMode("model")}/>}</div>;
 }

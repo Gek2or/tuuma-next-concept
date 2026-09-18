@@ -1,3 +1,5 @@
+import panoramas from "../public/panoramas/manifest.json" with { type: "json" };
+
 export type ApartmentVariant = "kalliolinna" | "asemanvalo" | "ruukinranta" | "peltokaarre" | "keravanjoen";
 
 export type ApartmentTour = {
@@ -12,8 +14,8 @@ export type RoomMedia = {
   label: { fi: string; en: string; sv: string };
   empty: string;
   furnished?: string;
-  /** A paired furnished image is an edit of this exact empty master. */
-  source: "empty-master-edit" | "concept-render";
+  source: "empty-master-edit" | "concept-render" | "scene-render";
+  thumbnail?: string;
   /** Single reference frames are explicitly marked instead of being presented as an empty home. */
   state?: "empty" | "furnished";
 };
@@ -54,7 +56,7 @@ export type Apartment = {
   publicSource?: string;
 };
 
-export const apartments: Apartment[] = [
+const apartmentListings: Apartment[] = [
   {
     id: "A12",
     title: "Kalliolinna A12",
@@ -277,7 +279,7 @@ export const apartments: Apartment[] = [
     tour: { living: "/art/kalliolinna-c09-furnished.webp", bedroom: "/art/kalliolinna-c09-empty.webp", kitchen: "/art/kalliolinna-c09-furnished.webp", startHeading: 0 },
     variant: "kalliolinna",
     type: "Rivitalo",
-    available: "Konseptiesimerkki · kuvakierros työn alla",
+    available: "Konseptiesimerkki · ei reaaliaikaista saatavuutta",
     balcony: false,
     sauna: false,
     pets: true,
@@ -314,7 +316,7 @@ export const apartments: Apartment[] = [
     tour: { living: "/art/kalliolinna-e15-living.webp", bedroom: "/art/kalliolinna-e15-living.webp", kitchen: "/art/kalliolinna-e15-living.webp", startHeading: -0.15 },
     variant: "kalliolinna",
     type: "Rivitalo",
-    available: "Konseptiesimerkki · kuvakierros työn alla",
+    available: "Konseptiesimerkki · ei reaaliaikaista saatavuutta",
     balcony: false,
     sauna: false,
     pets: true,
@@ -353,7 +355,7 @@ export const apartments: Apartment[] = [
     tour: { living: "/art/kalliolinna-f20-living.webp", bedroom: "/art/kalliolinna-f20-living.webp", kitchen: "/art/kalliolinna-f20-living.webp", startHeading: .18 },
     variant: "kalliolinna",
     type: "Rivitalo",
-    available: "Konseptiesimerkki · kuvakierros työn alla",
+    available: "Konseptiesimerkki · ei reaaliaikaista saatavuutta",
     balcony: false,
     sauna: false,
     pets: true,
@@ -372,4 +374,24 @@ export const apartments: Apartment[] = [
     publicSource: "https://tuumakodit.fi/kalliolinna/",
   },
 ];
+export const apartments: Apartment[] = apartmentListings.map(apartment => {
+  const home = panoramas.apartments.find(item => item.id === apartment.id);
+  if (!home) return apartment;
+  const living = home.points.find(point => point.id === "oh")!;
+  return {
+    ...apartment,
+    image: living.images.empty.gallery,
+    emptyImage: living.images.empty.gallery,
+    gallery: home.points.map(point => point.images.empty.gallery),
+    roomMedia: home.points.map(point => ({
+      id: point.id,
+      label: point.labels,
+      empty: point.images.empty.gallery,
+      furnished: point.images.furnished.gallery,
+      thumbnail: point.images.empty.thumbnail,
+      source: "scene-render" as const,
+    })),
+  };
+});
+
 export const residentHelp = ["Asunnossa on vika","Vuokra ja maksut","Avaimet","Autopaikka","Muutto sisään","Muutto pois","Sauna","Kierrätys","Järjestyssäännöt","Lomakkeet"];
