@@ -64,3 +64,10 @@ test('showcase bedrooms connect directly to circulation and duplex stairs align'
     assert.equal(p.steps * 2 * p.rise, d.height / 1000 + .22);
   }
 });
+test('showcase footprints stay within published unit areas', () => {
+  const expected = { C09: 56.5, E15: 77, F20: 92 };
+  for (const [id, area] of Object.entries(expected)) {
+    const design = designs[id];
+    assert.ok(Math.abs((design.width * design.depth * design.levels) / 1e6 - area) < 0.1, `${id}: ${area} m²`);
+  }
+});

@@ -637,10 +637,7 @@ function ArchitecturalWall({
             </group>
           )}
           {o.kind === "door" && (
-            <group
-              position={[o.start / 1000, 0, 0]}
-              rotation={[0, -Math.PI / 2, 0]}
-            >
+            <group position={[o.start / 1000, 0, 0]}>
               <Block
                 p={[o.width / 2000, Math.min(h, 2.05) / 2, 0]}
                 s={[o.width / 1000 - 0.06, Math.min(h, 2.05), 0.035]}
