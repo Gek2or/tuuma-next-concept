@@ -1008,29 +1008,28 @@ function RoomStaging({ design, level, wood, linen }: { design: Design; level?: n
 function Handrail({
   from,
   to,
-  z,
 }: {
-  from: [number, number];
-  to: [number, number];
-  z: number;
+  from: [number, number, number];
+  to: [number, number, number];
 }) {
-  const dx = to[0] - from[0];
-  const dy = to[1] - from[1];
-  const length = Math.hypot(dx, dy);
-  const angle = Math.atan2(dy, dx);
+  const direction = new THREE.Vector3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
+  const length = direction.length();
+  const midpoint = new THREE.Vector3((from[0] + to[0]) / 2, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), direction.normalize());
   return (
     <>
       <mesh
-        position={[(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, z]}
-        rotation={[0, 0, angle]}
+        position={midpoint}
+        quaternion={quaternion}
         castShadow
       >
         <boxGeometry args={[length, 0.045, 0.045]} />
         <meshStandardMaterial color="#27363b" metalness={0.62} roughness={0.3} />
       </mesh>
       {[0, 0.25, 0.5, 0.75, 1].map((t) => {
-        const x = from[0] + dx * t;
-        const y = from[1] + dy * t - 0.45;
+        const x = from[0] + (to[0] - from[0]) * t;
+        const y = from[1] + (to[1] - from[1]) * t - 0.45;
+        const z = from[2] + (to[2] - from[2]) * t;
         return (
           <mesh key={t} position={[x, y, z]} castShadow>
             <cylinderGeometry args={[0.018, 0.018, 0.9, 8]} />
@@ -1054,8 +1053,8 @@ function DuplexStaircase({
   const profile = stairProfile(design);
   if (!profile) return null;
   const { room } = profile;
-  const roomWidth = room.w / 1000;
-  const roomDepth = room.d / 1000;
+  const roomWidth = profile.width;
+  const roomDepth = profile.depth;
   const flightSteps = profile.steps;
   const rise = (design.height / 1000 + 0.22) / (flightSteps * 2);
   const run = profile.run;
@@ -1068,45 +1067,30 @@ function DuplexStaircase({
   const landingHeight = flightSteps * rise;
   const topHeight = flightSteps * 2 * rise;
   const stairMaterial = "#c6a57d";
+  const point = (u: number, v: number): [number, number] => profile.axis === "x"
+    ? [room.x / 1000 + u, room.z / 1000 + v]
+    : [room.x / 1000 + v, room.z / 1000 + u];
+  const block = (key: string, p: [number, number, number], s: [number, number, number]) => {
+    const [x, z] = point(p[0], p[2]);
+    const size: [number, number, number] = profile.axis === "x" ? s : [s[2], s[1], s[0]];
+    return <Block key={key} p={[x, p[1], z]} s={size} color={stairMaterial} map={wood} roughness={0.5}/>;
+  };
+  const rail = (from: [number, number], to: [number, number], cross: number) => {
+    const [fromX, fromZ] = point(from[0], cross);
+    const [toX, toZ] = point(to[0], cross);
+    return <Handrail from={[fromX, from[1], fromZ]} to={[toX, to[1], toZ]}/>;
+  };
   return (
-    <group position={[room.x / 1000, 0, room.z / 1000]}>
+    <group>
       {Array.from({ length: flightSteps }, (_, index) => (
-        <Block
-          key={`up-${index}`}
-          p={[
-            start + tread * (index + 0.5),
-            ((index + 1) * rise) / 2,
-            nearLane,
-          ]}
-          s={[tread + 0.012, (index + 1) * rise, flightWidth]}
-          color={stairMaterial}
-          map={wood}
-          roughness={0.5}
-        />
+        block(`up-${index}`, [start + tread * (index + 0.5), ((index + 1) * rise) / 2, nearLane], [tread + 0.012, (index + 1) * rise, flightWidth])
       ))}
-      <Block
-        p={[start + run + landingWidth / 2, landingHeight - 0.035, roomDepth / 2]}
-        s={[landingWidth, 0.07, roomDepth - 0.1]}
-        color={stairMaterial}
-        map={wood}
-        roughness={0.5}
-      />
+      {block("landing", [start + run + landingWidth / 2, landingHeight - 0.035, roomDepth / 2], [landingWidth, 0.07, roomDepth - 0.1])}
       {Array.from({ length: flightSteps }, (_, index) => (
-        <Block
-          key={`return-${index}`}
-          p={[
-            start + run - tread * (index + 0.5),
-            ((flightSteps + index + 1) * rise) / 2,
-            farLane,
-          ]}
-          s={[tread + 0.012, (flightSteps + index + 1) * rise, flightWidth]}
-          color={stairMaterial}
-          map={wood}
-          roughness={0.5}
-        />
+        block(`return-${index}`, [start + run - tread * (index + 0.5), ((flightSteps + index + 1) * rise) / 2, farLane], [tread + 0.012, (flightSteps + index + 1) * rise, flightWidth])
       ))}
-      <Handrail from={[start, 0.9]} to={[start + run, landingHeight + 0.9]} z={0.07} />
-      <Handrail from={[start + run, landingHeight + 0.9]} to={[start, topHeight + 0.9]} z={roomDepth - 0.07} />
+      {rail([start, 0.9], [start + run, landingHeight + 0.9], 0.07)}
+      {rail([start + run, landingHeight + 0.9], [start, topHeight + 0.9], roomDepth - 0.07)}
     </group>
   );
 }
@@ -1198,13 +1182,15 @@ function BaseModel({
       />}
       {design.rooms.filter(r => level === undefined || (r.level ?? 1) === level).map((r) => {
         const levelOffset = ((r.level ?? 1) - 1) * storeyOffset;
+        const upperStair = r.code === "PORRAS" && r.level === 2 ? stairProfile(design) : null;
+        const stairAlongZ = upperStair?.axis === "z";
         return (
           <group key={r.id}>
             <RoomFloor
-              x={r.code === "PORRAS" && r.level === 2 ? r.x / 1000 + .325 : (r.x + r.w / 2) / 1000}
-              z={(r.z + r.d / 2) / 1000}
-              width={r.code === "PORRAS" && r.level === 2 ? .65 : r.w / 1000}
-              depth={r.d / 1000}
+              x={upperStair ? (stairAlongZ ? (r.x + r.w / 2) / 1000 : r.x / 1000 + .325) : (r.x + r.w / 2) / 1000}
+              z={upperStair ? (stairAlongZ ? r.z / 1000 + .325 : (r.z + r.d / 2) / 1000) : (r.z + r.d / 2) / 1000}
+              width={upperStair ? (stairAlongZ ? r.w / 1000 : .65) : r.w / 1000}
+              depth={upperStair ? (stairAlongZ ? .65 : r.d / 1000) : r.d / 1000}
               texture={r.kind === "bathroom" ? bathroomTile : wood}
               tiled={r.kind === "bathroom"}
               y={levelOffset}

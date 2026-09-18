@@ -220,8 +220,10 @@ export function PlanGeometry({
             const start = stair.start * 1000, end = (stair.start + stair.run) * 1000;
             const near = stair.nearLane * 1000, far = stair.farLane * 1000;
             const half = stair.flightWidth * 500;
-            return <g transform={`translate(${room.x} ${room.z})`} fill="none" stroke="#596578" strokeWidth="18">
-              <path d={`M${start} ${near-half}H${room.w-50}V${far+half}H${start} M${start} ${near+half}H${end}V${far-half}H${start}`}/>
+            const localLength = stair.width * 1000;
+            const transform = stair.axis === "z" ? `translate(${room.x + room.w} ${room.z}) rotate(90)` : `translate(${room.x} ${room.z})`;
+            return <g transform={transform} fill="none" stroke="#596578" strokeWidth="18">
+              <path d={`M${start} ${near-half}H${localLength-50}V${far+half}H${start} M${start} ${near+half}H${end}V${far-half}H${start}`}/>
               {Array.from({length: stair.steps + 1}, (_, n) => <path key={n} d={`M${start+n*stair.tread*1000} ${near-half}V${near+half} M${start+n*stair.tread*1000} ${far-half}V${far+half}`}/>)}
               <path d={`M${start} ${near}H${end+375}V${far}H${start}l130 -90m-130 90l130 90`} stroke="#22264b" strokeWidth="26"/>
             </g>;
