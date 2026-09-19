@@ -60,6 +60,7 @@ export type Design = {
 };
 const r = (id: string, kind: RoomKind, code: string, x: number, z: number, w: number, d: number, level = 1): DesignRoom => ({ id, kind, code, x, z, w, d, level });
 type OpeningPlan = { between: [string, string]; kind: "door" | "open"; width: number; };
+type EntryPlan = { room: string; axis: "x" | "z"; at: number; width: number; };
 const layouts: Record<string, {
     name: string;
     width: number;
@@ -68,6 +69,7 @@ const layouts: Record<string, {
     terrace?: boolean;
     levels?: number;
     openings?: OpeningPlan[];
+    entry?: EntryPlan;
 }> = {
     A12: { name: "2H + KT", width: 8000, depth: 7500, rooms: [r("oh", "living", "OH", 0, 0, 4500, 4300), r("kt", "kitchen", "KT", 0, 4300, 2700, 3200), r("et", "hall", "ET", 2700, 4300, 5300, 1400), r("mh1", "bedroom", "MH", 4500, 0, 3500, 4300), r("kph", "bathroom", "KPH", 4500, 5700, 3500, 1800), r("vh", "storage", "VH", 2700, 5700, 1800, 1800)] },
     A14: { name: "3H + KT", width: 10000, depth: 7300, rooms: [r("oh", "living", "OH", 0, 0, 6500, 4000), r("kph", "bathroom", "KPH", 0, 4000, 2600, 3300), r("et", "hall", "ET", 2600, 4000, 1600, 3300), r("kt", "kitchen", "KT", 4200, 4000, 2300, 3300), r("mh1", "bedroom", "MH1", 6500, 0, 3500, 3650), r("mh2", "bedroom", "MH2", 6500, 3650, 3500, 3650)] },
@@ -76,13 +78,11 @@ const layouts: Record<string, {
     A31: { name: "4H + KT + S", width: 11800, depth: 7400, rooms: [r("mh1", "bedroom", "MH1", 0, 0, 3700, 3200), r("mh2", "bedroom", "MH2", 3700, 0, 3300, 3200), r("mh3", "bedroom", "MH3", 7000, 0, 2800, 3200), r("s", "sauna", "S", 9800, 0, 2000, 1400), r("kph", "bathroom", "KPH", 9800, 1400, 2000, 3000), r("et", "hall", "ET", 0, 3200, 9800, 1200), r("oh", "living", "OH", 0, 4400, 7000, 3000), r("kt", "kitchen", "KT", 7000, 4400, 4800, 3000)] },
     D18: { name: "1H + KT", width: 5500, depth: 7100, rooms: [r("oh", "living", "OH / ALK", 0, 0, 5500, 4100), r("kt", "kitchen", "KT", 0, 4100, 2500, 3000), r("et", "hall", "ET", 2500, 4100, 3000, 1200), r("kph", "bathroom", "KPH", 2500, 5300, 3000, 1800)] },
     E05: { name: "3H + KT + S", width: 7800, depth: 9900, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 7800, 3300), r("mh1", "bedroom", "MH1", 0, 3300, 3200, 3500), r("et", "hall", "ET", 3200, 3300, 1400, 6600), r("kt", "kitchen", "KT", 4600, 3300, 3200, 3500), r("mh2", "bedroom", "MH2", 0, 6800, 3200, 3100), r("kph", "bathroom", "KPH", 4600, 6800, 3200, 1900), r("s", "sauna", "S", 4600, 8700, 2000, 1200), r("vh", "storage", "VH", 6600, 8700, 1200, 1200)] },
-    // Original digital-twin concept layouts. Public unit type and size informed these models;
-    // they are not copies of permit or construction drawings.
-    // Showcase layouts use the published unit types and areas as constraints.
-    // They remain concept drawings, but every level is a complete, walkable rectangle.
-    C09: { name: "2H + KK · konseptipohja", width: 5000, depth: 11300, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 3300, 3600), r("kt", "kitchen", "KK", 3300, 0, 1700, 3600), r("mh1", "bedroom", "MH", 0, 3600, 2100, 5000), r("hall", "hall", "AULA", 2100, 3600, 1200, 7700), r("kph", "bathroom", "PH", 3300, 3600, 1700, 1800), r("vh", "storage", "VH", 3300, 5400, 1700, 2800), r("tk", "storage", "TK", 3300, 8200, 1700, 3100), r("et", "hall", "ET", 0, 8600, 2100, 2700)], openings: [{ between: ["et", "hall"], kind: "door", width: 900 }, { between: ["hall", "mh1"], kind: "door", width: 900 }, { between: ["hall", "oh"], kind: "door", width: 900 }, { between: ["oh", "kt"], kind: "open", width: 1800 }, { between: ["hall", "kph"], kind: "door", width: 900 }, { between: ["hall", "vh"], kind: "door", width: 900 }, { between: ["hall", "tk"], kind: "door", width: 900 }] },
-    E15: { name: "3H + K · 2 tasoa · konseptipohja", width: 4700, depth: 8191, terrace: true, levels: 2, rooms: [r("porras1", "hall", "PORRAS", 0, 0, 1100, 3200, 1), r("oh", "living", "OH", 1100, 0, 3600, 3200, 1), r("wc", "bathroom", "WC", 0, 3200, 1300, 1200, 1), r("et", "hall", "ET", 0, 4400, 1300, 3791, 1), r("kt", "kitchen", "K", 1300, 3200, 3400, 4991, 1), r("porras2", "hall", "PORRAS", 0, 0, 1100, 3200, 2), r("ph", "bathroom", "PH", 1100, 0, 3600, 2200, 2), r("hall2", "hall", "AULA", 1100, 2200, 3600, 1000, 2), r("mh2", "bedroom", "MH2", 0, 3200, 2400, 4991, 2), r("mh1", "bedroom", "MH1", 2400, 3200, 2300, 4991, 2)], openings: [{ between: ["et", "wc"], kind: "door", width: 900 }, { between: ["et", "kt"], kind: "door", width: 900 }, { between: ["kt", "oh"], kind: "open", width: 1800 }, { between: ["oh", "porras1"], kind: "door", width: 900 }, { between: ["porras2", "hall2"], kind: "door", width: 850 }, { between: ["hall2", "ph"], kind: "door", width: 900 }, { between: ["hall2", "mh2"], kind: "door", width: 900 }, { between: ["hall2", "mh1"], kind: "door", width: 900 }] },
-    F20: { name: "4H + K · 2 tasoa · konseptipohja", width: 6200, depth: 7419, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 4200, 3400, 1), r("porras1", "hall", "PORRAS", 4200, 0, 2000, 3000, 1), r("wc", "bathroom", "WC", 4200, 3000, 2000, 1000, 1), r("kt", "kitchen", "K", 0, 3400, 3200, 4019, 1), r("et", "hall", "ET", 3200, 3400, 1000, 4019, 1), r("kph", "bathroom", "PH", 4200, 4000, 2000, 3419, 1), r("mh3", "bedroom", "MH3", 0, 0, 3000, 2700, 2), r("ph2", "bathroom", "PH", 3000, 0, 1200, 3000, 2), r("porras2", "hall", "PORRAS", 4200, 0, 2000, 3000, 2), r("hall2", "hall", "AULA", 0, 2700, 3000, 900, 2), r("hall3", "hall", "AULA", 3000, 3000, 3200, 600, 2), r("mh1", "bedroom", "MH1", 0, 3600, 3200, 3819, 2), r("mh2", "bedroom", "MH2", 3200, 3600, 3000, 3819, 2)], openings: [{ between: ["et", "kt"], kind: "door", width: 900 }, { between: ["kt", "oh"], kind: "open", width: 1800 }, { between: ["oh", "porras1"], kind: "door", width: 900 }, { between: ["porras1", "wc"], kind: "door", width: 900 }, { between: ["et", "kph"], kind: "door", width: 900 }, { between: ["porras2", "hall3"], kind: "door", width: 900 }, { between: ["hall3", "hall2"], kind: "open", width: 780 }, { between: ["hall3", "ph2"], kind: "door", width: 900 }, { between: ["hall2", "mh3"], kind: "door", width: 900 }, { between: ["hall2", "mh1"], kind: "door", width: 900 }, { between: ["hall3", "mh2"], kind: "door", width: 900 }] },
+    // Reference-based demo geometry rebuilt from the published Kalliolinna plans.
+    // Dimensions remain illustrative; room order, circulation and service zones follow the source drawings.
+    C09: { name: "2H + KK · referenssipohja", width: 5000, depth: 11300, terrace: true, rooms: [r("oh", "living", "OH", 0, 0, 3300, 4200), r("kt", "kitchen", "KK", 3300, 0, 1700, 4200), r("ph", "bathroom", "PH", 0, 4200, 3100, 2000), r("hall", "hall", "AULA", 3100, 4200, 1900, 2000), r("mh1", "bedroom", "MH", 0, 6200, 3300, 5100), r("et", "hall", "ET", 3300, 6200, 1700, 3300), r("tk", "hall", "TK", 3300, 9500, 1700, 1800)], openings: [{ between: ["oh", "kt"], kind: "open", width: 1500 }, { between: ["kt", "hall"], kind: "open", width: 1400 }, { between: ["hall", "ph"], kind: "door", width: 900 }, { between: ["hall", "et"], kind: "open", width: 1400 }, { between: ["et", "mh1"], kind: "door", width: 900 }, { between: ["et", "tk"], kind: "door", width: 900 }], entry: { room: "tk", axis: "x", at: 11300, width: 1000 } },
+    E15: { name: "3H + K · 2 tasoa · referenssipohja", width: 4700, depth: 8191, terrace: true, levels: 2, rooms: [r("porras1", "hall", "PORRAS", 0, 0, 1600, 3000, 1), r("oh", "living", "OH", 1600, 0, 3100, 3600, 1), r("wc1", "bathroom", "WC", 0, 3000, 1600, 1600, 1), r("kt", "kitchen", "K", 1600, 3600, 3100, 4591, 1), r("et", "hall", "ET", 0, 4600, 1600, 2000, 1), r("tk", "hall", "TK", 0, 6600, 1600, 1591, 1), r("porras2", "hall", "PORRAS", 0, 0, 1600, 3000, 2), r("hall2", "hall", "AULA", 1600, 0, 1000, 3000, 2), r("ph", "bathroom", "PH", 2600, 0, 2100, 3000, 2), r("wc2", "bathroom", "WC", 0, 3000, 1600, 1600, 2), r("hall3", "hall", "AULA", 1600, 3000, 1700, 1600, 2), r("vh", "storage", "VH", 3300, 3000, 1400, 1600, 2), r("mh2", "bedroom", "MH2", 0, 4600, 2350, 3591, 2), r("mh1", "bedroom", "MH1", 2350, 4600, 2350, 3591, 2)], openings: [{ between: ["porras1", "oh"], kind: "door", width: 900 }, { between: ["oh", "kt"], kind: "open", width: 1700 }, { between: ["wc1", "et"], kind: "door", width: 900 }, { between: ["et", "kt"], kind: "open", width: 1000 }, { between: ["et", "tk"], kind: "door", width: 900 }, { between: ["porras2", "hall2"], kind: "open", width: 880 }, { between: ["hall2", "ph"], kind: "door", width: 900 }, { between: ["hall2", "hall3"], kind: "open", width: 880 }, { between: ["wc2", "hall3"], kind: "door", width: 900 }, { between: ["hall3", "vh"], kind: "door", width: 900 }, { between: ["hall3", "mh2"], kind: "door", width: 820 }, { between: ["hall3", "mh1"], kind: "door", width: 820 }], entry: { room: "tk", axis: "x", at: 8191, width: 1000 } },
+    F20: { name: "4H + K · 2 tasoa · referenssipohja", width: 6200, depth: 7419, terrace: true, levels: 2, rooms: [r("oh", "living", "OH", 0, 0, 4200, 3400, 1), r("porras1", "hall", "PORRAS", 4200, 0, 2000, 3000, 1), r("kt", "kitchen", "K", 0, 3400, 4200, 4019, 1), r("wc1", "bathroom", "WC", 4200, 3000, 2000, 1700, 1), r("et", "hall", "ET", 4200, 4700, 2000, 1500, 1), r("tk", "hall", "TK", 4200, 6200, 1000, 1219, 1), r("vh1", "storage", "VH", 5200, 6200, 1000, 1219, 1), r("mh3", "bedroom", "MH3", 0, 0, 3000, 3000, 2), r("hall2", "hall", "AULA", 3000, 0, 1200, 3000, 2), r("porras2", "hall", "PORRAS", 4200, 0, 2000, 3000, 2), r("ph", "bathroom", "PH", 0, 3000, 2600, 1500, 2), r("hall3", "hall", "AULA", 2600, 3000, 1900, 1500, 2), r("wc2", "bathroom", "WC", 4500, 3000, 1700, 1500, 2), r("mh1", "bedroom", "MH1", 0, 4500, 3500, 2919, 2), r("mh2", "bedroom", "MH2", 3500, 4500, 2700, 2919, 2)], openings: [{ between: ["oh", "kt"], kind: "open", width: 1900 }, { between: ["oh", "porras1"], kind: "door", width: 900 }, { between: ["kt", "et"], kind: "open", width: 1200 }, { between: ["wc1", "et"], kind: "door", width: 900 }, { between: ["et", "tk"], kind: "door", width: 880 }, { between: ["tk", "vh1"], kind: "door", width: 760 }, { between: ["mh3", "hall2"], kind: "door", width: 900 }, { between: ["hall2", "porras2"], kind: "open", width: 1000 }, { between: ["hall2", "hall3"], kind: "open", width: 1000 }, { between: ["ph", "hall3"], kind: "door", width: 900 }, { between: ["hall3", "wc2"], kind: "door", width: 900 }, { between: ["hall3", "mh1"], kind: "door", width: 780 }, { between: ["hall3", "mh2"], kind: "door", width: 780 }], entry: { room: "tk", axis: "x", at: 7419, width: 880 } },
 };
 function createWallsForFloor(rooms: DesignRoom[]): Wall[] {
     const lines = new Map<string, {
@@ -171,6 +171,19 @@ function applyOpeningPlan(walls: Wall[], plan?: OpeningPlan[]) {
     }
     return walls;
 }
+function applyEntryPlan(walls: Wall[], entry?: EntryPlan) {
+    if (!entry)
+        return walls;
+    for (const wall of walls)
+        if (wall.rooms.length === 1 && wall.opening?.kind === "door")
+            delete wall.opening;
+    const wall = walls.find(candidate => candidate.rooms.length === 1 && candidate.rooms[0] === entry.room && candidate.axis === entry.axis && candidate.at === entry.at);
+    if (!wall)
+        throw new Error(`Missing exterior wall for ${entry.room}`);
+    const width = Math.min(entry.width, wall.end - wall.start - 120);
+    wall.opening = { start: (wall.start + wall.end - width) / 2, width, kind: "door", sill: 0, height: 2200 };
+    return walls;
+}
 function createFittings(rooms: DesignRoom[]): Fitting[] {
     const items: Fitting[] = [];
     for (const room of rooms) {
@@ -216,7 +229,9 @@ function createFittings(rooms: DesignRoom[]): Fitting[] {
             const narrow = room.w < 1500;
             const showerWidth = Math.min(900, room.w - 360);
             add("shower", 180, 180, showerWidth, narrow ? 800 : 900, true);
-            add("wc", narrow ? (room.w - 420) / 2 : room.w - 600, narrow ? 1100 : 180, 420, 680, true);
+            const separateWc = rooms.some(other => (other.level ?? 1) === (room.level ?? 1) && other.code === "WC");
+            if (!separateWc)
+                add("wc", narrow ? (room.w - 420) / 2 : room.w - 600, narrow ? 1100 : 180, 420, 680, true);
             add("basin", room.w - 780, room.d - 650, 600, 480, true);
             if (room.w > 2400)
                 add("washer", room.d < 2300 ? room.w - 1450 : 180, room.d < 2300 ? 180 : room.d - 780, 600, 600, true);
@@ -232,8 +247,51 @@ function createFittings(rooms: DesignRoom[]): Fitting[] {
     }
     return items;
 }
+const fittingPlacementOverrides: Record<string, Record<string, { x: number; z: number; angle?: number }>> = {
+    C09: {
+        "kt:kitchen": { x: 4200, z: 180, angle: 90 },
+        "kt:sink": { x: 4260, z: 300 },
+        "kt:hob": { x: 4260, z: 900 },
+        "kt:fridge": { x: 4200, z: 1700, angle: 90 },
+        "mh1:wardrobe": { x: 180, z: 9800 },
+        "ph:wc": { x: 180, z: 5300 },
+        "ph:basin": { x: 1400, z: 5350 },
+    },
+    E15: {
+        "oh:sofa": { x: 2300, z: 450 },
+        "wc1:basin": { x: 180, z: 3250 },
+        "wc2:wc": { x: 180, z: 3120 },
+        "wc2:basin": { x: 180, z: 3900 },
+        "ph:shower": { x: 3600, z: 180 },
+        "ph:basin": { x: 3600, z: 2300 },
+        "mh2:wardrobe": { x: 180, z: 6700 },
+        "mh1:bed": { x: 3350, z: 4950 },
+        "mh1:wardrobe": { x: 2550, z: 6900 },
+        "vh:wardrobe": { x: 4050, z: 3180 },
+    },
+    F20: {
+        "wc1:basin": { x: 4380, z: 3200 },
+        "mh3:wardrobe": { x: 180, z: 1600 },
+        "mh1:wardrobe": { x: 180, z: 6000 },
+        "mh2:bed": { x: 4750, z: 4750 },
+        "mh2:wardrobe": { x: 3700, z: 6000 },
+        "ph:basin": { x: 1300, z: 3900 },
+        "ph:washer": { x: 1300, z: 3180 },
+        "wc2:wc": { x: 5580, z: 3120 },
+        "wc2:basin": { x: 5580, z: 3900 },
+    },
+};
+function applyFittingPlan(id: string, fittings: Fitting[]) {
+    const plan = fittingPlacementOverrides[id];
+    if (!plan)
+        return fittings;
+    return fittings.map(fitting => {
+        const placement = plan[`${fitting.room}:${fitting.kind}`];
+        return placement ? { ...fitting, ...placement } : fitting;
+    });
+}
 export const designs: Record<string, Design> = Object.fromEntries(Object.entries(layouts).map(([id, layout]) => {
-    const walls = applyOpeningPlan(createWalls(layout.rooms), layout.openings);
+    const walls = applyEntryPlan(applyOpeningPlan(createWalls(layout.rooms), layout.openings), layout.entry);
     const living = layout.rooms.find(room => room.kind === "living")!;
     const bottom = living.z > layout.depth / 2;
     const outdoorWidth = Math.min(living.w - 600, 4200);
@@ -246,7 +304,7 @@ export const designs: Record<string, Design> = Object.fromEntries(Object.entries
         // and the outdoor deck in both the plan and the dollhouse.
         facade.opening = { start: (facade.start + facade.end - width) / 2, width, kind: "glazedDoor", sill: 0, height: 2200 };
     }
-    return [id, { id, ...layout, height: 2600, levels: layout.levels ?? 1, walls, fittings: createFittings(layout.rooms), outdoor }];
+    return [id, { id, ...layout, height: 2600, levels: layout.levels ?? 1, walls, fittings: applyFittingPlan(id, createFittings(layout.rooms)), outdoor }];
 }));
 export const designFor = (id: string) => designs[id] ?? designs.A12;
 /** One shared U-stair definition for plan, model, camera and floor void. Metres. */

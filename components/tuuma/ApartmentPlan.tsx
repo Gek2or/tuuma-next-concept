@@ -12,9 +12,12 @@ import {
 import { useLanguage } from "./LanguageProvider";
 function Symbol({ item: i }: { item: Fitting }) {
   const { w, d, kind } = i;
+  const rotated = Math.abs(i.angle ?? 0) % 180 === 90;
+  const worldW = rotated ? d : w;
+  const worldD = rotated ? w : d;
   return (
     <g
-      transform={`translate(${i.x} ${i.z})`}
+      transform={`translate(${i.x + worldW / 2} ${i.z + worldD / 2}) rotate(${i.angle ?? 0}) translate(${-w / 2} ${-d / 2})`}
       stroke="#839097"
       strokeWidth="18"
       fill="none"

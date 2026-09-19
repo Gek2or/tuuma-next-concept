@@ -39,7 +39,7 @@ test('bedrooms have exterior glazing and the intended room counts',()=>{
   }
 });
 test('all fixed and movable fittings stay inside their room footprints',()=>{
-  for(const d of Object.values(designs))for(const f of d.fittings){const r=d.rooms.find(r=>r.id===f.room);assert.ok(r);assert.ok(f.x>=r.x&&f.z>=r.z&&f.x+f.w<=r.x+r.w&&f.z+f.d<=r.z+r.d,`${d.id}/${f.id}`);}
+  for(const design of Object.values(designs))for(const f of design.fittings){const r=design.rooms.find(r=>r.id===f.room);assert.ok(r);const rotated=Math.abs(f.angle??0)%180===90;const w=rotated?f.d:f.w,depth=rotated?f.w:f.d;assert.ok(f.x>=r.x&&f.z>=r.z&&f.x+w<=r.x+r.w&&f.z+depth<=r.z+r.d,`${design.id}/${f.id}`);}
 });
 test('saunas exist only in sauna apartments and open into bathrooms',()=>{
   for(const d of Object.values(designs)){
@@ -69,5 +69,23 @@ test('showcase footprints stay within published unit areas', () => {
   for (const [id, area] of Object.entries(expected)) {
     const design = designs[id];
     assert.ok(Math.abs((design.width * design.depth * design.levels) / 1e6 - area) < 0.1, `${id}: ${area} m²`);
+  }
+});
+test('showcase doors have clear furniture approach zones', () => {
+  for (const id of ['C09', 'E15', 'F20']) {
+    const design = designs[id];
+    for (const wall of design.walls.filter(w => w.rooms.length === 2 && w.opening?.kind === 'door')) {
+      const opening = wall.opening;
+      const clearance = wall.axis === 'x'
+        ? { x: opening.start, z: wall.at - 700, w: opening.width, d: 1400 }
+        : { x: wall.at - 700, z: opening.start, w: 1400, d: opening.width };
+      for (const fitting of design.fittings.filter(f => wall.rooms.includes(f.room) && !['rug', 'stairs'].includes(f.kind))) {
+        const rotated = Math.abs(fitting.angle ?? 0) % 180 === 90;
+        const width = rotated ? fitting.d : fitting.w;
+        const depth = rotated ? fitting.w : fitting.d;
+        const overlaps = fitting.x < clearance.x + clearance.w && fitting.x + width > clearance.x && fitting.z < clearance.z + clearance.d && fitting.z + depth > clearance.z;
+        assert.equal(overlaps, false, `${id}/${fitting.id} blocks ${wall.rooms.join('/')}`);
+      }
+    }
   }
 });

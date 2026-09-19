@@ -499,8 +499,16 @@ function Furniture({
       );
       break;
   }
+  const rotated = Math.abs(i.angle ?? 0) % 180 === 90;
+  const worldW = rotated ? d : w;
+  const worldD = rotated ? w : d;
   return (
-    <group position={[i.x / 1000, levelOffset, i.z / 1000]}>{shape}</group>
+    <group
+      position={[i.x / 1000 + worldW / 2, levelOffset, i.z / 1000 + worldD / 2]}
+      rotation={[0, THREE.MathUtils.degToRad(i.angle ?? 0), 0]}
+    >
+      <group position={[-w / 2, 0, -d / 2]}>{shape}</group>
+    </group>
   );
 }
 function ArchitecturalWall({
