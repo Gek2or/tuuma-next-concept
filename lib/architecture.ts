@@ -250,8 +250,8 @@ function createFittings(rooms: DesignRoom[]): Fitting[] {
 const fittingPlacementOverrides: Record<string, Record<string, { x: number; z: number; angle?: number }>> = {
     C09: {
         "kt:kitchen": { x: 4200, z: 180, angle: 90 },
-        "kt:sink": { x: 4260, z: 300 },
-        "kt:hob": { x: 4260, z: 900 },
+        "kt:sink": { x: 4260, z: 300, angle: 90 },
+        "kt:hob": { x: 4260, z: 900, angle: 90 },
         "kt:fridge": { x: 4200, z: 1700, angle: 90 },
         "mh1:wardrobe": { x: 180, z: 9800 },
         "ph:wc": { x: 180, z: 5300 },
@@ -264,15 +264,16 @@ const fittingPlacementOverrides: Record<string, Record<string, { x: number; z: n
         "wc2:basin": { x: 180, z: 3900 },
         "ph:shower": { x: 3600, z: 180 },
         "ph:basin": { x: 3600, z: 2300 },
-        "mh2:wardrobe": { x: 180, z: 6700 },
+        "kt:fridge": { x: 4020, z: 3780 },
+        "mh2:wardrobe": { x: 1570, z: 6700 },
         "mh1:bed": { x: 3350, z: 4950 },
         "mh1:wardrobe": { x: 2550, z: 6900 },
         "vh:wardrobe": { x: 4050, z: 3180 },
     },
     F20: {
         "wc1:basin": { x: 4380, z: 3200 },
-        "mh3:wardrobe": { x: 180, z: 1600 },
-        "mh1:wardrobe": { x: 180, z: 6000 },
+        "mh3:wardrobe": { x: 1600, z: 2220, angle: 90 },
+        "mh1:wardrobe": { x: 2720, z: 6000 },
         "mh2:bed": { x: 4750, z: 4750 },
         "mh2:wardrobe": { x: 3700, z: 6000 },
         "ph:basin": { x: 1300, z: 3900 },
@@ -319,6 +320,28 @@ export function stairProfile(design: Design) {
     return { room, axis, width, depth, steps, start, landing, run, tread: run / steps,
         rise: (design.height / 1000 + .22) / (steps * 2),
         flightWidth: (depth - .18) / 2, nearLane: depth / 4, farLane: depth * .75 };
+}
+export function cameraSpot(design: Design, id: string): [number, number, number] {
+    const room = design.rooms.find(candidate => candidate.id === id)!;
+    const stairs = stairProfile(design);
+    if (room.code === "PORRAS" && stairs) {
+        const cross = (room.level ?? 1) === 1 ? stairs.nearLane : stairs.farLane;
+        return stairs.axis === "x"
+            ? [room.x / 1000 + stairs.start / 2, ((room.level ?? 1) - 1) * (design.height / 1000 + .22) + 1.6, room.z / 1000 + cross]
+            : [room.x / 1000 + cross, ((room.level ?? 1) - 1) * (design.height / 1000 + .22) + 1.6, room.z / 1000 + stairs.start / 2];
+    }
+    const ratios = [.5, .65, .35, .8, .2];
+    const options = ratios.flatMap(x => ratios.map(z => ({ x: room.x + room.w * x, z: room.z + room.d * z })));
+    const fittings = design.fittings.filter(fitting => fitting.room === id && fitting.kind !== "rug");
+    const occupied = (point: { x: number; z: number }, margin: number) => fittings.some(fitting => {
+        const rotated = Math.abs(fitting.angle ?? 0) % 180 === 90;
+        const width = rotated ? fitting.d : fitting.w;
+        const depth = rotated ? fitting.w : fitting.d;
+        return point.x > fitting.x - margin && point.x < fitting.x + width + margin && point.z > fitting.z - margin && point.z < fitting.z + depth + margin;
+    });
+    const spot = [200, 100, 0].map(margin => options.find(point => !occupied(point, margin))).find(Boolean) ?? options[0];
+    const storeyOffset = ((room.level ?? 1) - 1) * (design.height / 1000 + .22);
+    return [spot.x / 1000, storeyOffset + 1.6, spot.z / 1000];
 }
 export const roomArea = (room: DesignRoom) => ((room.w - 150) * (room.d - 150) / 1e6);
 export const roomNames: Record<RoomKind, {

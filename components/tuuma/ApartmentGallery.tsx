@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Expand, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import type { Apartment } from "@/lib/data";
+import type { Apartment, RoomMedia } from "@/lib/data";
+import { panoramaFor } from "@/lib/panoramas";
 import { useLanguage } from "./LanguageProvider";
 
 const copy = {
@@ -25,7 +26,12 @@ export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
   const [index, setIndex] = useState(0);
   const [mode, setMode] = useState<"empty" | "furnished" | "compare">("empty");
   const [split, setSplit] = useState(50);
-  const rooms = apartment.roomMedia;
+  const rendered = panoramaFor(apartment.id);
+  const renderedRooms: RoomMedia[] = rendered?.points.every(point => point.status === "ready")
+    ? rendered.points.map(point => ({ id: point.id, label: point.labels, empty: point.images.empty.gallery, furnished: point.images.furnished.gallery, thumbnail: point.images.empty.thumbnail, source: "scene-render" }))
+    : [];
+  const exterior = apartment.roomMedia?.find(item => item.id === "exterior");
+  const rooms = renderedRooms.length ? [...(exterior ? [exterior] : []), ...renderedRooms] : apartment.roomMedia;
   const room = rooms?.[index] ?? rooms?.[0];
   const legacyImages = [...new Set([apartment.emptyImage, ...(apartment.gallery ?? [apartment.image])].filter(Boolean))] as string[];
   const effectiveMode = room?.furnished ? mode : room?.state ?? "empty";

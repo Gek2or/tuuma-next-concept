@@ -6,7 +6,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { Html, useTexture } from "@react-three/drei";
 import { Box, Camera, Expand, Map, Moon, RotateCcw, Sun } from "lucide-react";
 import * as THREE from "three";
-import { designFor, roomNames, stairProfile, type Design } from "@/lib/architecture";
+import { cameraSpot, designFor, roomNames, stairProfile, type Design } from "@/lib/architecture";
 import { apartments, type Apartment } from "@/lib/data";
 import { ArchitecturalModel, type InteriorStyle } from "./ArchitecturalModel";
 import { InteriorOptions, ModelFallback, SceneBoundary, StudioEnvironment, useSceneQuality, useSceneReady } from "./ApartmentDollhouse";
@@ -14,24 +14,6 @@ import { PlanGeometry } from "./ApartmentPlan";
 import { useLanguage } from "./LanguageProvider";
 import { panoramaFor } from "@/lib/panoramas";
 import RenderedPhotoTour from "./RenderedPhotoTour";
-export function cameraSpot(design: Design, id: string): [
-    number,
-    number,
-    number
-] {
-    const room = design.rooms.find(r => r.id === id)!;
-    const stairs = stairProfile(design);
-    if (room.code === "PORRAS" && stairs) {
-        const cross = (room.level ?? 1) === 1 ? stairs.nearLane : stairs.farLane;
-        return stairs.axis === "x"
-            ? [room.x / 1000 + stairs.start / 2, ((room.level ?? 1) - 1) * (design.height / 1000 + .22) + 1.6, room.z / 1000 + cross]
-            : [room.x / 1000 + cross, ((room.level ?? 1) - 1) * (design.height / 1000 + .22) + 1.6, room.z / 1000 + stairs.start / 2];
-    }
-    const options = [.5, .65, .35, .8, .2].flatMap(x => [.5, .7, .3, .85].map(z => ({ x: room.x + room.w * x, z: room.z + room.d * z })));
-    const spot = options.find(p => !design.fittings.some(f => f.room === id && f.kind !== "rug" && p.x > f.x - 200 && p.x < f.x + f.w + 200 && p.z > f.z - 200 && p.z < f.z + f.d + 200)) ?? options[0];
-    const storeyOffset = ((room.level ?? 1) - 1) * (design.height / 1000 + .22);
-    return [spot.x / 1000, storeyOffset + 1.6, spot.z / 1000];
-}
 function LookControls({ design, room, reset }: {
     design: Design;
     room: string;
@@ -240,9 +222,8 @@ function LiveModelTour({ apartment = apartments[0] }: {
 export default function Tour360Viewer({ apartment = apartments[0] }: { apartment?: Apartment }) {
     const { text } = useLanguage();
     const [mode, setMode] = useState<"model" | "panorama">("model");
-    const correctedShowcase = ["C09", "E15", "F20"].includes(apartment.id);
-    const hasPanorama = !correctedShowcase && /-360\.webp$/i.test(apartment.tour.living);
+    const hasPanorama = /-360\.webp$/i.test(apartment.tour.living);
     const renderedHome = panoramaFor(apartment.id);
-    if (renderedHome && !correctedShowcase) return <RenderedPhotoTour key={apartment.id} home={renderedHome} />;
+    if (renderedHome?.points.length && renderedHome.points.every(point => point.status === "ready")) return <RenderedPhotoTour key={apartment.id} home={renderedHome} />;
     return <div>{hasPanorama && <div className="mb-3 flex flex-wrap gap-2"><button className="min-h-11 rounded-full border px-4 text-sm font-bold" aria-pressed={mode === "model"} onClick={() => setMode("model")}>3D</button><button className="min-h-11 rounded-full border px-4 text-sm font-bold" aria-pressed={mode === "panorama"} onClick={() => setMode("panorama")}>{text({fi: "Kuvitettu 360°", en: "Illustrated 360°", sv: "Illustrerad 360°"})}</button></div>}{mode === "model" ? <LiveModelTour key={apartment.id} apartment={apartment}/> : <PhotoTour key={apartment.id} apartment={apartment} onOpenModel={() => setMode("model")}/>}</div>;
 }

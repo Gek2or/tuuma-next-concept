@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { designs, roomArea, stairProfile } from '../lib/architecture.ts';
+import { cameraSpot, designs, roomArea, stairProfile } from '../lib/architecture.ts';
 
 test('all concept apartments have unique, fully partitioned layouts on every level', () => {
   assert.equal(Object.keys(designs).length, 10);
@@ -85,6 +85,49 @@ test('showcase doors have clear furniture approach zones', () => {
         const depth = rotated ? fitting.w : fitting.d;
         const overlaps = fitting.x < clearance.x + clearance.w && fitting.x + width > clearance.x && fitting.z < clearance.z + clearance.d && fitting.z + depth > clearance.z;
         assert.equal(overlaps, false, `${id}/${fitting.id} blocks ${wall.rooms.join('/')}`);
+      }
+    }
+  }
+});
+test('showcase beds, wardrobes and kitchen cabinets do not intersect', () => {
+  for (const id of ['C09', 'E15', 'F20']) {
+    const design = designs[id];
+    const footprint = fitting => {
+      const rotated = Math.abs(fitting.angle ?? 0) % 180 === 90;
+      return { x: fitting.x, z: fitting.z, w: rotated ? fitting.d : fitting.w, d: rotated ? fitting.w : fitting.d };
+    };
+    const intersects = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.z < b.z + b.d && a.z + a.d > b.z;
+    for (const room of design.rooms) {
+      const fittings = design.fittings.filter(fitting => fitting.room === room.id);
+      const beds = fittings.filter(fitting => fitting.kind === 'bed');
+      const wardrobes = fittings.filter(fitting => fitting.kind === 'wardrobe');
+      for (const bed of beds) for (const wardrobe of wardrobes) {
+        assert.equal(intersects(footprint(bed), footprint(wardrobe)), false, `${id}/${room.id}: bed intersects wardrobe`);
+      }
+      const kitchen = fittings.find(fitting => fitting.kind === 'kitchen');
+      const fridge = fittings.find(fitting => fitting.kind === 'fridge');
+      if (kitchen && fridge) assert.equal(intersects(footprint(kitchen), footprint(fridge)), false, `${id}/${room.id}: kitchen intersects fridge`);
+      if (kitchen) for (const appliance of fittings.filter(fitting => ['sink', 'hob'].includes(fitting.kind))) {
+        const cabinet = footprint(kitchen);
+        const item = footprint(appliance);
+        assert.ok(item.x >= cabinet.x && item.z >= cabinet.z && item.x + item.w <= cabinet.x + cabinet.w && item.z + item.d <= cabinet.z + cabinet.d, `${id}/${room.id}: ${appliance.kind} leaves kitchen run`);
+      }
+    }
+  }
+});
+test('every showcase tour camera is inside its room and outside fittings', () => {
+  for (const id of ['C09', 'E15', 'F20']) {
+    const design = designs[id];
+    for (const room of design.rooms) {
+      const [x,,z] = cameraSpot(design, room.id).map(value => value * 1000);
+      assert.ok(x > room.x && x < room.x + room.w && z > room.z && z < room.z + room.d, `${id}/${room.id}: camera outside room`);
+      if (room.code === 'PORRAS') continue;
+      for (const fitting of design.fittings.filter(fitting => fitting.room === room.id && fitting.kind !== 'rug')) {
+        const rotated = Math.abs(fitting.angle ?? 0) % 180 === 90;
+        const width = rotated ? fitting.d : fitting.w;
+        const depth = rotated ? fitting.w : fitting.d;
+        const inside = x > fitting.x && x < fitting.x + width && z > fitting.z && z < fitting.z + depth;
+        assert.equal(inside, false, `${id}/${room.id}: camera inside ${fitting.kind}`);
       }
     }
   }
