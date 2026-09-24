@@ -38,6 +38,26 @@ Suunnittelun taustaviitteet: [YM asuin-, majoitus- ja työtilat 631/2024](https:
 
 Geometriatarkistus: `node --experimental-strip-types --test tests/architecture.test.mjs` tarkistaa kymmenen uniikkia pohjaa tasokohtaisesti, huoneiden päällekkäisyydettömyyden, kulkuyhteydet, sisäänkäynnit, makuuhuoneiden ikkunat, kalusteiden sijainnin huoneen sisällä ja saunojen yhteyden pesuhuoneeseen. GPU-renderöinnin visuaalinen tarkistus on tehtävä WebGL2-laitteella; agentin testiselaimessa WebGL on pois käytöstä.
 
+## Kuvakaappaukset
+
+### C09 · 2H + KK
+
+| Pohjapiirustus | Teksturoitu 3D-malli |
+| --- | --- |
+| ![C09 pohjapiirustus](docs/screenshots/c09-plan.png) | ![C09 3D-malli](docs/screenshots/c09-3d.png) |
+
+### E15 · 3H + K · 2 tasoa
+
+| Taso 1 | Taso 2 | Kalustettu 3D · taso 2 |
+| --- | --- | --- |
+| ![E15 pohjapiirustus taso 1](docs/screenshots/e15-plan-level1.png) | ![E15 pohjapiirustus taso 2](docs/screenshots/e15-plan-level2.png) | ![E15 kalustettu 3D-malli taso 2](docs/screenshots/e15-3d-furnished-level2.png) |
+
+### F20 · 4H + K · 2 tasoa
+
+| Taso 1 | Taso 2 | Kalustettu 3D · taso 2 |
+| --- | --- | --- |
+| ![F20 pohjapiirustus taso 1](docs/screenshots/f20-plan-level1.png) | ![F20 pohjapiirustus taso 2](docs/screenshots/f20-plan-level2.png) | ![F20 kalustettu 3D-malli taso 2](docs/screenshots/f20-3d-furnished-level2.png) |
+
 ### Palvelutoiminnot
 
 - älykäs, vaiheittainen Smart Home Matcher ja perustellut match-tulokset
