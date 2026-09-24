@@ -2,6 +2,8 @@
 
 Itsenäinen, Finnish-first konseptidemo modernista vuokra-asumisen digipalvelusta. Projekti ei ole Tuuma Kodit Oy:n virallinen sivusto eikä nykyisen sivuston kopio. Se näyttää, miltä integraatiovalmis asiakaskerros voisi näyttää Tampuurin / eTampuurin päällä. Asiakasrajapinta toimii suomeksi, englanniksi ja ruotsiksi; valittu kieli tallentuu laitteelle.
 
+**Live demo:** [tuuma-next-concept.stasgek.chatgpt.site](https://tuuma-next-concept.stasgek.chatgpt.site/)
+
 ## Mitä demo sisältää
 
 ### Arkkitehtuuripäivitys / syyskuu 2026
