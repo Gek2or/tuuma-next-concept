@@ -30,8 +30,10 @@ export function ApartmentGallery({ apartment }: { apartment: Apartment }) {
   const renderedRooms: RoomMedia[] = rendered?.points.every(point => point.status === "ready")
     ? rendered.points.map(point => ({ id: point.id, label: point.labels, empty: point.images.empty.gallery, furnished: point.images.furnished.gallery, thumbnail: point.images.empty.thumbnail, source: "scene-render" }))
     : [];
-  const exterior = apartment.roomMedia?.find(item => item.id === "exterior");
-  const rooms = renderedRooms.length ? [...(exterior ? [exterior] : []), ...renderedRooms] : apartment.roomMedia;
+  const originalRooms = apartment.roomMedia ?? [];
+  const hasOriginalLivingPair = originalRooms.some(item => item.id === "living" && item.furnished);
+  const addedRooms = renderedRooms.filter(item => !(item.id === "oh" && hasOriginalLivingPair));
+  const rooms = addedRooms.length ? [...originalRooms, ...addedRooms] : apartment.roomMedia;
   const room = rooms?.[index] ?? rooms?.[0];
   const legacyImages = [...new Set([apartment.emptyImage, ...(apartment.gallery ?? [apartment.image])].filter(Boolean))] as string[];
   const effectiveMode = room?.furnished ? mode : room?.state ?? "empty";
